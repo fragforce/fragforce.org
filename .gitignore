@@ -1,3 +1,5 @@
+/fragforce.org.iml
+/.idea
 # Project Specific excludes
 env
 uwsgi.ini
