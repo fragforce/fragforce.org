@@ -15,9 +15,9 @@
 
         <div class="collapse navbar-collapse navbar-left" id="myNavbar">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="/">Home</a></li>
-            <li><a href="/donate">Donate</a></li>
-            <li><a href="/join">Join</a></li>
+            <li {% if request.path=="/" %} class="active" {% endif %}><a href="/">Home</a></li>
+            <li {% if request.path=="/donate" %} class="active" {% endif %}><a href="/donate">Donate</a></li>
+            <li {% if request.path=="/join" %} class="active" {% endif %}><a href="/join">Join</a></li>
             <!-- 
             <li class="dropdown">
               <a class="dropdown-toggle" data-toggle="dropdown" href="#">Events<span class="caret"></span></a>
@@ -27,7 +27,7 @@
               </ul>
             </li> 
             -->
-            <li><a href="/contact">Contact</a></li>
+            <li {% if request.path=="/contact" %} class="active" {% endif %}><a href="/contact">Contact</a></li>
           </ul>
         </div> 
 
