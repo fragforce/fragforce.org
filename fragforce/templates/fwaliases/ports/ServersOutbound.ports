@@ -1,0 +1,6 @@
+{# Ports servers are allowed outbound #}
+{# tcp & udp #}
+80
+443
+53
+123
