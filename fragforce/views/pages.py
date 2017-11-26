@@ -62,8 +62,11 @@ def section_exists(section):
     return not len(get_pages(pages, section=section)) == 0
 
 
-@mod.route('/<path:path>')
+@mod.route('/<path:path>', methods=['POST', 'GET'])
 def page(path):
+    from ..forms import ImageUploadForm
+    from ..s3 import upload_form_f
+
     section = path.split('/')[0]
     page = pages.get_or_404(path)
     # ensure an accurate "section" meta is available
@@ -73,6 +76,15 @@ def page(path):
     # show all pages in debug, but hide unpublished in production
     if not app.debug and not page.meta.get('published', False):
         abort(404)
+
+    form = ImageUploadForm()
+    if request.method == 'POST':
+        # Fail out if image uploads are disabled
+        if not app.config['IMAGE_UPLOADS']:
+            abort(404)
+        if form.validate_on_submit():
+            output = upload_form_f(form)
+
     templates = []
     templates.append(page.meta.get('template', '%s/page.html' % section))
     templates.append('default_templates/page.html')
@@ -90,7 +102,8 @@ def page(path):
         else:
             for raw_image in raw_images:
                 rtn_images.append(os.path.join('images', path, raw_image))
-    return render_template(templates, page=page, section=section, images=rtn_images)
+    return render_template(templates, page=page, section=section, images=rtn_images, img_form=form,
+                           image_uploads=app.config['IMAGE_UPLOADS'])
 
 
 @mod.route('/<string:section>/')

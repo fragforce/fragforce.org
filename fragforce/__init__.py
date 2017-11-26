@@ -1,3 +1,7 @@
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.schema import MetaData
 from flask import Flask, render_template_string, request
 from flask_flatpages import FlatPages
 from flask_flatpages.utils import pygmented_markdown
@@ -6,6 +10,8 @@ from flask_sslify import SSLify
 import requests
 import os
 from flask_cache import Cache
+from flask_sqlalchemy import SQLAlchemy
+from contextlib import contextmanager
 
 
 def jinja_renderer(text):
@@ -16,37 +22,113 @@ def jinja_renderer(text):
 app = Flask(__name__)
 sslify = SSLify(app)
 
-app.config['SECTION_MAX_LINKS'] = 10
+app.config['SECTION_MAX_LINKS'] = int(os.environ.get('SECTION_MAX_LINKS', '10'))
 app.config['FLATPAGES_HTML_RENDERE'] = jinja_renderer
 app.config['DEBUG'] = bool(os.environ.get('DEBUG', 'False').lower() == 'true')
 app.config['BASE_DIR'] = os.path.abspath(os.path.dirname(__file__))
-app.config['THREADS_PER_PAGE'] = int(os.environ.get('THREADS_PER_PAGE', 2))
+app.config['THREADS_PER_PAGE'] = int(os.environ.get('THREADS_PER_PAGE', '2'))
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'insecure')
-app.config['DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgres://postgres@localhost:5432/postgres')
+app.config['DATABASE_URL'] = os.environ.get('DATABASE_URL', 'postgres://postgres@localhost:5432/fragforce')
+app.config['SQLALCHEMY_DATABASE_URI'] = app.config['DATABASE_URL']
 app.config['DATABASE_CONNECT_OPTIONS'] = {}
 app.config['REDIS_URL'] = os.environ.get('REDIS_URL', None)
 app.config['EXTRALIFE_TEAMID'] = os.environ.get('EXTRALIFE_TEAMID', None)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['CACHE_DONATIONS_TIME'] = int(os.environ.get('CACHE_DONATIONS_TIME', 300))
 app.config['CRON_TEAM_REFRESH_MINUTES'] = int(os.environ.get('CRON_TEAM_REFRESH_MINUTES', 2))
 app.config['CRON_PARTICIPANTS_REFRESH_MINUTES'] = int(os.environ.get('CRON_PARTICIPANTS_REFRESH_MINUTES', 2))
+app.config['CACHE_DONATIONS_TIME'] = int(os.environ.get('CACHE_DONATIONS_TIME', 120))
+
+# S3
+app.config['BUCKETEER_BUCKET_NAME'] = os.environ.get('BUCKETEER_BUCKET_NAME', None)
+app.config['BUCKETEER_AWS_SECRET_ACCESS_KEY'] = os.environ.get('BUCKETEER_AWS_SECRET_ACCESS_KEY', None)
+app.config['BUCKETEER_AWS_REGION'] = os.environ.get('BUCKETEER_AWS_REGION', None)
+app.config['BUCKETEER_AWS_ACCESS_KEY_ID'] = os.environ.get('BUCKETEER_AWS_ACCESS_KEY_ID', None)
+
+# Image Uploads
+app.config['FILE_UPLOADS'] = bool(os.environ.get('FILE_UPLOADS', 'False').lower() == 'true')
+# Make sure the redis backend is set to auto evect
+# FIXME: Automate redis to auto evect
+app.config['FILE_CACHE_NAME'] = os.environ.get('FILE_CACHE_NAME', 'CYAN')
+app.config['FILE_CACHE_URL'] = os.environ.get('HEROKU_REDIS_%s_URL' % app.config['FILE_CACHE_NAME'], None)
 
 pages = FlatPages(app)
 images = Images(app)
 
+engine = create_engine(app.config.get('SQLALCHEMY_DATABASE_URI'), convert_unicode=True)
+db_session = scoped_session(sessionmaker(autocommit=True,
+                                         autoflush=True,
+                                         bind=engine))
+BaseMeta = MetaData(schema='public')
+Base = declarative_base(metadata=BaseMeta)
+Base.query = db_session.query_property()
+
+RemoteBaseMeta = MetaData(schema='gus')
+
+
+def init_db():
+    # import all modules here that might define models so that
+    # they will be registered properly on the metadata.  Otherwise
+    # you will have to import them first before calling init_db()
+    import fragforce.models
+    Base.metadata.create_all(bind=engine)
+
+
+def drop_all():
+    import fragforce.models
+    Base.metadata.drop_all(bind=engine)
+
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db_session.remove()
+
+
+@contextmanager
+def session_scope(parent=db_session):
+    """Provide a transactional scope around a series of operations."""
+    session = parent.session_factory()
+    try:
+        yield session
+        session.commit()
+    except:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+
+init_db()
+
 from fragforce.views import general
-# from fragforce.views import events
 from fragforce.views import pages
+from fragforce.views import fw
 
 app.register_blueprint(general.mod)
 app.register_blueprint(pages.mod)
+app.register_blueprint(fw.mod)
 
-# Init cache
+# Init cache (general)
 if app.config['REDIS_URL']:
     cache = Cache(app, config={'CACHE_KEY_PREFIX': 'cache', 'CACHE_TYPE': 'redis',
                                'CACHE_REDIS_URL': app.config['REDIS_URL']})
 else:
     # fallback for local testing
     cache = Cache(app, config={'CACHE_KEY_PREFIX': 'cache', 'CACHE_TYPE': 'simple'})
+
+# Init cache (files)
+if app.config['FILE_UPLOADS']:
+    if app.config['FILE_CACHE_URL']:
+        fcache = Cache(app, config={'CACHE_KEY_PREFIX': 'fcache', 'CACHE_TYPE': 'redis',
+                                    'CACHE_REDIS_URL': app.config['FILE_CACHE_URL'],
+                                    'CACHE_DEFAULT_TIMEOUT': 60 * 60 * 24 * 30,
+                                    })
+    else:
+        # fallback for local testing
+        fcache = Cache(app, config={'CACHE_KEY_PREFIX': 'fcache', 'CACHE_TYPE': 'simple',
+                                    'CACHE_THRESHOLD': 8,
+                                    })
+
 
 @app.context_processor
 def random_participant():
