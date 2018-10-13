@@ -42,7 +42,7 @@ def print_bar(goal, total, percent, label):
            '     </div>' + \
            '   </div>'
 
-
+@register.assignment_tag
 def print_bars():
     extralife_total = 0
     extralife_goal = 0
