@@ -1,13 +1,6 @@
 import requests
 import os
 
-
-app.config['EXTRALIFE_TEAMID'] = os.environ.get('EXTRALIFE_TEAMID', None)
-app.config['CACHE_DONATIONS_TIME'] = int(os.environ.get('CACHE_DONATIONS_TIME', 300))
-app.config['CACHE_DONATIONS_TIME'] = int(os.environ.get('CACHE_DONATIONS_TIME', 120))
-
-
-@app.context_processor
 def tracker_data():
     def is_active(endpoint=None, section=None, noclass=False, sfid=None):
         # FIXME: Handle sfid to check if it's a real, active page
@@ -27,7 +20,7 @@ def tracker_data():
                 return rtn if request.view_args['section'] == section else ''
         return ''
 
-    @cache.memoize(timeout=app.config['CACHE_DONATIONS_TIME'])
+    @cache.memoize(timeout=120)
     def print_bar(goal, total, percent, label):
         return '   <div>' + \
                '     <div class="progress-text">' + \
@@ -46,7 +39,7 @@ def tracker_data():
                '     </div>' + \
                '   </div>'
 
-    @cache.cached(timeout=app.config['CACHE_DONATIONS_TIME'], key_prefix='tracker_data.print_bars')
+    @cache.cached(timeout=120, key_prefix='tracker_data.print_bars')
     def print_bars():
         extralife_total = 0
         extralife_goal = 0
@@ -58,7 +51,7 @@ def tracker_data():
         full_goal = 0
         full_percent = 0
         try:
-            team = extralife.Team.from_url(app.config['EXTRALIFE_TEAMID'])
+            team = extralife.Team.from_url('38642')
             extralife_total = team.raised
             extralife_goal = team.goal
 
