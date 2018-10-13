@@ -1,6 +1,6 @@
 app.config['CACHE_DONATIONS_TIME'] = int(os.environ.get('CACHE_DONATIONS_TIME', 300))
 
-@cache.memoize(timeout=app.config['CACHE_DONATIONS_TIME'])
+    @cache.memoize(timeout=app.config['CACHE_DONATIONS_TIME'])
     def print_bar(goal, total, percent, label):
         return '   <div>' + \
                '     <div class="progress-text">' + \
