@@ -2,3 +2,4 @@
 from .static import *
 from .sites import *
 from .events import *
+from .bars import *
