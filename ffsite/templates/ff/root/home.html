@@ -1,14 +1,14 @@
 {% extends "ff/base.html" %}
 {% block title %}Fragforce{% endblock %}
-
+{% load bars %}
 {% block body %}
 <div class="row">
     <!-- <div class="col-lg border border-light rounded p-3 m-4 card"> -->
     <div class="col-lg p-3 m-4 card"> 
         <h3>Current Progress</h3>
 
-          
-          {{ print_bars }}
+          {% print_bars as ld_bars %}
+          {{ ld_bars }}
           
         
     </div>
