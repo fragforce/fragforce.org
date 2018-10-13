@@ -51,9 +51,11 @@ def tracker_data():
         full_goal = 0
         full_percent = 0
         try:
-            team = extralife.Team.from_url('38642')
-            extralife_total = team.raised
-            extralife_goal = team.goal
+            r = requests.get('https://extra-life.org/api/teams/38642')
+            if r.status_code == 200:
+                data = r.json()
+                extralife_total = data['sumDonations']
+                extralife_goal = data['fundraisingGoal']
 
             if extralife_goal > 0:
                 extralife_percent = u'{:0,.2f}'.format(100 * (extralife_total / extralife_goal))
@@ -88,5 +90,3 @@ def tracker_data():
         childsplay_link="https://tiltify.com/teams/fragforce",
         is_active=is_active)
 
-
-import fragforce.extralife as extralife
