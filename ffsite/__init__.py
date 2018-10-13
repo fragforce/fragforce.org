@@ -20,7 +20,7 @@ def is_active(endpoint=None, section=None, noclass=False, sfid=None):
             return rtn if request.view_args['section'] == section else ''
     return ''
 
-@cache.memoize(timeout=120)
+
 def print_bar(goal, total, percent, label):
     return '   <div>' + \
            '     <div class="progress-text">' + \
@@ -39,7 +39,7 @@ def print_bar(goal, total, percent, label):
            '     </div>' + \
            '   </div>'
 
-@cache.cached(timeout=120, key_prefix='tracker_data.print_bars')
+
 def print_bars():
     extralife_total = 0
     extralife_goal = 0
