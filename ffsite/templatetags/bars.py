@@ -1,6 +1,9 @@
 import requests
 import os
+from django import template
+from django.template.defaultfilters import stringfilter
 
+register = template.Library()
 
 def is_active(endpoint=None, section=None, noclass=False, sfid=None):
     # FIXME: Handle sfid to check if it's a real, active page
