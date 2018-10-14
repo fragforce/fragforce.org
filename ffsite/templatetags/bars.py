@@ -41,7 +41,7 @@ def print_bar(goal, total, percent, label):
            '     ' + str(percent) + '% ' + \
            '     </div>' + \
            '   </div>' + \
-           '   <br />
+           '   <br />'
 
 @register.simple_tag
 def print_bars():
