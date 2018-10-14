@@ -27,7 +27,7 @@ def is_active(endpoint=None, section=None, noclass=False, sfid=None):
 def print_bar(goal, total, percent, label):
     return '   <div>' + \
            '     <div class="progress-text">' + \
-           '       <span class="label">' + str(label) + '</span>' + \
+           '       <span class="label" style="font-weight:bold;">' + str(label) + '</span>' + \
            '     </div>' + \
            '     <div class="progress-amount">' + \
            '       <span class="label"> $' + u'{:0,.0f}'.format(float(total)) + ' &#47; $' + u'{:0,.0f}'.format(
@@ -40,7 +40,8 @@ def print_bar(goal, total, percent, label):
         percent) + '%; max-width: ' + str(percent) + '%; min-width: 2em; width: ' + str(percent) + '%;">' + \
            '     ' + str(percent) + '% ' + \
            '     </div>' + \
-           '   </div>'
+           '   </div>' + \
+           '   <br />
 
 @register.simple_tag
 def print_bars():
