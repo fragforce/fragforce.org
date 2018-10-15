@@ -1,15 +1,18 @@
 {% extends "ff/base.html" %}
 {% load bars %}
+{% load cache %}
 {% block title %}Fragforce{% endblock %}
 {% block body %}
 <div class="row">
     <!-- <div class="col-lg border border-light rounded p-3 m-4 card"> -->
     <div class="col-lg p-3 m-4 card" style="vertical-align:middle;"> 
         <h2>Current Progress</h2>
+        {% cache 120 bars %}
         {% autoescape off %}
         {% print_bars as prt_bars %}
         {{ prt_bars }}
         {% endautoescape %}
+        {% endcache %}
     </div>
     <div class="col-lg p-3 m-4 card"> 
         <h2>What is Fragforce?</h2>
