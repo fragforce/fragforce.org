@@ -2,6 +2,7 @@ import requests
 import os
 from django import template
 from django.template.defaultfilters import stringfilter
+from django.views.decorators.cache import cache_page
 
 register = template.Library()
 
@@ -44,6 +45,7 @@ def print_bar(goal, total, percent, label):
            '   <br />'
 
 @register.simple_tag
+@cache_page(120)
 def print_bars():
     extralife_total = 0
     extralife_goal = 0
