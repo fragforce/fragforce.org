@@ -17,6 +17,21 @@ import django_heroku
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
+# Field Definitions
+REDIS_URL_DEFAULT = 'redis://localhost'
+# Base URL - Needs DB ID added
+REDIS_URL_BASE = os.environ.get('REDIS_URL', REDIS_URL_DEFAULT)
+# Don't use DB 0 for anything
+REDIS_URL_DEFAULT = REDIS_URL_BASE + "/0"
+# Celery tasks
+REDIS_URL_TASKS = REDIS_URL_BASE + "/1"
+# Celery tombstones (aka results)
+REDIS_URL_TOMBS = REDIS_URL_BASE + "/2"
+# Misc timers
+REDIS_URL_TIMERS = REDIS_URL_BASE + "/3"
+# Django cache
+REDIS_URL_DJ_CACHE = REDIS_URL_BASE + "/4"
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
@@ -145,6 +160,15 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, 'static'),
 ]
+
+# Cache settings
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': REDIS_URL_DJ_CACHE,
+        'TIMEOUT': 120,
+    },
+}
 
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
