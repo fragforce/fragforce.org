@@ -1,0 +1,145 @@
+<!--
+	goaltracker.html - text to pull a goal for browsersource
+
+	pulls all donataions, compares to a goal and adds a matching multiplier
+
+	recommended 30px height by 600 width, then scale up as needed
+
+	@param startValue - comparison value before event to show actual fundraising
+	@param maxMatch - maximum number of dollars being matched (if any)
+	@param matchTimes - multiplier used for matching (i.e. 2 for matching once, 3 for matching twice, etc.)
+	@param eventGoal - goal for event itself, irrespective of user goal
+	@param filterId - filtering on participant ID for user's item, required
+
+	@dev - Ben Gray
+
+-->
+<!DOCTYPE html>
+<html>
+	<script>
+		
+		// first pull URL and see if we have any vars to parse
+		var url = new URL(window.location.href);
+		var urlUserId = url.searchParams.get("filterId");
+		var urlStartingValue = url.searchParams.get("startValue");
+		var urlMaxMatch = url.searchParams.get("maxMatch");
+		var urlMatchTimes = url.searchParams.get("matchTimes");
+		var urlEventGoal = url.searchParams.get("eventGoal");
+
+		// initial donation value to compare from in goal
+		// default to zero
+		var startValue = (parseInt(urlStartingValue)) ? parseInt(urlStartingValue) : 0;
+		// maximum donated amount matched
+		var maxMatch = (parseInt(urlMaxMatch)) ? parseInt(urlMaxMatch) : 0;
+		// multiplier of match donations
+		var matchMultiplier = (parseInt(urlMatchTimes)) ? parseInt(urlMatchTimes) : 0;
+		// participant ID for filters
+		var filterId = (parseInt(urlUserId)) ? parseInt(urlUserId) : 0; 
+		// event goal total for event
+		var eventGoal = (parseInt(urlEventGoal)) ? parseInt(urlEventGoal) : 1000; 
+
+		/* System variables, don't edit */
+		var currentAPIRes;
+		var initialAPIRes;
+		var updateCount = 0;
+		var checkInterval = 60000; 
+		
+		// Donation source, url of donations to pull
+		var jsonURL =  location.origin + '/d/donations';
+		console.log( 'calling url string: ' + jsonURL );
+		
+		// string before list of donators
+		var scrollFinalString = 'Raised this event (including matching): ?????/$' + eventGoal;
+		
+		// method called to reset scroll loop (note keeping blank URL check for future changes)
+		function getViaApi(){
+			if(jsonURL != ''){
+				const Http = new XMLHttpRequest();
+				const url = jsonURL;
+				Http.open( "GET", url );
+				Http.send();
+				Http.onreadystatechange=function(){
+					if( this.readyState==4 && this.status==200 ){
+						// send notification to console log
+						updateCount++;
+						console.log( 'success request #' + updateCount );
+						
+						//pull data from http response
+						currentAPIRes = JSON.parse(Http.responseText);
+						console.log('Incoming JSON size: ' + currentAPIRes.length);
+						
+						//process if we have any records
+						if( currentAPIRes.length >= 2 ){
+							
+							var siteTotal = 0;
+							var eventTotal = 0;
+
+							//reset string to base for re-population
+							scrollFinalString = 'Raised this event (including matching): $';
+
+							// loop through x donations and add to current total
+							var i;
+							for( i = 0; i < numDonations; i++ ){
+								if( currentAPIRes[i].participant_id == filterId && (parseInt(currentAPIRes[i].amount)) ){
+									siteTotal = siteTotal + parseInt(currentAPIRes[i].amount);
+								}
+							}
+
+							//first, get event total
+							eventTotal = siteTotal - startValue;
+
+							//if matching, compare matches and add as appropriate
+							if( maxMatch > 0 && matchMultiplier > 1 ){
+								if( eventTotal < maxMatch ){
+									// if under max match, multiply current total by match
+									eventTotal = eventTotal * matchMultiplier;
+								} else {
+									// if matching is maxed out, just add the extra multiplier
+									eventTotal = eventTotal + ( maxMatch * (matchMultiplier - 1) );
+								}
+							}
+
+							scrollFinalString += eventTotal + '/$' + eventGoal;
+						}
+
+						// finally populate string
+						document.getElementById("textscroll").innerHTML = scrollFinalString;
+					} else {
+						//bad send from HTTP response?  default to just start string, but log
+						console.log('Waiting for json response.');
+						document.getElementById("textscroll").innerHTML = scrollFinalString;
+					}
+				}
+			} else {
+				// in case no json source is set in config (or bad source label), default to just prep string
+				console.log('Bad or empty json source in settings, defaulting to basic response');
+				document.getElementById("textscroll").innerHTML = scrollFinalString;
+			}
+		}
+		// make first call and schedule future calls at interval
+		getViaApi();
+		setInterval(getViaApi, checkInterval);
+	</script>
+	<head>
+		<link href='https://fonts.googleapis.com/css?family=Acme' rel='stylesheet'>
+	</head>
+	<style>
+		/* General -- Font settings for Acme font */
+		.acmeFontLarge{
+			font-family: 'Acme';
+			font-size: 80px; 
+			font-weight: bold; 
+			text-align: center;
+		}
+		.acmeFontSmall{
+			font-family: 'Acme';
+			font-size: 28px; 
+			font-weight: bold; 
+			text-align: center;
+		}
+	</style>
+	<body>
+		<div id="textscroll" class="acmeFontSmall"> </div>
+	</body>
+</html>
+	
