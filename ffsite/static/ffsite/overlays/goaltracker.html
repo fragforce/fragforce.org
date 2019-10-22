@@ -79,7 +79,7 @@
 
 							// loop through x donations and add to current total
 							var i;
-							for( i = 0; i < numDonations; i++ ){
+							for( i = 0; i < currentAPIRes.length; i++ ){
 								if( currentAPIRes[i].participant_id == filterId && (parseInt(currentAPIRes[i].amount)) ){
 									siteTotal = siteTotal + parseInt(currentAPIRes[i].amount);
 								}
