@@ -26,10 +26,10 @@ class RedisDB(object):
 
     def make_key_secure(self, name, *args, **kwargs):
         secret = settings.SECRET_KEY
-        hash = hashlib.new('sha512')
-        hash.update(secret)
-        hash.update(self.make_key(name=name, *args, **kwargs))
-        return str(hash)
+        shahash = hashlib.new('sha512')
+        shahash.update(secret)
+        shahash.update(self.make_key(name=name, *args, **kwargs))
+        return str(shahash)
 
 
 class TimersDB(RedisDB):
