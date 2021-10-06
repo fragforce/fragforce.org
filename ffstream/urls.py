@@ -21,6 +21,7 @@ from .views import *
 urlpatterns = [
     path('pub/start', start, name='pub-start'),
     path('pub/start-srt', start_srt, name='pub-start-srt'),
+    path('pub/start-livestream', start_livestream, name='pub-start-livestream'),
     path('pub/play', play, name='pub-play'),
     path('play/<str:key>/<str:name>', goto, name='goto'),
     path('view/<str:key>', view, name='view'),
