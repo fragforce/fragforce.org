@@ -8,6 +8,7 @@ class KeyAdmin(admin.ModelAdmin):
     list_filter = (
         "is_live",
         "active",
+        "livestream",
         "pull",
     )
     ordering = ("-modified",)
@@ -18,6 +19,7 @@ class KeyAdmin(admin.ModelAdmin):
         "modified",
         "is_live",
         "active",
+        "livestream",
         "pull",
     )
     list_display = (
@@ -27,6 +29,7 @@ class KeyAdmin(admin.ModelAdmin):
         "modified",
         "is_live",
         "active",
+        "livestream",
         "pull",
     )
 
