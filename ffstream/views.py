@@ -40,7 +40,7 @@ def start_livestream(request):
     key.is_live = True
     key.save
 
-    stream = Stream(key=key, is_live=True, strated=timezone.now(), ended=None)
+    stream = Stream(key=key, is_live=True, started=timezone.now(), ended=None)
     stream.save
     stream.set_stream_key()
 
