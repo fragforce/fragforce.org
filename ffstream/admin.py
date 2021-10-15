@@ -5,7 +5,7 @@ from .models import *
 
 
 class ActiveBooleanDefault(SimpleListFilter):
-    # title = ''
+    title = "Can be used for streaming"
     parameter_name = 'active'
 
     def lookups(self, request, model_admin):
@@ -42,7 +42,7 @@ class KeyAdmin(admin.ModelAdmin):
         "livestream",
         "pull",
     )
-    ordering = ("-modified",)
+    orderin:g = ("-modified",)
     sortable_by = (
         "name",
         "id",
