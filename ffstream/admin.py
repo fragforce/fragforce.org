@@ -42,7 +42,7 @@ class KeyAdmin(admin.ModelAdmin):
         "livestream",
         "pull",
     )
-    orderin:g = ("-modified",)
+    ordering = ("-modified",)
     sortable_by = (
         "name",
         "id",
