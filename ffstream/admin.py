@@ -30,7 +30,7 @@ class ActiveBooleanDefault(SimpleListFilter):
             else:
                 return queryset.filter(**{self.parameter_name: self.value()})
         elif self.value() is None:
-            return queryset.filter(**{self.parameter_name: False})
+            return queryset.filter(**{self.parameter_name: True})
 
 
 class KeyAdmin(admin.ModelAdmin):
