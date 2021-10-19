@@ -176,6 +176,10 @@ SINGAPORE_DONATIONS = float(os.environ.get('SINGAPORE_DONATIONS', '0.0'))
 OTHER_DONATIONS = float(os.environ.get('OTHER_DONATIONS', '0.0'))
 TARGET_DONATIONS = float(os.environ.get('TARGET_DONATIONS', '1.0'))
 
+FRAG_BOT_API = os.environ.get('FRAG_BOT_API', 'https://bot.fragforce.org/dbquery')
+FRAG_BOT_KEY = os.environ.get('FRAG_BOT_KEY', '')
+FRAG_BOT_BOT = os.environ.get('FRAG_BOT_BOT', 'misterfragbot')
+
 # Cache version prefix
 VERSION = int(HEROKU_RELEASE_VERSION_NUM)
 
