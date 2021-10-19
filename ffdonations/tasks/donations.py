@@ -88,11 +88,16 @@ def update_donations_if_needed_team(self, teamID):
 
     minc = timezone.now() - settings.EL_DON_TEAM_UPDATE_FREQUENCY_MIN
     maxc = timezone.now() - settings.EL_DON_TEAM_UPDATE_FREQUENCY_MAX
+    minTeamID = settings.MIN_EL_TEAMID
 
     if DonationModel.objects.all().count() <= 0:
         return doupdate()
 
     bfilter = DonationModel.objects.filter(team=team)
+
+    # Don't query any team with an id < MIN_EL_TEAMID, as those are from prior years
+    if teamID < minTeamID:
+        return None
 
     # Only force this if there are known donations but none in DB
     # Don't simplify to != as this could cause trashing if team update is behind the donations
@@ -182,6 +187,12 @@ def update_donations_if_needed_participant(self, participantID):
 
     minc = timezone.now() - settings.EL_DON_PTCP_UPDATE_FREQUENCY_MIN
     maxc = timezone.now() - settings.EL_DON_PTCP_UPDATE_FREQUENCY_MAX
+    minParticipantID = settings.MIN_EL_PARTICIPANTID
+
+    # Do not poll the api for participant IDs that are less than our min value
+    # These correspond to participant ids from previous years, and are not valid anymore
+    if participantID < minParticipantID:
+        return None
 
     if DonationModel.objects.all().count() <= 0:
         return doupdate()
