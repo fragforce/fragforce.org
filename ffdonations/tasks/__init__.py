@@ -4,3 +4,4 @@ from .donations import *
 from .participants import *
 from .teams import *
 from .tiltify import *
+from .sender import *

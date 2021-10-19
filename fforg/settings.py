@@ -176,6 +176,10 @@ SINGAPORE_DONATIONS = float(os.environ.get('SINGAPORE_DONATIONS', '0.0'))
 OTHER_DONATIONS = float(os.environ.get('OTHER_DONATIONS', '0.0'))
 TARGET_DONATIONS = float(os.environ.get('TARGET_DONATIONS', '1.0'))
 
+FRAG_BOT_API = os.environ.get('FRAG_BOT_API', 'https://bot.fragforce.org/dbquery')
+FRAG_BOT_KEY = os.environ.get('FRAG_BOT_KEY', '')
+FRAG_BOT_BOT = os.environ.get('FRAG_BOT_BOT', 'misterfragbot')
+
 # Cache version prefix
 VERSION = int(HEROKU_RELEASE_VERSION_NUM)
 
@@ -253,30 +257,30 @@ VIEW_SITE_SITE_CACHE = int(os.environ.get('VIEW_SITE_SITE_CACHE', 60))
 VIEW_SITE_STATIC_CACHE = int(os.environ.get('VIEW_SITE_STATIC_CACHE', 300))
 
 # Min time between team updates - Only cares about tracked teams!
-EL_TEAM_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MIN', 30)))
+EL_TEAM_UPDATE_FREQUENCY_MIN = timedelta(seconds=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MIN', 15)))
 # Max time between updates for any given team - Only cares about tracked teams!
-EL_TEAM_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MAX', 120)))
+EL_TEAM_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MAX', 1)))
 # How often to check for updates
-EL_TEAM_UPDATE_FREQUENCY_CHECK = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_CHECK', 5)))
+EL_TEAM_UPDATE_FREQUENCY_CHECK = timedelta(seconds=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_CHECK', 5)))
 
 # Min time between participants updates - Only cares about tracked participants!
-EL_PTCP_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_PTCP_UPDATE_FREQUENCY_MIN', 120)))
+EL_PTCP_UPDATE_FREQUENCY_MIN = timedelta(seconds=int(os.environ.get('EL_PTCP_UPDATE_FREQUENCY_MIN', 15)))
 # Max time between updates for any given participants - Only cares about tracked participants!
-EL_PTCP_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_PTCP_UPDATE_FREQUENCY_MAX', 300)))
+EL_PTCP_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_PTCP_UPDATE_FREQUENCY_MAX', 1)))
 # How often to check for updates
-EL_PTCP_UPDATE_FREQUENCY_CHECK = timedelta(minutes=int(os.environ.get('EL_PTCP_UPDATE_FREQUENCY_CHECK', 30)))
+EL_PTCP_UPDATE_FREQUENCY_CHECK = timedelta(seconds=int(os.environ.get('EL_PTCP_UPDATE_FREQUENCY_CHECK', 5)))
 
 # Min time between donation list updates - Only cares about tracked teams/participants!
-EL_DON_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_DON_UPDATE_FREQUENCY_MIN', 60)))
+EL_DON_UPDATE_FREQUENCY_MIN = timedelta(seconds=int(os.environ.get('EL_DON_UPDATE_FREQUENCY_MIN', 30)))
 # Max time between updates for any given donation list - Only cares about tracked teams/participants!
-EL_DON_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_DON_UPDATE_FREQUENCY_MAX', 300)))
+EL_DON_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_DON_UPDATE_FREQUENCY_MAX', 5)))
 # How often to check for updates
-EL_DON_UPDATE_FREQUENCY_CHECK = timedelta(minutes=int(os.environ.get('EL_DON_UPDATE_FREQUENCY_CHECK', 15)))
+EL_DON_UPDATE_FREQUENCY_CHECK = timedelta(seconds=int(os.environ.get('EL_DON_UPDATE_FREQUENCY_CHECK', 5)))
 
 # Min time between donation list updates for a team - Only cares about tracked teams
-EL_DON_TEAM_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_DON_TEAM_UPDATE_FREQUENCY_MIN', 5)))
+EL_DON_TEAM_UPDATE_FREQUENCY_MIN = timedelta(seconds=int(os.environ.get('EL_DON_TEAM_UPDATE_FREQUENCY_MIN', 30)))
 # Max time between updates of donations for any given team - Only cares about tracked teams
-EL_DON_TEAM_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_DON_TEAM_UPDATE_FREQUENCY_MAX', 15)))
+EL_DON_TEAM_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_DON_TEAM_UPDATE_FREQUENCY_MAX', 5)))
 
 # Min time between donation list updates for a participants - Only cares about tracked participants
 EL_DON_PTCP_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_DON_PTCP_UPDATE_FREQUENCY_MIN', 5)))
@@ -284,14 +288,14 @@ EL_DON_PTCP_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_DON_
 EL_DON_PTCP_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_DON_PTCP_UPDATE_FREQUENCY_MAX', 15)))
 
 # Min time between EL REST requests
-EL_REQUEST_MIN_TIME = timedelta(seconds=int(os.environ.get('EL_REQUEST_MIN_TIME_SECONDS', 15)))
+EL_REQUEST_MIN_TIME = timedelta(milliseconds=int(os.environ.get('EL_REQUEST_MIN_TIME_SECONDS', 100)))
 # Min time between EL REST requests for any given URL
-EL_REQUEST_MIN_TIME_URL = timedelta(seconds=int(os.environ.get('EL_REQUEST_MIN_TIME_URL_SECONDS', 120)))
+EL_REQUEST_MIN_TIME_URL = timedelta(seconds=int(os.environ.get('EL_REQUEST_MIN_TIME_URL_SECONDS', 10)))
 # Min time between request for any given remote host
-REQUEST_MIN_TIME_HOST = timedelta(seconds=int(os.environ.get('REQUEST_MIN_TIME_HOST_SECONDS', 5)))
+REQUEST_MIN_TIME_HOST = timedelta(milliseconds=int(os.environ.get('REQUEST_MIN_TIME_HOST_SECONDS', 50)))
 
 # How often to check for updates
-TIL_TEAMS_UPDATE_FREQUENCY_CHECK = timedelta(minutes=int(os.environ.get('TIL_TEAMS_UPDATE_FREQUENCY_CHECK', 10)))
+TIL_TEAMS_UPDATE_FREQUENCY_CHECK = timedelta(minutes=int(os.environ.get('TIL_TEAMS_UPDATE_FREQUENCY_CHECK', 1)))
 
 # How long to wait in seconds after getting a parent before fetching any children
 TF_UPDATE_WAIT = timedelta(seconds=int(os.environ.get('TF_UPDATE_WAIT', 120)))
