@@ -20,7 +20,7 @@ def note_new_donations(self):
     if settings.FRAG_BOT_KEY == "":
         return
 
-    for donation in DonationModel.objects.filter(~Q(tracking__contains={TRACKING_BOT: "1"})):
+    for donation in DonationModel.objects.filter(~Q(tracking__contains={TRACKING_BOT: "1"})).all():
         note_new_donation.delay(donation.id)
 
 
