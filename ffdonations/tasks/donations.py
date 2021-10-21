@@ -9,6 +9,7 @@ from requests.exceptions import HTTPError
 
 from extralifeapi.donors import Donations
 from ..models import *
+from .sender import note_new_donation
 
 log = logging.getLogger("donations")
 
@@ -146,9 +147,9 @@ def update_donations_team(self, teamID):
             participant = None
 
         try:
-            tm = DonationModel.objects.get(id=donation.donorID)
+            tm = DonationModel.objects.get(id=donation.donationID)
         except DonationModel.DoesNotExist as e:
-            tm = DonationModel(id=donation.donorID)
+            tm = DonationModel(id=donation.donationID)
         tm.team = team
         tm.participant = participant
         tm.raw = donation.raw
@@ -165,6 +166,7 @@ def update_donations_team(self, teamID):
             tm.message = ''
         tm.save()
 
+        note_new_donation.s()(tm.id)
 
 @shared_task(bind=True)
 def update_donations_if_needed_participant(self, participantID):
@@ -259,9 +261,9 @@ def update_donations_participant(self, participantID):
             team = None
 
         try:
-            tm = DonationModel.objects.get(id=donation.donorID)
+            tm = DonationModel.objects.get(id=donation.donationID)
         except DonationModel.DoesNotExist as e:
-            tm = DonationModel(id=donation.donorID)
+            tm = DonationModel(id=donation.donationID)
         tm.team = team
         tm.participant = participant
         tm.raw = donation.raw
@@ -277,5 +279,8 @@ def update_donations_participant(self, participantID):
         else:
             tm.message = ''
         tm.save()
+
+        note_new_donation.s()(tm.id)
+
         ret.append(tm.guid)
     return ret

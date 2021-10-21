@@ -8,7 +8,7 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
-
+import datetime
 import os
 from datetime import timedelta
 
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.postgres',
     # Disable Django's own staticfiles handling in favour of WhiteNoise, for
     # greater consistency between gunicorn and `./manage.py runserver`. See:
     # http://whitenoise.evans.io/en/stable/django.html#using-whitenoise-in-development
@@ -262,11 +263,11 @@ MIN_EL_TEAMID = int(os.environ.get('MIN_EL_TEAMID', 55378))
 MIN_EL_PARTICIPANTID = int(os.environ.get('MIN_EL_PARTICIPANTID', 448472))
 
 # Min time between team updates - Only cares about tracked teams!
-EL_TEAM_UPDATE_FREQUENCY_MIN = timedelta(seconds=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MIN', 15)))
+EL_TEAM_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MIN', 5)))
 # Max time between updates for any given team - Only cares about tracked teams!
-EL_TEAM_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MAX', 1)))
+EL_TEAM_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MAX', 15)))
 # How often to check for updates
-EL_TEAM_UPDATE_FREQUENCY_CHECK = timedelta(seconds=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_CHECK', 5)))
+EL_TEAM_UPDATE_FREQUENCY_CHECK = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_CHECK', 5)))
 
 # Min time between participants updates - Only cares about tracked participants!
 EL_PTCP_UPDATE_FREQUENCY_MIN = timedelta(seconds=int(os.environ.get('EL_PTCP_UPDATE_FREQUENCY_MIN', 15)))
@@ -301,6 +302,9 @@ REQUEST_MIN_TIME_HOST = timedelta(milliseconds=int(os.environ.get('REQUEST_MIN_T
 
 # How often to check for updates
 TIL_TEAMS_UPDATE_FREQUENCY_CHECK = timedelta(minutes=int(os.environ.get('TIL_TEAMS_UPDATE_FREQUENCY_CHECK', 1)))
+
+# How often to check for missed donations to send to twitch bot
+SEND_MISSED_DONATIONS = datetime.timedelta(minutes=int(os.environ.get('SEND_MISSED_DONATIONS', 10)))
 
 # How long to wait in seconds after getting a parent before fetching any children
 TF_UPDATE_WAIT = timedelta(seconds=int(os.environ.get('TF_UPDATE_WAIT', 120)))
@@ -386,6 +390,10 @@ CELERY_BEAT_SCHEDULE = {
     'til-update-all-teams': {
         'task': 'ffdonations.tasks.tiltify.teams.update_teams',
         'schedule': TIL_TEAMS_UPDATE_FREQUENCY_CHECK,
+    },
+    'send-missed-tracks': {
+        'task': 'ffdonations.tasks.sender.note_new_donations',
+        'schedule': SEND_MISSED_DONATIONS,
     },
 }
 
