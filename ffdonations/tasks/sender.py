@@ -5,6 +5,7 @@ from ..models import *
 from django.conf import settings
 import requests
 
+TRACKING_BOT = 'TRACKING_BOT'
 
 @receiver(post_save, sender=DonationModel)
 def cb_post_save(sender, instance, **kwargs):
@@ -21,6 +22,10 @@ def note_new_donation(self, donationID):
 
     donation = DonationModel.objects.get(pk=donationID)
 
+    # Skip ones we've already sent
+    if donation.tracking.get(TRACKING_BOT, '0') == '1':
+        return
+
     payload = {
         'webauth': settings.FRAG_BOT_KEY,
         'user': settings.FRAG_BOT_BOT,
@@ -31,8 +36,8 @@ def note_new_donation(self, donationID):
 
     message = f"Fragforce received a new donation of ${donation.amount}"
 
-    if donation.participant:
-        message += f" from {donation.participant.displayName}"
+    if donation.displayName:
+        message += f" from {donation.displayName}"
     else:
         message += " from Anonymous Coward"
 
@@ -46,3 +51,7 @@ def note_new_donation(self, donationID):
     }
     r = requests.put(settings.FRAG_BOT_API, headers=payload)
     r.raise_for_status()
+
+    donation.tracking[TRACKING_BOT] = '1'
+    donation.tracking = donation.tracking.copy()
+    donation.save()
