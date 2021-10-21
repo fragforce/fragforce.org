@@ -31,8 +31,8 @@ def note_new_donation(self, donationID):
 
     message = f"Fragforce received a new donation of ${donation.amount}"
 
-    if donation.participant:
-        message += f" from {donation.participant.displayName}"
+    if donation.displayName:
+        message += f" from {donation.displayName}"
     else:
         message += " from Anonymous Coward"
 
