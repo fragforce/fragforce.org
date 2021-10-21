@@ -166,7 +166,7 @@ def update_donations_team(self, teamID):
             tm.message = ''
         tm.save()
 
-        note_new_donation.delay(tm.id)
+        note_new_donation.s()(tm.id)
 
 @shared_task(bind=True)
 def update_donations_if_needed_participant(self, participantID):
@@ -280,7 +280,7 @@ def update_donations_participant(self, participantID):
             tm.message = ''
         tm.save()
 
-        note_new_donation.delay(tm.id)
+        note_new_donation.s()(tm.id)
 
         ret.append(tm.guid)
     return ret
