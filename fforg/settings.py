@@ -263,11 +263,11 @@ MIN_EL_TEAMID = int(os.environ.get('MIN_EL_TEAMID', 55378))
 MIN_EL_PARTICIPANTID = int(os.environ.get('MIN_EL_PARTICIPANTID', 448472))
 
 # Min time between team updates - Only cares about tracked teams!
-EL_TEAM_UPDATE_FREQUENCY_MIN = timedelta(seconds=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MIN', 15)))
+EL_TEAM_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MIN', 5)))
 # Max time between updates for any given team - Only cares about tracked teams!
-EL_TEAM_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MAX', 1)))
+EL_TEAM_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MAX', 15)))
 # How often to check for updates
-EL_TEAM_UPDATE_FREQUENCY_CHECK = timedelta(seconds=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_CHECK', 5)))
+EL_TEAM_UPDATE_FREQUENCY_CHECK = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_CHECK', 5)))
 
 # Min time between participants updates - Only cares about tracked participants!
 EL_PTCP_UPDATE_FREQUENCY_MIN = timedelta(seconds=int(os.environ.get('EL_PTCP_UPDATE_FREQUENCY_MIN', 15)))
