@@ -7,6 +7,7 @@ import requests
 
 TRACKING_BOT = 'TRACKING_BOT'
 
+
 @receiver(post_save, sender=DonationModel)
 def cb_post_save(sender, instance, **kwargs):
     if settings.FRAG_BOT_KEY != "":
