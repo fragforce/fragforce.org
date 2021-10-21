@@ -3,7 +3,7 @@ import uuid
 
 from django.db import models
 from django.db.models import Q
-
+from django.contrib.postgres.fields import HStoreField
 
 ## Extra-Life
 class EventModel(models.Model):
@@ -86,6 +86,7 @@ class DonationModel(models.Model):
 
     # Extra
     raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
+    tracking = HStoreField(verbose_name="Tracking Data", null=True, default=dict)
 
     @classmethod
     def tracked_q(cls):

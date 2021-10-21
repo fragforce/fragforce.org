@@ -5,6 +5,7 @@ from ..models import *
 from django.conf import settings
 import requests
 
+TRACKING_BOT = 'TRACKING_BOT'
 
 @receiver(post_save, sender=DonationModel)
 def cb_post_save(sender, instance, **kwargs):
@@ -20,6 +21,10 @@ def note_new_donation(self, donationID):
         return
 
     donation = DonationModel.objects.get(pk=donationID)
+
+    # Skip ones we've already sent
+    if donation.tracking.get(TRACKING_BOT, '0') == '1':
+        return
 
     payload = {
         'webauth': settings.FRAG_BOT_KEY,
@@ -46,3 +51,7 @@ def note_new_donation(self, donationID):
     }
     r = requests.put(settings.FRAG_BOT_API, headers=payload)
     r.raise_for_status()
+
+    donation.tracking[TRACKING_BOT] = '1'
+    donation.tracking = donation.tracking.copy()
+    donation.save()
