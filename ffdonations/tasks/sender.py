@@ -15,6 +15,16 @@ TRACKING_BOT = 'TRACKING_BOT'
 
 
 @shared_task(bind=True)
+def note_new_donations(self):
+    """ Check for missed donations """
+    if settings.FRAG_BOT_KEY == "":
+        return
+
+    for donation in DonationModel.objects.filter(~Q(tracking__contains={TRACKING_BOT: "1"})).all():
+        note_new_donation.delay(donation.id)
+
+
+@shared_task(bind=True)
 def note_new_donation(self, donationID):
     """ Send out a new donation """
     # Do nothing if no key set
