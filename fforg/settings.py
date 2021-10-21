@@ -8,7 +8,7 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
-
+import datetime
 import os
 from datetime import timedelta
 
@@ -303,6 +303,9 @@ REQUEST_MIN_TIME_HOST = timedelta(milliseconds=int(os.environ.get('REQUEST_MIN_T
 # How often to check for updates
 TIL_TEAMS_UPDATE_FREQUENCY_CHECK = timedelta(minutes=int(os.environ.get('TIL_TEAMS_UPDATE_FREQUENCY_CHECK', 1)))
 
+# How often to check for missed donations to send to twitch bot
+SEND_MISSED_DONATIONS = datetime.timedelta(minutes=int(os.environ.get('SEND_MISSED_DONATIONS', 10)))
+
 # How long to wait in seconds after getting a parent before fetching any children
 TF_UPDATE_WAIT = timedelta(seconds=int(os.environ.get('TF_UPDATE_WAIT', 120)))
 
@@ -387,6 +390,10 @@ CELERY_BEAT_SCHEDULE = {
     'til-update-all-teams': {
         'task': 'ffdonations.tasks.tiltify.teams.update_teams',
         'schedule': TIL_TEAMS_UPDATE_FREQUENCY_CHECK,
+    },
+    'send-missed-tracks': {
+        'task': 'ffdonations.tasks.sender.note_new_donations',
+        'schedule': SEND_MISSED_DONATIONS,
     },
 }
 
