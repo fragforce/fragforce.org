@@ -146,9 +146,9 @@ def update_donations_team(self, teamID):
             participant = None
 
         try:
-            tm = DonationModel.objects.get(id=donation.donorID)
+            tm = DonationModel.objects.get(id=donation.donationID)
         except DonationModel.DoesNotExist as e:
-            tm = DonationModel(id=donation.donorID)
+            tm = DonationModel(id=donation.donationID)
         tm.team = team
         tm.participant = participant
         tm.raw = donation.raw
@@ -259,9 +259,9 @@ def update_donations_participant(self, participantID):
             team = None
 
         try:
-            tm = DonationModel.objects.get(id=donation.donorID)
+            tm = DonationModel.objects.get(id=donation.donationID)
         except DonationModel.DoesNotExist as e:
-            tm = DonationModel(id=donation.donorID)
+            tm = DonationModel(id=donation.donationID)
         tm.team = team
         tm.participant = participant
         tm.raw = donation.raw
