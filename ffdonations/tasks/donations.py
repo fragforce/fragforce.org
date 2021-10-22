@@ -94,16 +94,21 @@ def update_donations_if_needed_team(self, teamID):
     if DonationModel.objects.all().count() <= 0:
         return doupdate()
 
-    bfilter = DonationModel.objects.filter(team=team)
-
     # Don't query any team with an id < MIN_EL_TEAMID, as those are from prior years
     if teamID < minTeamID:
+        return None
+
+    bfilter = DonationModel.objects.filter(team=team)
+    # Skip updating if it's been less than EL_DON_TEAM_UPDATE_FREQUENCY_MIN since last update
+    # for any record - do this first
+    if bfilter.filter(last_updated__gte=minc).count() > 0:
         return None
 
     # Only force this if there are known donations but none in DB
     # Don't simplify to != as this could cause trashing if team update is behind the donations
     # update
-    if team.numDonations > 0 and bfilter.count() <= 0:
+    #if team.numDonations > 0 and bfilter.count() <= 0:
+    if team.numDonations >0 and bfilter.count() < team.numDonations:
         return doupdate()
 
     # Force an update if it's been more than EL_DON_TEAM_UPDATE_FREQUENCY_MAX since last
@@ -111,14 +116,8 @@ def update_donations_if_needed_team(self, teamID):
     if bfilter.filter(last_updated__lte=maxc).count() > 0:
         return doupdate()
 
-    # Skip updating if it's been less than EL_DON_TEAM_UPDATE_FREQUENCY_MIN since last update
-    # for any record
-    if bfilter.filter(last_updated__gte=minc).count() > 0:
-        return None
-
     # if all else fails
     return doupdate()
-
 
 @shared_task(bind=True)
 def update_donations_team(self, teamID):
@@ -201,21 +200,22 @@ def update_donations_if_needed_participant(self, participantID):
 
     bfilter = DonationModel.objects.filter(participant=participant)
 
+    # Skip updating if it's been less than EL_DON_PTCP_UPDATE_FREQUENCY_MIN since last update
+    # for any record
+    if bfilter.filter(last_updated__gte=minc).count() > 0:
+        return None
+    
     # Only force this if there are known donations but none in DB
     # Don't simplify to != as this could cause trashing if team update is behind the donations
     # update
-    if participant.numDonations > 0 and bfilter.count() <= 0:
+    #if participant.numDonations > 0 and bfilter.count() <= 0:
+    if participant.numDonations > 0 and bfilter.count() < participant.numDonations:
         return doupdate()
 
     # Force an update if it's been more than EL_DON_PTCP_UPDATE_FREQUENCY_MAX since last
     # update for any record
     if bfilter.filter(last_updated__lte=maxc).count() > 0:
         return doupdate()
-
-    # Skip updating if it's been less than EL_DON_PTCP_UPDATE_FREQUENCY_MIN since last update
-    # for any record
-    if bfilter.filter(last_updated__gte=minc).count() > 0:
-        return None
 
     # if all else fails
     return doupdate()
