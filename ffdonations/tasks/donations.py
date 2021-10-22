@@ -195,8 +195,8 @@ def update_donations_if_needed_participant(self, participantID):
     if participantID < minParticipantID:
         return None
 
-    #if DonationModel.objects.all().count() <= 0:
-    #    return doupdate()
+    if DonationModel.objects.all().count() <= 0:
+        return doupdate()
 
     bfilter = DonationModel.objects.filter(participant=participant)
 
