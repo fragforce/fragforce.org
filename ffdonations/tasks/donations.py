@@ -90,6 +90,8 @@ def update_donations_if_needed_team(self, teamID):
     minTeamID = settings.MIN_EL_TEAMID
     # Don't query any team with an id < MIN_EL_TEAMID, as those are from prior years
     if teamID < minTeamID:
+        team.tracked = False
+        team.save()
         return None
 
     assert team.tracked, f"Expected a tracked team - Got {team}"
@@ -131,6 +133,9 @@ def update_donations_team(self, teamID):
     except TeamModel.DoesNotExist as e:
         team = TeamModel(id=teamID, tracked=False)
         team.save()
+
+    if not team.tracked:
+        return None
 
     for donation in d.donations_for_team(teamID=teamID):
         # Get/create participant if it's set...
@@ -186,6 +191,9 @@ def update_donations_if_needed_participant(self, participantID):
     # Do not poll the api for participant IDs that are less than our min value
     # These correspond to participant ids from previous years, and are not valid anymore
     if participantID < minParticipantID:
+        participant.tracked = False
+        participant.last_updated = timezone.now()
+        participant.save()
         return None
 
     # Participant not tracked
