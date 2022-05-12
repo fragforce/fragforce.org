@@ -36,9 +36,15 @@ def el_teams(year=timezone.now().year):
     ret = set([])
     for sa in SiteAccount.objects.filter(el_id__isnull=False).only('el_id').all():
         try:
-            tm = TeamModel.objects.get(id=sa.el_id)
-            if tm.event.name == yr:
-                ret.add(tm.id)
+            if settings.MIN_EL_TEAMID:
+                if sa.el_id >= settings.MIN_EL_TEAMID:
+                    tm = TeamModel.objects.get(id=sa.el_id)
+                    if tm.event.name == yr:
+                        ret.add(tm.id)
+            else:
+                tm = TeamModel.objects.get(id=sa.el_id)
+                if tm.event.name == yr:
+                    ret.add(tm.id)
         except TeamModel.DoesNotExist:
             update_teams.delay([sa.el_id, ])
     return ret
