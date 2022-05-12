@@ -58,7 +58,10 @@ def update_participants(self, participants=None):
 
     # Fetch data from EL
     if participants is None:
-        tr = p.participants()
+        if settings.EL_EVENT_ID >= 0:
+            tr = p.participants_for_event(settings.EL_EVENT_ID)
+        else:
+            raise ValueError("Invalid settings.EL_EVENT_ID value")
     else:
         tr = [p.participant(int(participantID)) for participantID in participants]
 

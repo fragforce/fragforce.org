@@ -312,6 +312,8 @@ TF_UPDATE_WAIT = timedelta(seconds=int(os.environ.get('TF_UPDATE_WAIT', 120)))
 # Comma seperated list of tiltify teams (the slugs or IDs) to monitor
 TILTIFY_TEAMS = os.environ.get('TILTIFY_TEAMS', 'fragforce').split(',')
 
+EL_EVENT_ID = int(os.environ.get('EL_EVENT_ID', -1))
+
 # Cache Configuration
 if REDIS_URL_BASE and REDIS_URL_BASE == REDIS_URL_DEFAULT:
     # Dev and release config
