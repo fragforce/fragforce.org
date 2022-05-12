@@ -58,7 +58,10 @@ def update_participants(self, participants=None):
 
     # Fetch data from EL
     if participants is None:
-        tr = p.participants()
+        if settings.EXTRALIFE_TEAMID >= 0:
+            tr = p.participants_for_team(settings.EXTRALIFE_TEAMID)
+        else:
+            raise ValueError("Invalid settings.EXTRALIFE_TEAMID value")
     else:
         tr = [p.participant(int(participantID)) for participantID in participants]
 
