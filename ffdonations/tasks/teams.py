@@ -51,13 +51,13 @@ def update_teams(self, teams=None):
     WARNING: If teams is None then will fetch a list of ALL teams - May make many requests
     """
     from .donations import update_donations_if_needed_team
-    t = _make_team()
+    el_api = _make_team()
     ret = []
     if teams is None:
-        tr = t.teams()
+        el_teams = el_api.event_teams(settings.EL_EVENT_ID)
     else:
-        tr = [t.team(teamID=int(tid)) for tid in teams]
-    for team in tr:
+        el_teams = [el_api.team(teamID=int(tid)) for tid in teams]
+    for team in el_teams:
         if team.eventID:
             try:
                 evt = EventModel.objects.get(id=team.eventID)
