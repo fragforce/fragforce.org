@@ -85,18 +85,16 @@ def update_donations_if_needed_team(self, teamID):
         # TODO: Log this
         return None
 
-    assert team.tracked, f"Expected a tracked team - Got {team}"
-
     minc = timezone.now() - settings.EL_DON_TEAM_UPDATE_FREQUENCY_MIN
     maxc = timezone.now() - settings.EL_DON_TEAM_UPDATE_FREQUENCY_MAX
     minTeamID = settings.MIN_EL_TEAMID
-
-    if DonationModel.objects.all().count() <= 0:
-        return doupdate()
-
     # Don't query any team with an id < MIN_EL_TEAMID, as those are from prior years
     if teamID < minTeamID:
         return None
+
+    assert team.tracked, f"Expected a tracked team - Got {team}"
+    if DonationModel.objects.all().count() <= 0:
+        return doupdate()
 
     bfilter = DonationModel.objects.filter(team=team)
     # Skip updating if it's been less than EL_DON_TEAM_UPDATE_FREQUENCY_MIN since last update
@@ -181,11 +179,6 @@ def update_donations_if_needed_participant(self, participantID):
         # TODO: Log this
         return None
 
-    # Participant not tracked
-    if not participant.tracked:
-        log.debug(f"Expected a tracked participant - Got {participant}")
-        return None
-
     minc = timezone.now() - settings.EL_DON_PTCP_UPDATE_FREQUENCY_MIN
     maxc = timezone.now() - settings.EL_DON_PTCP_UPDATE_FREQUENCY_MAX
     minParticipantID = settings.MIN_EL_PARTICIPANTID
@@ -193,6 +186,11 @@ def update_donations_if_needed_participant(self, participantID):
     # Do not poll the api for participant IDs that are less than our min value
     # These correspond to participant ids from previous years, and are not valid anymore
     if participantID < minParticipantID:
+        return None
+
+    # Participant not tracked
+    if not participant.tracked:
+        log.debug(f"Expected a tracked participant - Got {participant}")
         return None
 
     if DonationModel.objects.all().count() <= 0:
