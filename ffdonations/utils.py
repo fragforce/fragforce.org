@@ -36,15 +36,12 @@ def el_teams(year=timezone.now().year):
     ret = set([])
     for sa in SiteAccount.objects.filter(el_id__isnull=False).only('el_id').all():
         try:
+            # Only query the api at all if we have MIN_EL_TEAMID set and our id >= it
             if settings.MIN_EL_TEAMID:
                 if sa.el_id >= settings.MIN_EL_TEAMID:
                     tm = TeamModel.objects.get(id=sa.el_id)
                     if tm.event.name == yr:
                         ret.add(tm.id)
-            else:
-                tm = TeamModel.objects.get(id=sa.el_id)
-                if tm.event.name == yr:
-                    ret.add(tm.id)
         except TeamModel.DoesNotExist:
             update_teams.delay([sa.el_id, ])
     return ret
@@ -58,9 +55,12 @@ def el_contact(year=timezone.now().year):
     ret = []
     for sa in Contact.objects.filter(extra_life_id__isnull=False).only('extra_life_id').all():
         try:
-            tm = ParticipantModel.objects.get(id=sa.extra_life_id)
-            if tm.event.name == yr:
-                ret.append(tm.id)
+            # Only query the api at all if we have MIN_EL_PARTICIPANTID set and our ID is >= it
+            if settings.MIN_EL_PARTICIPANTID:
+                if sa.extra_life_id >= settings.MIN_EL_PARTICIPANTID:
+                    tm = ParticipantModel.objects.get(id=sa.extra_life_id)
+                    if tm.event.name == yr:
+                        ret.append(tm.id)
         except ParticipantModel.DoesNotExist:
             update_participants.delay([sa.extra_life_id, ])
     return ret
