@@ -38,8 +38,8 @@ def el_teams(year=timezone.now().year):
         try:
             # Only query the api at all if we have MIN_EL_TEAMID set and our id >= it
             if settings.MIN_EL_TEAMID:
-                if sa.el_id >= settings.MIN_EL_TEAMID:
-                    tm = TeamModel.objects.get(id=sa.el_id)
+                if int(sa.el_id) >= settings.MIN_EL_TEAMID:
+                    tm = TeamModel.objects.get(id=int(sa.el_id))
                     if tm.event.name == yr:
                         ret.add(tm.id)
         except TeamModel.DoesNotExist:
