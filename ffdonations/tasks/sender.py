@@ -40,15 +40,7 @@ def note_new_donation(self, donationID):
     # Skip ones we've already sent
     if donation.tracking.get(TRACKING_BOT, '0') == '1':
         return
-
-    payload = {
-        'webauth': settings.FRAG_BOT_KEY,
-        'user': settings.FRAG_BOT_BOT,
-        'message': '!bot_donate'
-    }
-    r = requests.put(settings.FRAG_BOT_API, headers=payload)
-    r.raise_for_status()
-
+    # Call the bot to send the chat message before the alert overlay
     message = f"Fragforce received a new donation of ${donation.amount}"
 
     if donation.displayName:
@@ -63,6 +55,14 @@ def note_new_donation(self, donationID):
         'webauth': settings.FRAG_BOT_KEY,
         'user': settings.FRAG_BOT_BOT,
         'message': message,
+    }
+    r = requests.put(settings.FRAG_BOT_API, headers=payload)
+    r.raise_for_status()
+
+    payload = {
+        'webauth': settings.FRAG_BOT_KEY,
+        'user': settings.FRAG_BOT_BOT,
+        'message': '!bot_donate'
     }
     r = requests.put(settings.FRAG_BOT_API, headers=payload)
     r.raise_for_status()

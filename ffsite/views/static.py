@@ -9,7 +9,7 @@ def home(request):
     return render(request, 'ff/root/home.html', {})
 
 
-@cache_page(settings.VIEW_SITE_STATIC_CACHE)
+# @cache_page(settings.VIEW_SITE_STATIC_CACHE)
 def donate(request):
     """ How to donate page """
     from ..utils import random_contact
