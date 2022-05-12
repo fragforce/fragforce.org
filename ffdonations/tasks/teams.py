@@ -54,9 +54,14 @@ def update_teams(self, teams=None):
     el_api = _make_team()
     ret = []
     if teams is None:
-        el_teams = el_api.event_teams(settings.EL_EVENT_ID)
-    else:
-        el_teams = [el_api.team(teamID=int(tid)) for tid in teams]
+        teams = []
+        if settings.EXTRALIFE_TEAMID:
+            teams.append(settings.EXTRALIFE_TEAMID)
+        for sa in SiteAccount.objects.filter(el_id__isnull=False):
+            if sa.el_id >= settings.MIN_EL_TEAMID:
+                teams.append(sa.el_id)
+
+    el_teams = [el_api.team(teamID=int(tid)) for tid in teams]
     for team in el_teams:
         if team.eventID:
             try:
