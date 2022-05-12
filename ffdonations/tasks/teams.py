@@ -58,8 +58,8 @@ def update_teams(self, teams=None):
         if settings.EXTRALIFE_TEAMID:
             teams.append(settings.EXTRALIFE_TEAMID)
         for sa in SiteAccount.objects.filter(el_id__isnull=False):
-            if sa.el_id >= settings.MIN_EL_TEAMID:
-                teams.append(sa.el_id)
+            if int(sa.el_id) >= settings.MIN_EL_TEAMID:
+                teams.append(int(sa.el_id))
 
     el_teams = [el_api.team(teamID=int(tid)) for tid in teams]
     for team in el_teams:
