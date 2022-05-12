@@ -57,8 +57,8 @@ def el_contact(year=timezone.now().year):
         try:
             # Only query the api at all if we have MIN_EL_PARTICIPANTID set and our ID is >= it
             if settings.MIN_EL_PARTICIPANTID:
-                if sa.extra_life_id >= settings.MIN_EL_PARTICIPANTID:
-                    tm = ParticipantModel.objects.get(id=sa.extra_life_id)
+                if int(sa.extra_life_id) >= settings.MIN_EL_PARTICIPANTID:
+                    tm = ParticipantModel.objects.get(id=int(sa.extra_life_id))
                     if tm.event.name == yr:
                         ret.append(tm.id)
         except ParticipantModel.DoesNotExist:
