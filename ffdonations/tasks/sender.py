@@ -27,11 +27,15 @@ def note_new_donations(self):
 @shared_task(bind=True)
 def note_new_donation(self, donationID):
     """ Send out a new donation """
-    # Do nothing if no key set
-    if settings.FRAG_BOT_KEY == "":
-        return
 
     donation = DonationModel.objects.get(pk=donationID)
+    
+    # Don't send anything, but do mark the donation as tracked if no key set
+    if settings.FRAG_BOT_KEY == "":
+        donation.tracking[TRACKING_BOT] = '1'
+        donation.tracking = donation.tracking.copy()
+        donation.save()
+        return
 
     # Skip ones we've already sent
     if donation.tracking.get(TRACKING_BOT, '0') == '1':
