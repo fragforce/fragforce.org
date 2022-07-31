@@ -10,6 +10,7 @@ from requests.exceptions import HTTPError
 from extralifeapi.donors import Donations
 from ..models import *
 from .sender import note_new_donation
+from ..utils import current_el_events
 
 log = logging.getLogger("donations")
 
@@ -59,9 +60,10 @@ def update_donations_existing(self):
     """ Update donations based on all existing participants and teams that are known based
     on the donations DB
     """
-    teamIDs = DonationModel.objects.filter(team__isnull=False).values('team').distinct('team')
-    participantIDs = DonationModel.objects.filter(participant__isnull=False).values('participant').distinct(
-        'participant')
+    evts = current_el_events()
+    teamIDs = DonationModel.objects.filter(team__isnull=False, team__event__id__in=evts).values('team').distinct('team')
+    participantIDs = DonationModel.objects.filter(participant__isnull=False, participant__event__id__in=evts).values(
+        'participant').distinct('participant')
 
     ret = []
     for teamID in teamIDs:
@@ -85,6 +87,10 @@ def update_donations_if_needed_team(self, teamID):
         # TODO: Log this
         return None
 
+    # Gotta be in a tracked (or should be tracked) event
+    if team.event_id not in current_el_events():
+        return None
+
     minc = timezone.now() - settings.EL_DON_TEAM_UPDATE_FREQUENCY_MIN
     maxc = timezone.now() - settings.EL_DON_TEAM_UPDATE_FREQUENCY_MAX
     minTeamID = settings.MIN_EL_TEAMID
@@ -98,6 +104,7 @@ def update_donations_if_needed_team(self, teamID):
     if DonationModel.objects.all().count() <= 0:
         return doupdate()
 
+    # Match on team and event id
     bfilter = DonationModel.objects.filter(team=team)
     # Skip updating if it's been less than EL_DON_TEAM_UPDATE_FREQUENCY_MIN since last update
     # for any record - do this first
@@ -107,8 +114,8 @@ def update_donations_if_needed_team(self, teamID):
     # Only force this if there are known donations but none in DB
     # Don't simplify to != as this could cause trashing if team update is behind the donations
     # update
-    #if team.numDonations > 0 and bfilter.count() <= 0:
-    if team.numDonations >0 and bfilter.count() < team.numDonations:
+    # if team.numDonations > 0 and bfilter.count() <= 0:
+    if team.numDonations > 0 and bfilter.count() < team.numDonations:
         return doupdate()
 
     # Force an update if it's been more than EL_DON_TEAM_UPDATE_FREQUENCY_MAX since last
@@ -118,6 +125,7 @@ def update_donations_if_needed_team(self, teamID):
 
     # if all else fails
     return doupdate()
+
 
 @shared_task(bind=True)
 def update_donations_team(self, teamID):
@@ -134,7 +142,12 @@ def update_donations_team(self, teamID):
         team = TeamModel(id=teamID, tracked=False)
         team.save()
 
+    # Team has to be tracked
     if not team.tracked:
+        return None
+
+    # Gotta be in a tracked (or should be tracked) event
+    if team.event_id not in current_el_events():
         return None
 
     for donation in d.donations_for_team(teamID=teamID):
@@ -170,6 +183,7 @@ def update_donations_team(self, teamID):
 
         note_new_donation.s()(tm.id)
 
+
 @shared_task(bind=True)
 def update_donations_if_needed_participant(self, participantID):
     log.debug("update_donations_if_needed_participant: %r", participantID)
@@ -201,6 +215,10 @@ def update_donations_if_needed_participant(self, participantID):
         log.debug(f"Expected a tracked participant - Got {participant}")
         return None
 
+    if participant.event_id not in current_el_events():
+        log.debug(f"Expected a participant in a tracked event - Got {participant}")
+        return None
+
     if DonationModel.objects.all().count() <= 0:
         return doupdate()
 
@@ -210,11 +228,11 @@ def update_donations_if_needed_participant(self, participantID):
     # for any record
     if bfilter.filter(last_updated__gte=minc).count() > 0:
         return None
-    
+
     # Only force this if there are known donations but none in DB
     # Don't simplify to != as this could cause trashing if team update is behind the donations
     # update
-    #if participant.numDonations > 0 and bfilter.count() <= 0:
+    # if participant.numDonations > 0 and bfilter.count() <= 0:
     if participant.numDonations > 0 and bfilter.count() < participant.numDonations:
         return doupdate()
 
@@ -245,6 +263,10 @@ def update_donations_participant(self, participantID):
     # Participant not tracked
     if not participant.tracked:
         log.debug(f"Expected a tracked participant - Got {participant}")
+        return ret
+
+    if participant.event_id not in current_el_events():
+        log.debug(f"Expected a participant in a tracked event - Got {participant}")
         return ret
 
     try:
