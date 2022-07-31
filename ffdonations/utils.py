@@ -121,3 +121,13 @@ def childsplay_donation_stats():
         supportingAmountRaised=float(raised.get('supporting', 0) or 0),
         amountRaised=float(raised.get('amount', 0) or 0),
     )
+
+
+@memoize(timeout=3600)
+def current_el_events():
+    """ Gets a list of valid events """
+    ret=set([e.id for e in EventModel.objects.filter(tracked=True).all()])
+
+    ret.add(TeamModel.objects.get(id=settings.EXTRALIFE_TEAMID).event_id)
+
+    return list(ret)
