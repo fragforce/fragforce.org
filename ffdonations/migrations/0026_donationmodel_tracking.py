@@ -2,7 +2,7 @@
 
 import django.contrib.postgres.fields.hstore
 from django.db import migrations
-
+from django.contrib.postgres.operations import HStoreExtension
 
 class Migration(migrations.Migration):
 
@@ -11,6 +11,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        HStoreExtension(),
         migrations.AddField(
             model_name='donationmodel',
             name='tracking',
