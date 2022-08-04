@@ -71,7 +71,7 @@
         },
         "celery": {
             "extras": [
-                "redis"
+
             ],
             "hashes": [
                 "sha256:138420c020cd58d6707e6257b6beda91fd39af7afde5d36c6334d175302c0e14",
@@ -144,10 +144,10 @@
         },
         "dj-database-url": {
             "hashes": [
-                "sha256:4aeaeb1f573c74835b0686a2b46b85990571159ffc21aa57ecd4d1e1cb334163",
-                "sha256:851785365761ebe4994a921b433062309eb882fedd318e1b0fcecc607ed02da9"
+                "sha256:ccf3e8718f75ddd147a1e212fca88eecdaa721759ee48e38b485481c77bca3dc",
+                "sha256:cd354a3b7a9136d78d64c17b2aec369e2ae5616fbca6bfbe435ef15bb372ce39"
             ],
-            "version": "==0.5.0"
+            "version": "==1.0.0"
         },
         "django": {
             "hashes": [
@@ -598,7 +598,7 @@
         },
         "requests": {
             "extras": [
-
+                "security"
             ],
             "hashes": [
                 "sha256:7c5599b102feddaa661c826c56ab4fee28bfd17f5abca1ebbe3e7f19d7c97983",
@@ -610,11 +610,11 @@
         },
         "setuptools": {
             "hashes": [
-                "sha256:0d33c374d41c7863419fc8f6c10bfe25b7b498aa34164d135c622e52580c6b16",
-                "sha256:c04b44a57a6265fe34a4a444e965884716d34bae963119a76353434d6f18e450"
+                "sha256:7c7854ee1429a240090297628dc9f75b35318d193537968e2dc14010ee2f5bca",
+                "sha256:dc2662692f47d99cb8ae15a784529adeed535bcd7c277fee0beccf961522baf6"
             ],
             "index": "pypi",
-            "version": "==63.2.0"
+            "version": "==63.4.1"
         },
         "six": {
             "hashes": [
