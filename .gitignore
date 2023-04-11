@@ -1,4 +1,5 @@
 # Project Specific excludes
+.env
 env
 uwsgi.ini
 config.py
