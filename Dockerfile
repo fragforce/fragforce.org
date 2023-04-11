@@ -1,10 +1,10 @@
 # Base Image
-FROM python:3.8
+FROM python:3.10
 RUN pip install pipenv
 
 # Having an editor is very nice
 RUN apt-get update && apt-get install -y \
-  vim \
+  vim sqlite3 postgresql \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /code
