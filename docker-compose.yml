@@ -12,6 +12,11 @@ services:
       #HC_RO_URL: "postgres://postgres@db:6432/fragforce_test?sslmode=disable"
       DOCKER: "True"
       DJANGO_LOG_LEVEL: "DEBUG"
+      REDIS_URL: "redis://redis"
+    depends_on:
+      - db
+      - db-hc
+      - redis
   db:
     container_name: postgres
     image: postgres:15.2-alpine
@@ -19,3 +24,13 @@ services:
     environment:
       POSTGRES_HOST_AUTH_METHOD: "trust"
       POSTGRES_DB: "fragforce_test"
+  db-hc:
+    container_name: postgres-hc
+    image: postgres:15.2-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+      POSTGRES_DB: "hc"
+  redis:
+    container_name: redis
+    image: redis
