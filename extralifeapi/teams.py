@@ -54,6 +54,7 @@ class Teams(DonorDriveBase):
     def team(self, teamID):
         """ Get a team """
         fresp = self.fetch(sub_url=self.sub_team_by_tid(teamID))
+        self.l.info("fresp=", extra=dict(fresp=fresp))
         return self._team_to_team(fresp)
 
     def event_teams(self, eventID):
