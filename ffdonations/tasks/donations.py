@@ -115,6 +115,9 @@ def update_donations_if_needed_team(self, teamID):
     # Don't simplify to != as this could cause trashing if team update is behind the donations
     # update
     # if team.numDonations > 0 and bfilter.count() <= 0:
+    if team.numDonations is None:
+        return None
+
     if team.numDonations > 0 and bfilter.count() < team.numDonations:
         return doupdate()
 
