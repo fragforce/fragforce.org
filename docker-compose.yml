@@ -8,8 +8,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: "postgres://postgres@db:5432/fragforce_test?sslmode=disable"
-      HC_RO_URL: "postgres://postgres@db:6432/fragforce_test?sslmode=disable"
+      #DATABASE_URL: "postgres://postgres@db:5432/fragforce_test?sslmode=disable"
+      #HC_RO_URL: "postgres://postgres@db:6432/fragforce_test?sslmode=disable"
       DOCKER: "True"
       DJANGO_LOG_LEVEL: "DEBUG"
   db:

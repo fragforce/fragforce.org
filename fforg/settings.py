@@ -133,6 +133,24 @@ USE_TZ = True
 
 # Change 'default' database configuration with $DATABASE_URL.
 if bool(os.environ.get('DOCKER', 'False').lower() == 'true'):
+    DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.postgresql",
+                "NAME": "fragforce_test",
+                "USER": "postgres",
+                "PASSWORD": "postgres",
+                "HOST": "db",
+                "PORT": 5432,
+                },
+            "hc": {
+                "ENGINE": "django.db.backends.postgresql",
+                "NAME": "fragforce_test",
+                "USER": "postgres",
+                "PASSWORD": "postgres",
+                "HOST": "db",
+                "PORT": 5432,
+                }
+            }
     DATABASES['default'].update(dj_database_url.config(conn_max_age=500))
     DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, env="HC_RO_URL"))
 else:
