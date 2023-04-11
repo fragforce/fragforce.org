@@ -7,3 +7,12 @@ services:
     command: pipenv run python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
+    environment:
+      DATABASE_URL: "postgres://postgres@db:5432/fragforce_test"
+  db:
+    container_name: postgres
+    image: postgres:15.2-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+      POSTGRES_DB: "fragforce_test"
