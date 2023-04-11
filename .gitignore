@@ -4,6 +4,7 @@ env
 uwsgi.ini
 config.py
 *.old
+staticfiles
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
