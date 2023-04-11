@@ -144,10 +144,10 @@ if bool(os.environ.get('DOCKER', 'False').lower() == 'true'):
                 },
             "hc": {
                 "ENGINE": "django.db.backends.postgresql",
-                "NAME": "fragforce_test",
+                "NAME": "hc",
                 "USER": "postgres",
                 "PASSWORD": "postgres",
-                "HOST": "db",
+                "HOST": "db-hc",
                 "PORT": 5432,
                 }
             }
