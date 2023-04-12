@@ -128,7 +128,7 @@ def current_el_events():
     """ Gets a list of valid events """
     ret=set([e.id for e in EventModel.objects.filter(tracked=True).all()])
 
-    if (settings.EXTRALIFE_TEAMID):
+    if settings.EXTRALIFE_TEAMID >= 0:
         try:
             ret.add(TeamModel.objects.get(id=settings.EXTRALIFE_TEAMID).event)
         except TeamModel.DoesNotExist:
