@@ -55,7 +55,7 @@ def update_teams(self, teams=None):
     ret = []
     if teams is None:
         teams = []
-        if settings.EXTRALIFE_TEAMID:
+        if settings.EXTRALIFE_TEAMID >= 0:
             teams.append(settings.EXTRALIFE_TEAMID)
         for sa in SiteAccount.objects.filter(el_id__isnull=False):
             if int(sa.el_id) >= settings.MIN_EL_TEAMID:
@@ -97,6 +97,9 @@ def update_teams(self, teams=None):
             pass
 
         tm.raw = team.raw
+        if settings.EXTRALIFE_TEAMID >= 0:
+            if tm.id == settings.EXTRALIFE_TEAMID:
+                tm.tracked = True
         tm.save()
 
         # Hook in donations update

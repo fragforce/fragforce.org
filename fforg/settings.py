@@ -100,12 +100,10 @@ WSGI_APPLICATION = 'fforg.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
     },
     'hc': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db-hc.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
     },
 }
 DATABASE_ROUTERS = ["fforg.router.HCRouter", ]
@@ -134,8 +132,30 @@ USE_L10N = True
 USE_TZ = True
 
 # Change 'default' database configuration with $DATABASE_URL.
-DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=True))
-DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, ssl_require=True, env="HC_RO_URL"))
+if bool(os.environ.get('DOCKER', 'False').lower() == 'true'):
+    DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.postgresql",
+                "NAME": "fragforce_test",
+                "USER": "postgres",
+                "PASSWORD": "postgres",
+                "HOST": "db",
+                "PORT": 5432,
+                },
+            "hc": {
+                "ENGINE": "django.db.backends.postgresql",
+                "NAME": "hc",
+                "USER": "postgres",
+                "PASSWORD": "postgres",
+                "HOST": "db-hc",
+                "PORT": 5432,
+                }
+            }
+    DATABASES['default'].update(dj_database_url.config(conn_max_age=500))
+    DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, env="HC_RO_URL"))
+else:
+    DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=True))
+    DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, ssl_require=True, env="HC_RO_URL"))
 try:
     DATABASES['hc']['OPTIONS']['options'] = '-c search_path=%s' % os.environ.get('HC_RO_SCHEMA', 'org')
 except KeyError as e:
@@ -162,7 +182,10 @@ STATICFILES_DIRS = [
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-SECURE_SSL_REDIRECT = True
+if bool(os.environ.get('DOCKER', 'False').lower() == 'true'):
+    SECURE_SSL_REDIRECT = False
+else:
+    SECURE_SSL_REDIRECT = True
 
 # Heroku auto set
 HEROKU_APP_ID = os.environ.get('HEROKU_APP_ID', None)
@@ -258,9 +281,9 @@ VIEW_SITE_SITE_CACHE = int(os.environ.get('VIEW_SITE_SITE_CACHE', 60))
 VIEW_SITE_STATIC_CACHE = int(os.environ.get('VIEW_SITE_STATIC_CACHE', 300))
 
 # Extra Life Limits and Data
-EXTRALIFE_TEAMID = int(os.environ.get('EXTRALIFE_TEAMID', 55801))
-MIN_EL_TEAMID = int(os.environ.get('MIN_EL_TEAMID', 55378))
-MIN_EL_PARTICIPANTID = int(os.environ.get('MIN_EL_PARTICIPANTID', 448472))
+EXTRALIFE_TEAMID = int(os.environ.get('EXTRALIFE_TEAMID', 0))
+MIN_EL_TEAMID = int(os.environ.get('MIN_EL_TEAMID', 63271))
+MIN_EL_PARTICIPANTID = int(os.environ.get('MIN_EL_PARTICIPANTID', 508522))
 
 # Min time between team updates - Only cares about tracked teams!
 EL_TEAM_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MIN', 5)))
