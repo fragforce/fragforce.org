@@ -130,7 +130,7 @@ def current_el_events():
 
     if settings.EXTRALIFE_TEAMID >= 0:
         try:
-            ret.add(TeamModel.objects.get(id=settings.EXTRALIFE_TEAMID).event)
+            ret.add(TeamModel.objects.get(id=settings.EXTRALIFE_TEAMID).event_id)
         except TeamModel.DoesNotExist:
             pass
 
