@@ -128,6 +128,10 @@ def current_el_events():
     """ Gets a list of valid events """
     ret=set([e.id for e in EventModel.objects.filter(tracked=True).all()])
 
-    ret.add(TeamModel.objects.get(id=settings.EXTRALIFE_TEAMID).event_id)
+    if (settings.EXTRALIFE_TEAMID):
+        try:
+            ret.add(TeamModel.objects.get(id=settings.EXTRALIFE_TEAMID).event)
+        except TeamModel.DoesNotExist:
+            pass
 
     return list(ret)
