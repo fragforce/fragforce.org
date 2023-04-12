@@ -8,3 +8,4 @@ cat /code/dev/ffsfdc.sql | pipenv run python manage.py dbshell --database hc
 pipenv run python manage.py migrate
 # Collect static files
 pipenv run python manage.py collectstatic --no-input
+pipenv shell
