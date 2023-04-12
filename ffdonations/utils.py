@@ -33,14 +33,22 @@ def el_teams(year=timezone.now().year):
     """ Returns a list of team IDs that we're tracking for the given year """
     from ffdonations.tasks.teams import update_teams
     yr = event_name_maker(year=year)
-    ret = set([])
+    ret = set()
+    # Always include the EXTRALIFE_TEAMID team
+    if settings.EXTRALIFE_TEAMID > 0:
+        ret.add(settings.EXTRALIFE_TEAMID)
+    # Append all tracked teams in the current event
+    trackedTeams = TeamModel.objects.filter(tracked=True, event__id__in=current_el_events())
+    for tm in trackedTeams:
+        ret.add(tm.id)
+    # Append any salesforce org teams that have extra life IDs attached as well
     for sa in SiteAccount.objects.filter(el_id__isnull=False).only('el_id').all():
         try:
             # Only query the api at all if we have MIN_EL_TEAMID set and our id >= it
             if settings.MIN_EL_TEAMID:
                 if int(sa.el_id) >= settings.MIN_EL_TEAMID:
                     tm = TeamModel.objects.get(id=int(sa.el_id))
-                    if tm.event is not None and tm.event.name == yr:
+                    if tm.event is not None and tm.event.id in current_el_events():
                         ret.add(tm.id)
         except TeamModel.DoesNotExist:
             update_teams.delay([sa.el_id, ])
@@ -73,15 +81,8 @@ def el_num_donations(year=timezone.now().year):
     tsum = teams.aggregate(ttl=Sum('numDonations')).get('ttl', 0)
     if tsum is None:
         tsum = 0
-    psum = ParticipantModel.objects.filter(id__in=el_contact(year=year), tracked=True) \
-        .filter(~Q(team__in=teams)) \
-        .aggregate(ttl=Sum('numDonations')).get('ttl', 0)
-    if psum is None:
-        psum = 0
     return dict(
-        countDonations=float(tsum + psum),
-        countTeamDonations=float(tsum),
-        countParticipantDonations=float(psum),
+        countDonations=float(tsum),
     )
 
 
@@ -92,15 +93,8 @@ def el_donation_stats(year=timezone.now().year):
     tsum = teams.aggregate(ttl=Sum('sumDonations')).get('ttl', 0)
     if tsum is None:
         tsum = 0
-    psum = ParticipantModel.objects.filter(id__in=el_contact(year=year), tracked=True) \
-        .filter(~Q(team__in=teams)) \
-        .aggregate(ttl=Sum('sumDonations')).get('ttl', 0)
-    if psum is None:
-        psum = 0
     return dict(
-        sumDonations=float(tsum + psum),
-        sumteamDonations=float(tsum),
-        sumparticipantDonations=float(psum),
+        sumDonations=float(tsum),
     )
 
 
