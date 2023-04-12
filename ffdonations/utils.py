@@ -40,7 +40,7 @@ def el_teams(year=timezone.now().year):
             if settings.MIN_EL_TEAMID:
                 if int(sa.el_id) >= settings.MIN_EL_TEAMID:
                     tm = TeamModel.objects.get(id=int(sa.el_id))
-                    if tm.event.name == yr:
+                    if tm.event is not None and tm.event.name == yr:
                         ret.add(tm.id)
         except TeamModel.DoesNotExist:
             update_teams.delay([sa.el_id, ])
