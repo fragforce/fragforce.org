@@ -52,7 +52,7 @@ Various donation sync options
 
 ### Initial Setup
 
-* `cp env.example .env`
+* `cp env.sample .env`
 * generate a secret key and set it in the `SECRET_KEY` value in `.env`, not required, but best practice
 * `docker-compose up -d` to spin up all the containers
 * `docker-compose exec web bash` to shell into the main web container
