@@ -281,9 +281,9 @@ VIEW_SITE_SITE_CACHE = int(os.environ.get('VIEW_SITE_SITE_CACHE', 60))
 VIEW_SITE_STATIC_CACHE = int(os.environ.get('VIEW_SITE_STATIC_CACHE', 300))
 
 # Extra Life Limits and Data
-EXTRALIFE_TEAMID = int(os.environ.get('EXTRALIFE_TEAMID', 55801))
-MIN_EL_TEAMID = int(os.environ.get('MIN_EL_TEAMID', 55378))
-MIN_EL_PARTICIPANTID = int(os.environ.get('MIN_EL_PARTICIPANTID', 448472))
+EXTRALIFE_TEAMID = int(os.environ.get('EXTRALIFE_TEAMID', 0))
+MIN_EL_TEAMID = int(os.environ.get('MIN_EL_TEAMID', 63271))
+MIN_EL_PARTICIPANTID = int(os.environ.get('MIN_EL_PARTICIPANTID', 508522))
 
 # Min time between team updates - Only cares about tracked teams!
 EL_TEAM_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MIN', 5)))
