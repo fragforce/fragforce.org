@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.cache import cache_page
 
 from ..tasks import *
-from ..utils import event_name_maker
+from ..utils import el_teams
 
 
 @cache_page(settings.VIEW_DONATIONS_CACHE)
@@ -13,7 +13,7 @@ def v_donations(request):
     recordCountVar = request.GET.get('recordCount', '0')
     recordCountInt = int(recordCountVar)
     update_donations_if_needed.delay()
-    listedDonos = DonationModel.objects.order_by(orderByVar).filter(participant__event__id__in=current_el_events())
+    listedDonos = DonationModel.objects.order_by(orderByVar).filter(team__id__in=el_teams())
     if filterByVar != 'none':
         listedDonos = listedDonos.filter(participant_id=filterByVar, amount__isnull=False)
     else:
