@@ -28,6 +28,7 @@ def start_srt(request):
     # Change key to GUID
     return HttpResponse("OK")
 
+
 @csrf_exempt
 @require_POST
 def start_livestream(request):

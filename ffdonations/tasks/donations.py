@@ -8,8 +8,8 @@ from django.utils import timezone
 from requests.exceptions import HTTPError
 
 from extralifeapi.donors import Donations
-from ..models import *
 from .sender import note_new_donation
+from ..models import *
 from ..utils import current_el_events
 
 log = logging.getLogger("donations")
@@ -192,7 +192,7 @@ def update_donations_if_needed_participant(self, participantID):
     log.debug("update_donations_if_needed_participant: %r", participantID)
 
     def doupdate():
-        return update_donations_participant(participantID=participantID)
+        return update_donations_participant(participant_id=participantID)
 
     try:
         participant = ParticipantModel.objects.get(id=participantID)
@@ -249,18 +249,18 @@ def update_donations_if_needed_participant(self, participantID):
 
 
 @shared_task(bind=True)
-def update_donations_participant(self, participantID):
+def update_donations_participant(self, participant_id):
     """ """
     d = _make_d()
     ret = []
 
-    if participantID is None:
+    if participant_id is None:
         return ret
 
     try:
-        participant = ParticipantModel.objects.get(id=participantID)
+        participant = ParticipantModel.objects.get(id=participant_id)
     except ParticipantModel.DoesNotExist as e:
-        participant = ParticipantModel(id=participantID, tracked=False)
+        participant = ParticipantModel(id=participant_id, tracked=False)
         participant.save()
 
     # Participant not tracked
@@ -273,7 +273,7 @@ def update_donations_participant(self, participantID):
         return ret
 
     try:
-        donations = list(d.donations_for_participants(participantID=participantID))
+        donations = list(d.donations_for_participants(participantID=participant_id))
     except HTTPError:
         participant.tracked = False
         participant.last_updated = timezone.now()

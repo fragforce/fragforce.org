@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('ffdonations', '0023_donationtiltifymodel_campaign'),
     ]

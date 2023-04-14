@@ -120,7 +120,7 @@ def childsplay_donation_stats():
 @memoize(timeout=3600)
 def current_el_events():
     """ Gets a list of valid events """
-    ret=set([e.id for e in EventModel.objects.filter(tracked=True).all()])
+    ret = set([e.id for e in EventModel.objects.filter(tracked=True).all()])
 
     if settings.EXTRALIFE_TEAMID >= 0:
         try:
