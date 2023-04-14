@@ -1,9 +1,9 @@
 import datetime
 import uuid
 
+from django.contrib.postgres.fields import HStoreField
 from django.db import models
 from django.db.models import Q
-from django.contrib.postgres.fields import HStoreField
 
 
 ## Extra-Life
