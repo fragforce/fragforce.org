@@ -3,6 +3,7 @@ from random import choice
 from ffdonations.models import ParticipantModel
 from ffdonations.utils import el_teams
 
+
 def random_contact():
     """ Returns a randomly selected Contact """
     # Limit all queries to these

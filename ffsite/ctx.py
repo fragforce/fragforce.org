@@ -1,7 +1,6 @@
 import datetime
 
 from django.conf import settings
-from django.utils import timezone
 
 from ffsfdc.models import *
 

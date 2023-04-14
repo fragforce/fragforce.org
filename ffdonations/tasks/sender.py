@@ -1,9 +1,8 @@
-from celery import shared_task
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from ..models import *
-from django.conf import settings
 import requests
+from celery import shared_task
+from django.conf import settings
+
+from ..models import *
 
 TRACKING_BOT = 'TRACKING_BOT'
 
@@ -29,7 +28,7 @@ def note_new_donation(self, donationID):
     """ Send out a new donation """
 
     donation = DonationModel.objects.get(pk=donationID)
-    
+
     # Don't send anything, but do mark the donation as tracked if no key set
     if settings.FRAG_BOT_KEY == "":
         donation.tracking[TRACKING_BOT] = '1'

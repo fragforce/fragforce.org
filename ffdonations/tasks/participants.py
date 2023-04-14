@@ -2,7 +2,6 @@ from __future__ import absolute_import, unicode_literals
 
 from celery import shared_task
 from django.conf import settings
-from django.utils import timezone
 
 from extralifeapi.participants import Participants
 from ffsfdc.models import *

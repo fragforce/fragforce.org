@@ -11,7 +11,8 @@ class Key(models.Model):
     created = models.DateTimeField(verbose_name="Created At", null=True, blank=True, auto_now_add=True)
     modified = models.DateTimeField(null=False, auto_now=True, blank=True, verbose_name="Modified At")
     is_live = models.BooleanField(null=False, default=False, blank=True, verbose_name="Is Live")
-    livestream = models.BooleanField(null=False, default=False, blank=True, verbose_name="Can be used to live stream via reflector directly")
+    livestream = models.BooleanField(null=False, default=False, blank=True,
+                                     verbose_name="Can be used to live stream via reflector directly")
     active = models.BooleanField(default=True, blank=True, verbose_name="Can be used for streaming")
     pull = models.BooleanField(default=False, blank=True, verbose_name="Can be used for pulling streaming")
 
