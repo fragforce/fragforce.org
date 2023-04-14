@@ -54,7 +54,7 @@ def note_new_donation(self, donationID):
     payload = {
         'webauth': settings.FRAG_BOT_KEY,
         'user': settings.FRAG_BOT_BOT,
-        'message': message,
+        'message': message.encode('utf-8'),
     }
     r = requests.put(settings.FRAG_BOT_API, headers=payload)
     r.raise_for_status()
