@@ -71,7 +71,7 @@
         },
         "celery": {
             "extras": [
-
+                "redis"
             ],
             "hashes": [
                 "sha256:138420c020cd58d6707e6257b6beda91fd39af7afde5d36c6334d175302c0e14",
@@ -571,11 +571,11 @@
         },
         "pip": {
             "hashes": [
-                "sha256:408539897ee535dbfb83a153f7bc4d620f990d8bd44a52a986efc0b4d330d34a",
-                "sha256:64b1d4528e491aa835ec6ece0c1ac40ce6ab6d886e60740f6519db44b2e9634d"
+                "sha256:3d8d72fa0714e93c9d3c2a0ede91e898c64596e0fa7d4523f72dd95728efc418",
+                "sha256:c95b53d309f903f33dfe5fd37e502a5c3a05ee3454d518e45df522a4f091b728"
             ],
             "index": "pypi",
-            "version": "==23.1"
+            "version": "==23.1.1"
         },
         "prompt-toolkit": {
             "hashes": [
@@ -729,9 +729,6 @@
             "version": "==3.5.3"
         },
         "requests": {
-            "extras": [
-
-            ],
             "hashes": [
                 "sha256:64299f4909223da747622c030b781c0d7811e359c37124b4bd368fb8c6518baa",
                 "sha256:98b1b2782e3c6c4904938b84c0eb932721069dfdb9134313beff7c83c2df24bf"
