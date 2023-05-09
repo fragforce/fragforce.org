@@ -1,8 +1,6 @@
 from django.http import JsonResponse
-from django.conf import settings
-from django.db.models import Avg, Max, Min, Sum
-from django.http import JsonResponse
 from django.views.decorators.cache import cache_page
+
 from ..tasks import *
 
 

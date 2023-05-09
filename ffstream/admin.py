@@ -37,7 +37,7 @@ class KeyAdmin(admin.ModelAdmin):
     date_hierarchy = "modified"
     list_filter = (
         "is_live",
-        #"active",
+        # "active",
         ActiveBooleanDefault,
         "livestream",
         "pull",
