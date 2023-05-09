@@ -1,0 +1,16 @@
+FROM python:3-alpine
+
+
+COPY ./extralifeapi /code/
+COPY ./ffdonations /code/
+COPY ./fforg /code/
+COPY ./ffsite /code/
+COPY ./ffsfdc /code/
+COPY ./ffstream /code/
+COPY ./manage.py /code/
+COPY ./Pipfil* /code/
+WORKDIR /code
+
+RUN pipfile install
+
+CMD [ "gunicorn", "fforg.wsgi" ]
