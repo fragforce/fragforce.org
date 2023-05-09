@@ -1,0 +1,8 @@
+FROM python:3-alpine
+
+COPY . /code
+WORKDIR /code
+
+RUN pipfile install
+
+CMD [ "python", "manage.py", "runserver" ]
