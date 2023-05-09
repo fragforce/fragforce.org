@@ -11,6 +11,7 @@ COPY ./manage.py /code/
 COPY ./Pipfil* /code/
 WORKDIR /code
 
-RUN pip install
+RUN pipenv update
+
 
 CMD [ "gunicorn", "fforg.wsgi" ]
