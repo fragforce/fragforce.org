@@ -30,15 +30,15 @@ def update_teams_if_needed(self):
 
     bq = TeamModel.objects.filter(tracked=True)
 
-    # Force an update if it's been more than EL_TEAM_UPDATE_FREQUENCY_MAX since last
-    # update for any record
-    if bq.filter(last_updated__lte=maxc).count() > 0:
-        return doupdate()
-
     # Skip updating if it's been less than EL_TEAM_UPDATE_FREQUENCY_MIN since last update
     # for any record
     if bq.filter(last_updated__gte=minc).count() > 0:
         return None
+
+    # Force an update if it's been more than EL_TEAM_UPDATE_FREQUENCY_MAX since last
+    # update for any record
+    if bq.filter(last_updated__lte=maxc).count() > 0:
+        return doupdate()
 
     # Guess we'll do an update!
     return doupdate()
@@ -51,13 +51,18 @@ def update_teams(self, teams=None):
     WARNING: If teams is None then will fetch a list of ALL teams - May make many requests
     """
     from .donations import update_donations_if_needed_team
-    t = _make_team()
+    el_api = _make_team()
     ret = []
     if teams is None:
-        tr = t.teams()
-    else:
-        tr = [t.team(teamID=int(tid)) for tid in teams]
-    for team in tr:
+        teams = []
+        if settings.EXTRALIFE_TEAMID >= 0:
+            teams.append(settings.EXTRALIFE_TEAMID)
+        for sa in SiteAccount.objects.filter(el_id__isnull=False):
+            if int(sa.el_id) >= settings.MIN_EL_TEAMID:
+                teams.append(int(sa.el_id))
+
+    el_teams = [el_api.team(teamID=int(tid)) for tid in teams]
+    for team in el_teams:
         if team.eventID:
             try:
                 evt = EventModel.objects.get(id=team.eventID)
@@ -92,6 +97,9 @@ def update_teams(self, teams=None):
             pass
 
         tm.raw = team.raw
+        if settings.EXTRALIFE_TEAMID >= 0:
+            if tm.id == settings.EXTRALIFE_TEAMID:
+                tm.tracked = True
         tm.save()
 
         # Hook in donations update

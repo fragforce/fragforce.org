@@ -8,7 +8,7 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
-
+import datetime
 import os
 from datetime import timedelta
 
@@ -18,6 +18,8 @@ import django_heroku
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+LOGZIO_API_KEY = None  # Need to remove ASAP
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -35,9 +37,7 @@ if SECRET_KEY == 'INSECURE':
     else:
         raise ValueError("SECRET_KEY env var must be defined when not in DEBUG=True")
 
-# FIXME: Add LOGZ.IO Logging
-LOGZIO_API_KEY = os.environ.get('LOGZIO_API_KEY', None)
-
+STREAM_URL = os.environ.get('STREAM_URL', None)
 # Application definition
 
 STREAM_DASH_BASE = os.environ.get("STREAM_DASH_BASE", "https://stream.fragforce.org")
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.postgres',
     # Disable Django's own staticfiles handling in favour of WhiteNoise, for
     # greater consistency between gunicorn and `./manage.py runserver`. See:
     # http://whitenoise.evans.io/en/stable/django.html#using-whitenoise-in-development
@@ -99,12 +100,10 @@ WSGI_APPLICATION = 'fforg.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
     },
     'hc': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db-hc.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
     },
 }
 DATABASE_ROUTERS = ["fforg.router.HCRouter", ]
@@ -133,8 +132,30 @@ USE_L10N = True
 USE_TZ = True
 
 # Change 'default' database configuration with $DATABASE_URL.
-DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=True))
-DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, ssl_require=True, env="HC_RO_URL"))
+if bool(os.environ.get('DOCKER', 'False').lower() == 'true'):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "fragforce_test",
+            "USER": "postgres",
+            "PASSWORD": "postgres",
+            "HOST": "db",
+            "PORT": 5432,
+        },
+        "hc": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "hc",
+            "USER": "postgres",
+            "PASSWORD": "postgres",
+            "HOST": "db-hc",
+            "PORT": 5432,
+        }
+    }
+    DATABASES['default'].update(dj_database_url.config(conn_max_age=500))
+    DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, env="HC_RO_URL"))
+else:
+    DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=True))
+    DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, ssl_require=True, env="HC_RO_URL"))
 try:
     DATABASES['hc']['OPTIONS']['options'] = '-c search_path=%s' % os.environ.get('HC_RO_SCHEMA', 'org')
 except KeyError as e:
@@ -161,7 +182,10 @@ STATICFILES_DIRS = [
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-SECURE_SSL_REDIRECT = True
+if bool(os.environ.get('DOCKER', 'False').lower() == 'true'):
+    SECURE_SSL_REDIRECT = False
+else:
+    SECURE_SSL_REDIRECT = True
 
 # Heroku auto set
 HEROKU_APP_ID = os.environ.get('HEROKU_APP_ID', None)
@@ -175,6 +199,10 @@ HEROKU_SLUG_DESCRIPTION = os.environ.get('HEROKU_SLUG_DESCRIPTION', None)
 SINGAPORE_DONATIONS = float(os.environ.get('SINGAPORE_DONATIONS', '0.0'))
 OTHER_DONATIONS = float(os.environ.get('OTHER_DONATIONS', '0.0'))
 TARGET_DONATIONS = float(os.environ.get('TARGET_DONATIONS', '1.0'))
+
+FRAG_BOT_API = os.environ.get('FRAG_BOT_API', 'https://bot.fragforce.org/dbquery')
+FRAG_BOT_KEY = os.environ.get('FRAG_BOT_KEY', '')
+FRAG_BOT_BOT = os.environ.get('FRAG_BOT_BOT', 'misterfragbot')
 
 # Cache version prefix
 VERSION = int(HEROKU_RELEASE_VERSION_NUM)
@@ -252,31 +280,36 @@ VIEW_SITE_EVENT_CACHE = int(os.environ.get('VIEW_SITE_EVENT_CACHE', 60))
 VIEW_SITE_SITE_CACHE = int(os.environ.get('VIEW_SITE_SITE_CACHE', 60))
 VIEW_SITE_STATIC_CACHE = int(os.environ.get('VIEW_SITE_STATIC_CACHE', 300))
 
+# Extra Life Limits and Data
+EXTRALIFE_TEAMID = int(os.environ.get('EXTRALIFE_TEAMID', 0))
+MIN_EL_TEAMID = int(os.environ.get('MIN_EL_TEAMID', 63271))
+MIN_EL_PARTICIPANTID = int(os.environ.get('MIN_EL_PARTICIPANTID', 508522))
+
 # Min time between team updates - Only cares about tracked teams!
-EL_TEAM_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MIN', 30)))
+EL_TEAM_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MIN', 5)))
 # Max time between updates for any given team - Only cares about tracked teams!
-EL_TEAM_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MAX', 120)))
+EL_TEAM_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MAX', 15)))
 # How often to check for updates
 EL_TEAM_UPDATE_FREQUENCY_CHECK = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_CHECK', 5)))
 
 # Min time between participants updates - Only cares about tracked participants!
-EL_PTCP_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_PTCP_UPDATE_FREQUENCY_MIN', 120)))
+EL_PTCP_UPDATE_FREQUENCY_MIN = timedelta(seconds=int(os.environ.get('EL_PTCP_UPDATE_FREQUENCY_MIN', 15)))
 # Max time between updates for any given participants - Only cares about tracked participants!
-EL_PTCP_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_PTCP_UPDATE_FREQUENCY_MAX', 300)))
+EL_PTCP_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_PTCP_UPDATE_FREQUENCY_MAX', 1)))
 # How often to check for updates
-EL_PTCP_UPDATE_FREQUENCY_CHECK = timedelta(minutes=int(os.environ.get('EL_PTCP_UPDATE_FREQUENCY_CHECK', 30)))
+EL_PTCP_UPDATE_FREQUENCY_CHECK = timedelta(seconds=int(os.environ.get('EL_PTCP_UPDATE_FREQUENCY_CHECK', 5)))
 
 # Min time between donation list updates - Only cares about tracked teams/participants!
-EL_DON_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_DON_UPDATE_FREQUENCY_MIN', 60)))
+EL_DON_UPDATE_FREQUENCY_MIN = timedelta(seconds=int(os.environ.get('EL_DON_UPDATE_FREQUENCY_MIN', 30)))
 # Max time between updates for any given donation list - Only cares about tracked teams/participants!
-EL_DON_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_DON_UPDATE_FREQUENCY_MAX', 300)))
+EL_DON_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_DON_UPDATE_FREQUENCY_MAX', 5)))
 # How often to check for updates
-EL_DON_UPDATE_FREQUENCY_CHECK = timedelta(minutes=int(os.environ.get('EL_DON_UPDATE_FREQUENCY_CHECK', 15)))
+EL_DON_UPDATE_FREQUENCY_CHECK = timedelta(seconds=int(os.environ.get('EL_DON_UPDATE_FREQUENCY_CHECK', 5)))
 
 # Min time between donation list updates for a team - Only cares about tracked teams
-EL_DON_TEAM_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_DON_TEAM_UPDATE_FREQUENCY_MIN', 5)))
+EL_DON_TEAM_UPDATE_FREQUENCY_MIN = timedelta(seconds=int(os.environ.get('EL_DON_TEAM_UPDATE_FREQUENCY_MIN', 30)))
 # Max time between updates of donations for any given team - Only cares about tracked teams
-EL_DON_TEAM_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_DON_TEAM_UPDATE_FREQUENCY_MAX', 15)))
+EL_DON_TEAM_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_DON_TEAM_UPDATE_FREQUENCY_MAX', 5)))
 
 # Min time between donation list updates for a participants - Only cares about tracked participants
 EL_DON_PTCP_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_DON_PTCP_UPDATE_FREQUENCY_MIN', 5)))
@@ -286,18 +319,24 @@ EL_DON_PTCP_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_DON_
 # Min time between EL REST requests
 EL_REQUEST_MIN_TIME = timedelta(seconds=int(os.environ.get('EL_REQUEST_MIN_TIME_SECONDS', 15)))
 # Min time between EL REST requests for any given URL
-EL_REQUEST_MIN_TIME_URL = timedelta(seconds=int(os.environ.get('EL_REQUEST_MIN_TIME_URL_SECONDS', 120)))
+EL_REQUEST_MIN_TIME_URL = timedelta(seconds=int(os.environ.get('EL_REQUEST_MIN_TIME_URL_SECONDS', 15)))
 # Min time between request for any given remote host
-REQUEST_MIN_TIME_HOST = timedelta(seconds=int(os.environ.get('REQUEST_MIN_TIME_HOST_SECONDS', 5)))
+REQUEST_MIN_TIME_HOST = timedelta(seconds=int(os.environ.get('REQUEST_MIN_TIME_HOST_SECONDS', 15)))
 
 # How often to check for updates
-TIL_TEAMS_UPDATE_FREQUENCY_CHECK = timedelta(minutes=int(os.environ.get('TIL_TEAMS_UPDATE_FREQUENCY_CHECK', 10)))
+TIL_TEAMS_UPDATE_FREQUENCY_CHECK = timedelta(minutes=int(os.environ.get('TIL_TEAMS_UPDATE_FREQUENCY_CHECK', 1)))
+
+# How often to check for missed donations to send to twitch bot
+SEND_MISSED_DONATIONS = datetime.timedelta(minutes=int(os.environ.get('SEND_MISSED_DONATIONS', 10)))
 
 # How long to wait in seconds after getting a parent before fetching any children
 TF_UPDATE_WAIT = timedelta(seconds=int(os.environ.get('TF_UPDATE_WAIT', 120)))
 
 # Comma seperated list of tiltify teams (the slugs or IDs) to monitor
 TILTIFY_TEAMS = os.environ.get('TILTIFY_TEAMS', 'fragforce').split(',')
+
+# Current Extra-Life event id - Unused atm
+EL_EVENT_ID = int(os.environ.get('EL_EVENT_ID', -1))
 
 # Cache Configuration
 if REDIS_URL_BASE and REDIS_URL_BASE == REDIS_URL_DEFAULT:
@@ -377,6 +416,10 @@ CELERY_BEAT_SCHEDULE = {
     'til-update-all-teams': {
         'task': 'ffdonations.tasks.tiltify.teams.update_teams',
         'schedule': TIL_TEAMS_UPDATE_FREQUENCY_CHECK,
+    },
+    'send-missed-tracks': {
+        'task': 'ffdonations.tasks.sender.note_new_donations',
+        'schedule': SEND_MISSED_DONATIONS,
     },
 }
 

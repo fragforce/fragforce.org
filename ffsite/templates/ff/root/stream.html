@@ -1,0 +1,36 @@
+{% extends "ff/base.html" %}
+
+{% block title %}Stream{% endblock %}
+
+{% block head %}
+<script src="https://embed.twitch.tv/embed/v1.js"
+        integrity="sha384-F1TLMZiu0KAVT9z4j3dSP+cNoR7mq05K3GpwzCWZkPSZAALBEpprSJMEZ5CuSTcA"></script>
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-lg">
+            <div class="row">
+                <div class="col-lg border border-light rounded p-3 m-4 card">
+                    <h2>Interested In Watching Our Live Stream?</h2>
+                    <div id="twitch-embed"></div>
+                    <script type="text/javascript">
+                      new Twitch.Embed("twitch-embed", {
+                        width: "100%",
+                        height: 480,
+                        channel: "fragforce",
+                        theme: "dark"
+                      });
+                    </script>
+                    <p>Head over to <a href="http://twitch.tv/fragforce">http://twitch.tv/fragforce</a>!</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm border border-light rounded p-3 m-4 card">
+            <h2>Streaming Schedule (US/East)</h2>
+            <iframe title="Google Calendar of Fragforce live stream schedule" style="border-width: 0;"
+                    src="{{ stream_url }}" width="900" height="917" frameborder="0"
+                    scrolling="no"></iframe>
+        </div>
+    </div>
+{% endblock %}

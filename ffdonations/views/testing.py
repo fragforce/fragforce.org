@@ -1,6 +1,5 @@
 from functools import wraps
 
-from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import Http404
 

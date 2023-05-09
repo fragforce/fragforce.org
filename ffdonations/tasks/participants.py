@@ -2,7 +2,6 @@ from __future__ import absolute_import, unicode_literals
 
 from celery import shared_task
 from django.conf import settings
-from django.utils import timezone
 
 from extralifeapi.participants import Participants
 from ffsfdc.models import *
@@ -58,7 +57,10 @@ def update_participants(self, participants=None):
 
     # Fetch data from EL
     if participants is None:
-        tr = p.participants()
+        if settings.EXTRALIFE_TEAMID >= 0:
+            tr = p.participants_for_team(settings.EXTRALIFE_TEAMID)
+        else:
+            raise ValueError("Invalid settings.EXTRALIFE_TEAMID value")
     else:
         tr = [p.participant(int(participantID)) for participantID in participants]
 

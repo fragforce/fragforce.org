@@ -103,8 +103,11 @@ class DonorDriveBase(object):
         e = dict(url=url, data=kwargs)
 
         fresp = self.fetch_json(url=url, **kwargs)
-        for row in fresp.data:
-            yield row
+        if isinstance(fresp.data, list):
+            for row in fresp.data:
+                yield row
+        else:
+            yield fresp.data
 
         while 'next' in fresp.urls:
             fresp = self.fetch_json(url=fresp.urls['next'])

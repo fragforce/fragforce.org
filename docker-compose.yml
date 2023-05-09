@@ -1,0 +1,41 @@
+version: "3"
+services:
+  web:
+    build: .
+    volumes:
+      - .:/code
+    command: pipenv run python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    environment:
+      TZ: "Etc/UTC"
+      #DATABASE_URL: "postgres://postgres@db:5432/fragforce_test?sslmode=disable"
+      #HC_RO_URL: "postgres://postgres@db:6432/fragforce_test?sslmode=disable"
+      DOCKER: "True"
+      DJANGO_LOG_LEVEL: "DEBUG"
+      REDIS_URL: "redis://redis"
+    depends_on:
+      - db
+      - db-hc
+      - redis
+  db:
+    container_name: postgres
+    image: postgres:15.2-alpine
+    restart: unless-stopped
+    environment:
+      TZ: "Etc/UTC"
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+      POSTGRES_DB: "fragforce_test"
+  db-hc:
+    container_name: postgres-hc
+    image: postgres:15.2-alpine
+    restart: unless-stopped
+    environment:
+      TZ: "Etc/UTC"
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+      POSTGRES_DB: "hc"
+  redis:
+    container_name: redis
+    image: redis
+    environment:
+      TZ: "Etc/UTC"

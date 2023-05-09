@@ -18,7 +18,7 @@ from django.urls import path
 from ffdonations.views import *
 
 urlpatterns = [
-    # Test stuff
+    # Test stuff - Only enabled if DEBUG=True
     path('test', v_testView, name='testview'),
     path('update/force', v_forceUpdate, name='force-update'),
     # Teams

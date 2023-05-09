@@ -10,6 +10,46 @@ from .models import *
 
 @csrf_exempt
 @require_POST
+def start_srt(request):
+    skey = request.POST['name']
+    key = get_object_or_404(Key, id=skey)
+    if not key.active:
+        return HttpResponseForbidden("inactive key")
+    # if key.is_live:
+    # What to do if already live?
+
+    key.is_live = True
+    key.save()
+
+    stream = Stream(key=key, is_live=True, started=timezone.now(), ended=None)
+    stream.save()
+    stream.set_stream_key()  # No save needed
+
+    # Change key to GUID
+    return HttpResponse("OK")
+
+
+@csrf_exempt
+@require_POST
+def start_livestream(request):
+    skey = request.POST['name']
+    key = get_object_or_404(Key, id=skey)
+    if not key.active:
+        return HttpResponseForbidden("inactive key")
+    if not key.livestream:
+        return HttpResponseForbidden("Key not allowed to livestream")
+    key.is_live = True
+    key.save
+
+    stream = Stream(key=key, is_live=True, started=timezone.now(), ended=None)
+    stream.save
+    stream.set_stream_key()
+
+    return HttpResponse("OK")
+
+
+@csrf_exempt
+@require_POST
 def start(request):
     skey = request.POST['name']
     key = get_object_or_404(Key, id=skey)

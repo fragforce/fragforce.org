@@ -79,7 +79,7 @@
                         <a class="dropdown-item" href="{% url 'org_events_upcoming' %}">Upcoming Events</a>
                         <div class="dropdown-divider"></div>
                         {% for event in upcoming_events %}
-                        <a class="dropdown-item" href="{% url 'org_event' sfid=event.sfid %}">{{ event.name }}</a>
+                            <a class="dropdown-item" href="{% url 'org_event' sfid=event.sfid %}">{{ event.name }}</a>
                         {% endfor %}
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{% url 'org_events' %}">All Events</a>
@@ -89,10 +89,14 @@
                     <a class="nav-link" href="{% url 'donate' %}">Donate</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="{% url 'stream' %}">Stream</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{% url 'contact' %}">Contact</a>
                 </li>
                 <li class="nav-item">
-                      <a class="nav-link" href="https://fragforce.lightning.force.com" rel="noopener noreferrer" target="_blank">Fragforce Org Login</a>
+                    <a class="nav-link" href="https://fragforce.lightning.force.com" rel="noopener noreferrer"
+                       target="_blank">Fragforce Org Login</a>
                 </li>
             </ul>
             <ul class="navbar-nav navbar-right">

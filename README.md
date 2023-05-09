@@ -42,3 +42,19 @@ Fragforce.org pages
 
 ### ffdonations
 Various donation sync options
+
+## Development
+
+### Requirements
+
+* [Docker](https://docker.com) 
+* [Docker Compose](https://docs.docker.com/compose/)
+
+### Initial Setup
+
+* `cp env.sample .env`
+* generate a secret key and set it in the `SECRET_KEY` value in `.env`, not required, but best practice
+* `docker-compose up -d` to spin up all the containers
+* `docker-compose exec web bash` to shell into the main web container
+* `dev/init.sh` to load the hc initial data, run migrations, collectstatic, and activate the pipenv
+* `python manage.py shell` to load a django shell, or `python manage.py dbshell` to connect to the database to verify data after running tasks

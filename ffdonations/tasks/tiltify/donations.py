@@ -1,5 +1,6 @@
 import logging
 
+import pytz
 from celery import shared_task
 
 from .helpers import *
@@ -26,7 +27,7 @@ def update_donations(self, campaign_id):
                 if c.parsed.get(k, None) is None:
                     continue
                 if str(k) in ['completedAt', ]:
-                    setattr(o, k, datetime.datetime.fromtimestamp(int(c.parsed.get(k, None)) / 1000))
+                    setattr(o, k, datetime.datetime.fromtimestamp(int(c.parsed.get(k, None)) / 1000, tz=pytz.UTC))
                 else:
                     setattr(o, k, str(c.parsed.get(k, None)))
 
@@ -45,7 +46,7 @@ def update_donations(self, campaign_id):
                 if c.parsed.get(k, None) is None:
                     continue
                 if str(k) in ['completedAt', ]:
-                    n[str(k)] = datetime.datetime.fromtimestamp(int(c.parsed.get(k)) / 1000)
+                    n[str(k)] = datetime.datetime.fromtimestamp(int(c.parsed.get(k)) / 1000, tz=pytz.UTC)
                 else:
                     n[str(k)] = str(c.parsed.get(k))
 

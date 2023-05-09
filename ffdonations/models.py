@@ -1,7 +1,7 @@
 import datetime
 import uuid
 
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import HStoreField
 from django.db import models
 from django.db.models import Q
 
@@ -37,7 +37,7 @@ class TeamModel(models.Model):
     event = models.ForeignKey(EventModel, null=True, default=None, verbose_name="Event", on_delete=models.DO_NOTHING)
 
     # Extra
-    raw = JSONField(verbose_name="Raw Data", null=True, default=dict)
+    raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
 
 
 class ParticipantModel(models.Model):
@@ -58,13 +58,13 @@ class ParticipantModel(models.Model):
     numDonations = models.BigIntegerField(verbose_name="Donation Count", null=True)
     sumDonations = models.DecimalField(decimal_places=2, max_digits=50, verbose_name="Donations Total", null=True)
     sumPledges = models.DecimalField(decimal_places=2, max_digits=50, verbose_name="Pledges Total", null=True)
-    isTeamCaptain = models.NullBooleanField(verbose_name="Is Team Captain", default=False, null=True)
+    isTeamCaptain = models.BooleanField(verbose_name="Is Team Captain", default=False, null=True)
     # Related
     event = models.ForeignKey(EventModel, null=True, default=None, verbose_name="Event", on_delete=models.DO_NOTHING)
     team = models.ForeignKey(TeamModel, null=True, default=None, verbose_name="Team", on_delete=models.DO_NOTHING)
 
     # Extra
-    raw = JSONField(verbose_name="Raw Data", null=True, default=dict)
+    raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
 
 
 class DonationModel(models.Model):
@@ -86,7 +86,8 @@ class DonationModel(models.Model):
     team = models.ForeignKey(TeamModel, null=True, default=None, verbose_name="Team", on_delete=models.DO_NOTHING)
 
     # Extra
-    raw = JSONField(verbose_name="Raw Data", null=True, default=dict)
+    raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
+    tracking = HStoreField(verbose_name="Tracking Data", null=True, default=dict)
 
     @classmethod
     def tracked_q(cls):
@@ -108,7 +109,7 @@ class MediaTiltifyModel(models.Model):
     height = models.IntegerField(null=True, verbose_name="Height (px)")
 
     # Extra
-    raw = JSONField(verbose_name="Raw Data", null=True, default=dict)
+    raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
 
     # Type of result from lib
     subtype = models.CharField(max_length=255, null=False, default='MediaResult')
@@ -129,9 +130,9 @@ class RewardTiltifyModel(models.Model):
     remaining = models.IntegerField(null=True, verbose_name="Remaining")
     fairMarketValue = models.DecimalField(decimal_places=2, max_digits=50, null=True, verbose_name="Fair Market Value")
     currency = models.CharField(max_length=8192, null=True, default='Currency')
-    shippingAddressRequired = models.NullBooleanField(null=True, verbose_name="Is Active")
+    shippingAddressRequired = models.BooleanField(null=True, verbose_name="Is Active")
     shippingNote = models.CharField(max_length=1024 * 1024, null=True, default='Description')
-    active = models.NullBooleanField(null=True, verbose_name="Is Active")
+    active = models.BooleanField(null=True, verbose_name="Is Active")
     startsAt = models.DateTimeField(null=True, verbose_name="Starts At")
     createdAt = models.DateTimeField(null=True, verbose_name="Created At")
     updatedAt = models.DateTimeField(null=True, verbose_name="Updated At")
@@ -139,7 +140,7 @@ class RewardTiltifyModel(models.Model):
     image = models.ForeignKey(MediaTiltifyModel, on_delete=models.DO_NOTHING, null=True, verbose_name="Image")
 
     # Extra
-    raw = JSONField(verbose_name="Raw Data", null=True, default=dict)
+    raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
 
 
 class SocailTiltifyModel(models.Model):
@@ -157,7 +158,7 @@ class SocailTiltifyModel(models.Model):
     website = models.CharField(max_length=8192, null=True, default='Website')
 
     # Extra
-    raw = JSONField(verbose_name="Raw Data", null=True, default=dict)
+    raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
 
 
 class AddressTiltifyModel(models.Model):
@@ -175,7 +176,7 @@ class AddressTiltifyModel(models.Model):
     country = models.CharField(max_length=8192, null=True, default='Country')
 
     # Extra
-    raw = JSONField(verbose_name="Raw Data", null=True, default=dict)
+    raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
 
 
 class ColorTiltifyModel(models.Model):
@@ -189,7 +190,7 @@ class ColorTiltifyModel(models.Model):
     background = models.CharField(max_length=8192, null=True, default='Background Color')
 
     # Extra
-    raw = JSONField(verbose_name="Raw Data", null=True, default=dict)
+    raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
 
 
 class SettingsTiltifyModel(models.Model):
@@ -207,7 +208,7 @@ class SettingsTiltifyModel(models.Model):
     colors = models.ForeignKey(ColorTiltifyModel, on_delete=models.DO_NOTHING, null=True, verbose_name="Colors")
 
     # Extra
-    raw = JSONField(verbose_name="Raw Data", null=True, default=dict)
+    raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
 
 
 class CauseTiltifyModel(models.Model):
@@ -227,8 +228,8 @@ class CauseTiltifyModel(models.Model):
     paypalEmail = models.EmailField(max_length=8192, null=True, verbose_name="Paypal Email")
     paypalCurrencyCode = models.CharField(max_length=8192, null=True, verbose_name="Paypal Currency Code")
     status = models.CharField(max_length=8192, null=True, verbose_name="Status")
-    stripeConnected = models.NullBooleanField(null=True, verbose_name="Stripe Connected")
-    mailchimpConnected = models.NullBooleanField(null=True, verbose_name="Mail Chimp Connected")
+    stripeConnected = models.BooleanField(null=True, verbose_name="Stripe Connected")
+    mailchimpConnected = models.BooleanField(null=True, verbose_name="Mail Chimp Connected")
 
     image = models.ForeignKey(MediaTiltifyModel, on_delete=models.DO_NOTHING, null=True, verbose_name="Image",
                               related_name='image')
@@ -241,7 +242,7 @@ class CauseTiltifyModel(models.Model):
     address = models.ForeignKey(AddressTiltifyModel, on_delete=models.DO_NOTHING, null=True, verbose_name="Address")
 
     # Extra
-    raw = JSONField(verbose_name="Raw Data", null=True, default=dict)
+    raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
 
 
 class EventTiltifyModel(models.Model):
@@ -266,7 +267,7 @@ class LiveStreamTiltifyModel(models.Model):
     stream_type = models.CharField(max_length=8192, verbose_name="Type", null=True)
 
     # Extra
-    raw = JSONField(verbose_name="Raw Data", null=True, default=dict)
+    raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
 
 
 class TeamTiltifyModel(models.Model):
@@ -286,14 +287,14 @@ class TeamTiltifyModel(models.Model):
 
     # On some
     bio = models.CharField(max_length=1024 * 1024, verbose_name="Bio")
-    inviteOnly = models.NullBooleanField(verbose_name="Is Invite Only Team")
-    disbanded = models.NullBooleanField(verbose_name="Is Disbanded")
+    inviteOnly = models.BooleanField(verbose_name="Is Invite Only Team", null=True)
+    disbanded = models.BooleanField(verbose_name="Is Disbanded", null=True)
     totalAmountRaised = models.DecimalField(decimal_places=2, max_digits=50, verbose_name="Total Amount Raised",
                                             null=True)
     about = models.CharField(verbose_name="About", null=True, max_length=8192)
 
     # Extra
-    raw = JSONField(verbose_name="Raw Data", null=True, default=dict)
+    raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
 
     # Type of result from lib
     subtype = models.CharField(max_length=255, null=False, default='TeamResult')
@@ -313,7 +314,7 @@ class UserTiltifyModel(models.Model):
     avatar = models.ForeignKey(MediaTiltifyModel, verbose_name="Avatar", null=True, on_delete=models.DO_NOTHING)
 
     # Extra
-    raw = JSONField(verbose_name="Raw Data", null=True, default=dict)
+    raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
 
 
 class CampaignTiltifyModel(models.Model):
@@ -339,7 +340,7 @@ class CampaignTiltifyModel(models.Model):
                                                  verbose_name="Supporting Amount Raised", null=True)
     totalAmountRaised = models.DecimalField(decimal_places=2, max_digits=50, verbose_name="Total Amount Raised",
                                             null=True)
-    supportable = models.NullBooleanField(verbose_name="Is Supportable", null=True)
+    supportable = models.BooleanField(verbose_name="Is Supportable", null=True)
     status = models.CharField(max_length=8192, null=True, verbose_name="Status")
     startsOn = models.DateTimeField(null=True, verbose_name='Starts On')
     endsOn = models.DateTimeField(null=True, verbose_name='Ends On')
@@ -357,7 +358,7 @@ class CampaignTiltifyModel(models.Model):
                                          on_delete=models.DO_NOTHING)
 
     # Extra
-    raw = JSONField(verbose_name="Raw Data", null=True, default=dict)
+    raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
 
     # Type of result from lib
     subtype = models.CharField(max_length=255, null=False, default='CampaignResult')
@@ -378,4 +379,4 @@ class DonationTiltifyModel(models.Model):
     campaign = models.ForeignKey(CampaignTiltifyModel, verbose_name="Campaign", null=True, on_delete=models.CASCADE)
 
     # Extra
-    raw = JSONField(verbose_name="Raw Data", null=True, default=dict)
+    raw = models.JSONField(verbose_name="Raw Data", null=True, default=dict)
