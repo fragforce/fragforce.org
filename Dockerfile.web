@@ -5,4 +5,4 @@ WORKDIR /code
 
 RUN pipfile install
 
-CMD [ "python", "manage.py", "runserver" ]
+CMD [ "gunicorn", "fforg.wsgi" ]

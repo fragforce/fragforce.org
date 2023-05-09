@@ -1,2 +1,8 @@
 FROM python:3-alpine
 
+COPY . /code
+WORKDIR /code
+
+RUN pipfile install
+
+CMD [ "celery", "-A", "fforg", "worker", "-l", "${CELERY_LOG_LEVEL:-INFO}", "--autoscale=6,2" ]
