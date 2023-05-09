@@ -8,7 +8,9 @@ COPY ./ffsite /code/
 COPY ./ffsfdc /code/
 COPY ./ffstream /code/
 COPY ./manage.py /code/
-COPY ./Pipfil* /code/
+COPY ./Pipfile.lock /code/
+COPY ./Pipfile /code/
+
 WORKDIR /code
 
 RUN pipenv update
