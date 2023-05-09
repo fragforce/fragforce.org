@@ -5,7 +5,7 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONFAULTHANDLER 1
-
+RUN apt-get update && apt-get install -y --no-install-recommends python3-lxml
 
 FROM base AS python-deps
 
@@ -33,6 +33,5 @@ USER appuser
 
 # Install application into container
 COPY . .
-
 
 CMD [ "celery", "-A", "fforg", "worker", "-l", "${CELERY_LOG_LEVEL:-INFO}", "--autoscale=1,1", "--beat" ]
