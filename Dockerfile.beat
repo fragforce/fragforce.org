@@ -11,6 +11,7 @@ COPY ./Pipfil* /code/
 
 WORKDIR /code
 
-RUN pip install
+RUN pip3 install --upgrade pip
+RUN pip3 install
 
 CMD [ "celery", "-A", "fforg", "worker", "-l", "${CELERY_LOG_LEVEL:-INFO}", "--autoscale=1,1", "--beat" ]
