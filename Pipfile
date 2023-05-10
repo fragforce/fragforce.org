@@ -9,7 +9,6 @@ python_version = "3.10"
 [packages]
 ipython = "*"
 "psycopg2-binary" = "*"
-django-heroku = "*"
 gunicorn = "*"
 pip = "*"
 setuptools = "*"
