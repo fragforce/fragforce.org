@@ -28,6 +28,11 @@ jobs:
         run: |
           echo "github.ref -> {{ github.ref }}"
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          buildkitd-flags: --debug
+
       - name: Docker metadata
         id: metadata
         uses: docker/metadata-action@v4
