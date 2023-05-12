@@ -1,6 +1,4 @@
 """
-Django settings for fforg project on Heroku. For more info, see:
-https://github.com/heroku/heroku-django-template
 
 For more information on this file, see
 https://docs.djangoproject.com/en/2.0/topics/settings/
@@ -13,13 +11,10 @@ import os
 from datetime import timedelta
 
 import dj_database_url
-import django_heroku
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-
-LOGZIO_API_KEY = None  # Need to remove ASAP
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -430,9 +425,6 @@ LOGGING = {
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
-        'logzioFormat': {
-            'format': '{"source": "django"}'
-        }
     },
     'handlers': {
         'console': {
@@ -440,32 +432,19 @@ LOGGING = {
             'level': 'INFO',
             'formatter': 'verbose'
         },
-        'logzio': {
-            'class': 'logzio.handler.LogzioHandler',
-            'level': 'DEBUG',
-            'formatter': 'logzioFormat',
-            'token': LOGZIO_API_KEY,
-            'logzio_type': "django",
-            'logs_drain_timeout': 5,
-            'url': 'https://listener.logz.io:8071',
-            'debug': True
-        },
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'logzio'],
+            'handlers': ['console'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO')
         },
         'root': {
-            'handlers': ['console', 'logzio'],
+            'handlers': ['console'],
             # 'level': 'INFO'
         },
         '': {
-            'handlers': ['console', 'logzio'],
+            'handlers': ['console'],
             # 'level': 'INFO'
         },
     }
 }
-
-# Activate Django-Heroku - Very last
-django_heroku.settings(locals())
