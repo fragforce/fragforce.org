@@ -31,8 +31,14 @@ RUN useradd --create-home appuser
 WORKDIR /home/appuser
 
 # Install application into container
-COPY . .
+COPY extralifeapi extralifeapi
+COPY fforg fforg
+COPY ffstream ffstream
+COPY ffsfdc ffsfdc
+COPY ffdonations ffdonations
+COPY ffsite ffsite
+COPY manage.py .
 RUN chown -R appuser /home/appuser
 USER appuser
 
-CMD [ "celery", "-A", "fforg", "worker", "-l", "${CELERY_LOG_LEVEL:-INFO}", "--autoscale=6,2" ]
+CMD [ "celery", "-A", "fforg", "worker", "--autoscale=6,2" ]
