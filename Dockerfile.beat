@@ -29,9 +29,10 @@ ENV PATH="/.venv/bin:$PATH"
 # Create and switch to a new user
 RUN useradd --create-home appuser
 WORKDIR /home/appuser
-USER appuser
 
 # Install application into container
 COPY . .
+RUN chown -R appuser /home/appuser
+USER appuser
 
 CMD [ "celery", "-A", "fforg", "worker", "-l", "${CELERY_LOG_LEVEL:-INFO}", "--autoscale=1,1", "--beat" ]

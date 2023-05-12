@@ -29,9 +29,12 @@ ENV PATH="/.venv/bin:$PATH"
 # Create and switch to a new user
 RUN useradd --create-home appuser
 WORKDIR /home/appuser
-USER appuser
 
 # Install application into container
 COPY . .
+RUN chown -R appuser /home/appuser
+USER appuser
+
+RUN /.venv/bin/python manage.py collectstatic --no-input
 
 CMD [ "gunicorn", "fforg.wsgi" ]
