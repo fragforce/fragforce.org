@@ -99,6 +99,7 @@ DATABASES = {
     },
     'hc': {
         'ENGINE': 'django.db.backends.postgresql',
+        'OPTIONS': {},
     },
 }
 DATABASE_ROUTERS = ["fforg.router.HCRouter", ]
@@ -148,6 +149,9 @@ if bool(os.environ.get('DOCKER', 'False').lower() == 'true'):
     }
     DATABASES['default'].update(dj_database_url.config(conn_max_age=500))
     DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, env="HC_RO_URL"))
+elif bool(os.environ.get('DOCKER_PROD', 'False').lower() == 'true'):
+    DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=False))
+    DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, ssl_require=False, env="HC_RO_URL"))
 else:
     DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=True))
     DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, ssl_require=True, env="HC_RO_URL"))
@@ -177,7 +181,7 @@ STATICFILES_DIRS = [
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-if bool(os.environ.get('DOCKER', 'False').lower() == 'true'):
+if bool(os.environ.get('DOCKER', 'False').lower() == 'true') or bool(os.environ.get('DOCKER_PROD', 'False').lower() == 'true'):
     SECURE_SSL_REDIRECT = False
 else:
     SECURE_SSL_REDIRECT = True
