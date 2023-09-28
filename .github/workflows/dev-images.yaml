@@ -65,3 +65,5 @@ jobs:
           url: "${{ secrets.WATCHTOWER_URL }}"
           api_token: "${{ secrets.WATCHTOWER_API_TOKEN }}"
           images: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+
+
