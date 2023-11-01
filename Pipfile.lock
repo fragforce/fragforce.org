@@ -387,12 +387,12 @@
         },
         "ipython": {
             "hashes": [
-                "sha256:9e12020f4bf74f08631c0f033bb580e074fbe36c64903195f3e63b9c0a986cbe",
-                "sha256:b4510d0a163c89c78cf81be68acc841dde4a8290b6ee3f3c9578ccdd2574553c"
+                "sha256:126bb57e1895594bb0d91ea3090bbd39384f6fe87c3d57fd558d0670f50339bb",
+                "sha256:1e4d1d666a023e3c93585ba0d8e962867f7a111af322efff6b9c58062b3e5444"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.9'",
-            "version": "==8.17.1"
+            "version": "==8.17.2"
         },
         "jedi": {
             "hashes": [
