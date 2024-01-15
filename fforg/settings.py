@@ -50,10 +50,13 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'memoize',
+    "django_workflow_engine",
     'ffsite',
     'ffsfdc',
     'ffdonations',
     'ffstream',
+    "eventer",
+    "evtsignup",
 ]
 
 MIDDLEWARE = [
@@ -452,3 +455,5 @@ LOGGING = {
         },
     }
 }
+
+DJANGO_WORKFLOWS = {}
