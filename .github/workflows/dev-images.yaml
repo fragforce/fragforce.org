@@ -59,11 +59,11 @@ jobs:
           push: true
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
-      - name: Deploy
-        uses: darnfish/watchtower-update@v3.3
-        with:
-          url: "${{ secrets.WATCHTOWER_URL }}"
-          api_token: "${{ secrets.WATCHTOWER_API_TOKEN }}"
-          images: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-
-
+#      - name: Deploy
+#        uses: darnfish/watchtower-update@v3.3
+#        with:
+#          url: "${{ secrets.WATCHTOWER_URL }}"
+#          api_token: "${{ secrets.WATCHTOWER_API_TOKEN }}"
+#          images: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+#
+#
