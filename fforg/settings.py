@@ -156,8 +156,8 @@ elif bool(os.environ.get('DOCKER_PROD', 'False').lower() == 'true'):
     DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=False))
     DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, ssl_require=False, env="HC_RO_URL"))
 else:
-    DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=True))
-    DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, ssl_require=True, env="HC_RO_URL"))
+    DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=False))
+    DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, ssl_require=False, env="HC_RO_URL"))
 try:
     DATABASES['hc']['OPTIONS']['options'] = '-c search_path=%s' % os.environ.get('HC_RO_SCHEMA', 'org')
 except KeyError as e:
