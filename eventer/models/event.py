@@ -7,6 +7,14 @@ class Event(models.Model):
     slug = models.SlugField(max_length=255, null=False, blank=False, db_index=True, unique=True)
     description = models.TextField(default='', blank=False, null=False)
 
+    def add_details(cls, fq=None):
+        from django.db.models import Sum, F
+
+        if fq is None:
+            fq = cls.objects
+
+        return fq.annotate(duration=Sum(F("event_period__stop") - F("event_period__start")))
+
 
 class EventPeriod(models.Model):
     """ A start/stop time period for an event """
@@ -19,7 +27,3 @@ class EventPeriod(models.Model):
         """ Field value for duration (stop-start) """
         from django.db.models import F
         return F('stop') - F('start')
-
-    @classmethod
-    def duration_sq(cls, evt_id):
-        return cls.objects.filter(pk=evt_id).annontate(duration=cls.duration_f())
