@@ -22,4 +22,4 @@ class EventPeriod(models.Model):
 
     @classmethod
     def duration_sq(cls, evt_id):
-        return EventPeriod.objects.filter(pk=evt_id).annontate(duration=cls.duration_f())
+        return cls.objects.filter(pk=evt_id).annontate(duration=cls.duration_f())
