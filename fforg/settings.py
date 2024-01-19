@@ -184,7 +184,8 @@ STATICFILES_DIRS = [
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-if bool(os.environ.get('DOCKER', 'False').lower() == 'true') or bool(os.environ.get('DOCKER_PROD', 'False').lower() == 'true'):
+if bool(os.environ.get('DOCKER', 'False').lower() == 'true') or bool(
+        os.environ.get('DOCKER_PROD', 'False').lower() == 'true'):
     SECURE_SSL_REDIRECT = False
 else:
     SECURE_SSL_REDIRECT = True
