@@ -18,5 +18,8 @@ class EventPeriod(models.Model):
     def duration_f():
         """ Field value for duration (stop-start) """
         from django.db.models import F
-        return F('stop')-F('start')
+        return F('stop') - F('start')
 
+    @classmethod
+    def duration_sq(cls, evt_id):
+        return EventPeriod.objects.filter(pk=evt_id).annontate(duration=cls.duration_f())
