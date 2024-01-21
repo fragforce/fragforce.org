@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'memoize',
     "django_workflow_engine",
+    "oauth2_provider",
     'ffsite',
     'ffsfdc',
     'ffdonations',
