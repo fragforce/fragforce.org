@@ -20,6 +20,7 @@ class TeamRole(models.Model):
 
 
 class TeamMember(models.Model):
+    """ Connect a User to a Role in a Team """
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=False, null=False)
     team = models.ForeignKey(Team, on_delete=models.CASCADE, blank=False, null=False)
     role = models.ForeignKey(TeamRole, on_delete=models.CASCADE, blank=False, null=False)
