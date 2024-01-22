@@ -58,3 +58,4 @@ Various donation sync options
 * `docker-compose exec web bash` to shell into the main web container
 * `dev/init.sh` to load the hc initial data, run migrations, collectstatic, and activate the pipenv
 * `python manage.py shell` to load a django shell, or `python manage.py dbshell` to connect to the database to verify data after running tasks
+
