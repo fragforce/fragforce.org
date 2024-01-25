@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'memoize',
-    "viewflow",
     "oauth2_provider",
     'ffsite',
     'ffsfdc',
@@ -458,4 +457,3 @@ LOGGING = {
     }
 }
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-DJANGO_WORKFLOWS = {}
