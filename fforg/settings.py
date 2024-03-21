@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'memoize',
     "oauth2_provider",
+    "django_workflow_engine",
     'ffsite',
     'ffsfdc',
     'ffdonations',
@@ -457,3 +458,4 @@ LOGGING = {
     }
 }
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DJANGO_WORKFLOWS = {}
