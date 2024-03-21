@@ -16,6 +16,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django_workflow_engine import workflow_urls
 
 urlpatterns = [
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
@@ -23,4 +24,5 @@ urlpatterns = [
     path('d/', include('ffdonations.urls')),
     path('', include('ffsite.urls')),
     path('stream/', include('ffstream.urls')),
+    path("workflow/", workflow_urls()),
 ]
