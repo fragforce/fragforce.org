@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'ffstream',
     "eventer",
     "evtsignup",
+    "ffoverlay.apps.FfoverlayConfig"
 ]
 
 MIDDLEWARE = [
