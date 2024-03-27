@@ -26,14 +26,16 @@ celery = ">=5.0.0"
 hiredis = "*"
 "django-memoize" = "*"
 memoize = "*"
-django = ">=4"
+django = ">=5.0"
 protobuf = "*"
 requests = "*"
 six = "*"
 whitenoise = "*"
+"django-oauth-toolkit" = ">= 2"
+"django-workflow-engine" = "*"
 
 # Temp until PR finsihed and applied
 tiltify2 = {git = "https://github.com/gpmidi/tiltify-v2-api-python.git", ref = "develop-v3", editable = true}
 
-[dev-packages]
-
+#[pipenv]
+#allow_prereleases = true

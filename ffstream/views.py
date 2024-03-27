@@ -39,10 +39,10 @@ def start_livestream(request):
     if not key.livestream:
         return HttpResponseForbidden("Key not allowed to livestream")
     key.is_live = True
-    key.save
+    key.save()
 
     stream = Stream(key=key, is_live=True, started=timezone.now(), ended=None)
-    stream.save
+    stream.save()
     stream.set_stream_key()
 
     return HttpResponse("OK")
