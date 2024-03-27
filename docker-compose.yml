@@ -19,23 +19,20 @@ services:
       - db-hc
       - redis
   db:
-    container_name: postgres
-    image: postgres:15.2-alpine
+    image: postgres
     restart: unless-stopped
     environment:
       TZ: "Etc/UTC"
       POSTGRES_HOST_AUTH_METHOD: "trust"
       POSTGRES_DB: "fragforce_test"
   db-hc:
-    container_name: postgres-hc
-    image: postgres:15.2-alpine
+    image: postgres
     restart: unless-stopped
     environment:
       TZ: "Etc/UTC"
       POSTGRES_HOST_AUTH_METHOD: "trust"
       POSTGRES_DB: "hc"
   redis:
-    container_name: redis
     image: redis
     environment:
       TZ: "Etc/UTC"

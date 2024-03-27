@@ -50,10 +50,15 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'memoize',
+    "oauth2_provider",
+    "django_workflow_engine",
     'ffsite',
     'ffsfdc',
     'ffdonations',
     'ffstream',
+    "eventer",
+    "evtsignup",
+    "ffoverlay.apps.FfoverlayConfig"
 ]
 
 MIDDLEWARE = [
@@ -153,8 +158,8 @@ elif bool(os.environ.get('DOCKER_PROD', 'False').lower() == 'true'):
     DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=False))
     DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, ssl_require=False, env="HC_RO_URL"))
 else:
-    DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=True))
-    DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, ssl_require=True, env="HC_RO_URL"))
+    DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=False))
+    DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, ssl_require=False, env="HC_RO_URL"))
 try:
     DATABASES['hc']['OPTIONS']['options'] = '-c search_path=%s' % os.environ.get('HC_RO_SCHEMA', 'org')
 except KeyError as e:
@@ -181,7 +186,8 @@ STATICFILES_DIRS = [
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-if bool(os.environ.get('DOCKER', 'False').lower() == 'true') or bool(os.environ.get('DOCKER_PROD', 'False').lower() == 'true'):
+if bool(os.environ.get('DOCKER', 'False').lower() == 'true') or bool(
+        os.environ.get('DOCKER_PROD', 'False').lower() == 'true'):
     SECURE_SSL_REDIRECT = False
 else:
     SECURE_SSL_REDIRECT = True
@@ -452,3 +458,5 @@ LOGGING = {
         },
     }
 }
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DJANGO_WORKFLOWS = {}
