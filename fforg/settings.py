@@ -418,10 +418,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'ffdonations.tasks.donations.update_donations_if_needed',
         'schedule': EL_DON_UPDATE_FREQUENCY_CHECK,
     },
-    'til-update-all-teams': {
-        'task': 'ffdonations.tasks.tiltify.teams.update_teams',
-        'schedule': TIL_TEAMS_UPDATE_FREQUENCY_CHECK,
-    },
+    # 'til-update-all-teams': {
+    #     'task': 'ffdonations.tasks.tiltify.teams.update_teams',
+    #     'schedule': TIL_TEAMS_UPDATE_FREQUENCY_CHECK,
+    # },
     'send-missed-tracks': {
         'task': 'ffdonations.tasks.sender.note_new_donations',
         'schedule': SEND_MISSED_DONATIONS,
