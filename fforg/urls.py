@@ -19,7 +19,7 @@ from django.urls import path, include
 from django_workflow_engine import workflow_urls
 
 urlpatterns = [
-    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    # path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path('admin/', admin.site.urls),
     path('d/', include('ffdonations.urls')),
     path('', include('ffsite.urls')),
