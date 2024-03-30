@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'memoize',
-    "oauth2_provider.apps.DOTConfig",
+    # "oauth2_provider.apps.DOTConfig",
     "django_workflow_engine",
     'ffsite',
     'ffsfdc',
