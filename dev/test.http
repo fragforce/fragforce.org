@@ -1,14 +1,15 @@
-GET https://fragforce.org/static/ffsite/overlays/overlaytrack.html?listType=top&numDonations=1&filterId=535677
-Accept: application/json
-
-###
-GET https://fragforce.org/static/ffsite/overlays/overlaytrack.html?listType=last&numDonations=1&filterId=535677
-Accept: application/json
-
-###
 GET https://fragforce.org/d/donations?orderBy=-created&filterBy=535677&recordCount=100
 Accept: application/json
 
 ###
 GET https://fragforce.org/d/donations?orderBy=-created&filterBy=534684&recordCount=100
 Accept: application/json
+
+###
+GET https://fragforce.org/d/donations?orderBy=-amount&filterBy=535677&recordCount=100
+Accept: application/json
+
+###
+GET https://fragforce.org/d/donations?orderBy=-amount&filterBy=534684&recordCount=100
+Accept: application/json
+
