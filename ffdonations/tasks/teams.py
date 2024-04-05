@@ -2,9 +2,9 @@ from __future__ import absolute_import, unicode_literals
 
 from celery import shared_task
 from django.conf import settings
+from django.utils import timezone
 
 from extralifeapi.teams import Teams
-from ffsfdc.models import *
 from ..models import *
 
 
@@ -57,9 +57,6 @@ def update_teams(self, teams=None):
         teams = []
         if settings.EXTRALIFE_TEAMID >= 0:
             teams.append(settings.EXTRALIFE_TEAMID)
-        for sa in SiteAccount.objects.filter(el_id__isnull=False):
-            if int(sa.el_id) >= settings.MIN_EL_TEAMID:
-                teams.append(int(sa.el_id))
 
     el_teams = [el_api.team(teamID=int(tid)) for tid in teams]
     for team in el_teams:
@@ -86,15 +83,6 @@ def update_teams(self, teams=None):
         tm.numDonations = team.numDonations
         tm.sumDonations = team.sumDonations
         tm.event = evt
-
-        # Update tracked from org
-        try:
-            if SiteAccount.objects.filter(el_id=team.teamID).order_by('-createddate').count() > 0:
-                tm.tracked = True
-        except SiteAccount.DoesNotExist as e:
-            pass
-        except IndexError as e:
-            pass
 
         tm.raw = team.raw
         if settings.EXTRALIFE_TEAMID >= 0:
