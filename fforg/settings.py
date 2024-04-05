@@ -459,4 +459,6 @@ LOGGING = {
     }
 }
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-DJANGO_WORKFLOWS = {}
+DJANGO_WORKFLOWS = {
+    "simple_workflow": "eventer.workflows.simple_workflow",
+}
