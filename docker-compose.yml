@@ -1,4 +1,3 @@
-version: "3"
 services:
   web:
     build: .
@@ -9,15 +8,13 @@ services:
       - "8000:8000"
     environment:
       TZ: "Etc/UTC"
-      #DATABASE_URL: "postgres://postgres@db:5432/fragforce_test?sslmode=disable"
-      #HC_RO_URL: "postgres://postgres@db:6432/fragforce_test?sslmode=disable"
       DOCKER: "True"
       DJANGO_LOG_LEVEL: "DEBUG"
       REDIS_URL: "redis://redis"
     depends_on:
       - db
-      - db-hc
       - redis
+      - init
   db:
     image: postgres
     restart: unless-stopped
@@ -25,14 +22,25 @@ services:
       TZ: "Etc/UTC"
       POSTGRES_HOST_AUTH_METHOD: "trust"
       POSTGRES_DB: "fragforce_test"
-  db-hc:
-    image: postgres
-    restart: unless-stopped
-    environment:
-      TZ: "Etc/UTC"
-      POSTGRES_HOST_AUTH_METHOD: "trust"
-      POSTGRES_DB: "hc"
+      POSTGRES_PASSWORD: "insecure"
   redis:
     image: redis
     environment:
       TZ: "Etc/UTC"
+  init:
+    build: .
+    volumes:
+      - .:/code
+    command: bash -c 'sleep 10 && pipenv run python manage.py migrate'
+    environment:
+      TZ: "Etc/UTC"
+      DOCKER: "True"
+      DJANGO_LOG_LEVEL: "DEBUG"
+      REDIS_URL: "redis://redis"
+    depends_on:
+      - db
+      - redis
+networks:
+  fragforceorg_default:
+    name: "fragforceorg_default"
+    driver: bridge

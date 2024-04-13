@@ -2,9 +2,9 @@ from __future__ import absolute_import, unicode_literals
 
 from celery import shared_task
 from django.conf import settings
+from django.utils import timezone
 
 from extralifeapi.participants import Participants
-from ffsfdc.models import *
 from ..models import *
 
 
@@ -110,12 +110,6 @@ def update_participants(self, participants=None):
         tm.event = evt
         tm.team = team
         tm.raw = participant.raw
-        # Update tracked from org
-        try:
-            c = Contact.objects.get(extra_life_id=participant.participantID)
-            tm.tracked = True
-        except Contact.DoesNotExist as e:
-            pass
         # Update tracked from parents
         if not tm.tracked and ((evt and evt.tracked) or (team and team.tracked)):
             tm.tracked = True
