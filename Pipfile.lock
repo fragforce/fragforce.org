@@ -780,21 +780,21 @@
         },
         "protobuf": {
             "hashes": [
-                "sha256:38aa5f535721d5bb99861166c445c4105c4e285c765fbb2ac10f116e32dcd46d",
-                "sha256:3c388ea6ddfe735f8cf69e3f7dc7611e73107b60bdfcf5d0f024c3ccd3794e23",
-                "sha256:7ee014c2c87582e101d6b54260af03b6596728505c79f17c8586e7523aaa8f8c",
-                "sha256:8ca2a1d97c290ec7b16e4e5dff2e5ae150cc1582f55b5ab300d45cb0dfa90e51",
-                "sha256:9b557c317ebe6836835ec4ef74ec3e994ad0894ea424314ad3552bc6e8835b4e",
-                "sha256:b9ba3ca83c2e31219ffbeb9d76b63aad35a3eb1544170c55336993d7a18ae72c",
-                "sha256:d693d2504ca96750d92d9de8a103102dd648fda04540495535f0fec7577ed8fc",
-                "sha256:da612f2720c0183417194eeaa2523215c4fcc1a1949772dc65f05047e08d5932",
-                "sha256:e6039957449cb918f331d32ffafa8eb9255769c96aa0560d9a5bf0b4e00a2a33",
-                "sha256:f7417703f841167e5a27d48be13389d52ad705ec09eade63dfc3180a959215d7",
-                "sha256:fbfe61e7ee8c1860855696e3ac6cfd1b01af5498facc6834fcc345c9684fb2ca"
+                "sha256:25236b69ab4ce1bec413fd4b68a15ef8141794427e0b4dc173e9d5d9dffc3bcd",
+                "sha256:39309898b912ca6febb0084ea912e976482834f401be35840a008da12d189340",
+                "sha256:3adc15ec0ff35c5b2d0992f9345b04a540c1e73bfee3ff1643db43cc1d734333",
+                "sha256:4ac7249a1530a2ed50e24201d6630125ced04b30619262f06224616e0030b6cf",
+                "sha256:4e38fc29d7df32e01a41cf118b5a968b1efd46b9c41ff515234e794011c78b17",
+                "sha256:7a97b9c5aed86b9ca289eb5148df6c208ab5bb6906930590961e08f097258107",
+                "sha256:917ed03c3eb8a2d51c3496359f5b53b4e4b7e40edfbdd3d3f34336e0eef6825a",
+                "sha256:df5e5b8e39b7d1c25b186ffdf9f44f40f810bbcc9d2b71d9d3156fee5a9adf15",
+                "sha256:dfddb7537f789002cc4eb00752c92e67885badcc7005566f2c5de9d969d3282d",
+                "sha256:ee52874a9e69a30271649be88ecbe69d374232e8fd0b4e4b0aaaa87f429f1631",
+                "sha256:f6abd0f69968792da7460d3c2cfa7d94fd74e1c21df321eb6345b963f9ec3d8d"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==5.26.1"
+            "version": "==5.27.1"
         },
         "psycopg2-binary": {
             "hashes": [
