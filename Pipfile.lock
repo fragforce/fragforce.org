@@ -930,12 +930,12 @@
         },
         "setuptools": {
             "hashes": [
-                "sha256:b8b8060bb426838fbe942479c90296ce976249451118ef566a5a0b7d8b78fb05",
-                "sha256:bd63e505105011b25c3c11f753f7e3b8465ea739efddaccef8f0efac2137bac1"
+                "sha256:5a03e1860cf56bb6ef48ce186b0e557fdba433237481a9a625176c2831be15d1",
+                "sha256:8d243eff56d095e5817f796ede6ae32941278f542e0f941867cc05ae52b162ec"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==70.2.0"
+            "version": "==72.1.0"
         },
         "six": {
             "hashes": [
