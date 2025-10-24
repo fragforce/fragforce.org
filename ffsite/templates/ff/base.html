@@ -53,38 +53,6 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'join' %}">Join</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="{% url 'org_sites' %}" id="navbarDropdown" role="button"
-                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Sites
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="{% url 'org_sites' %}">All Sites</a>
-                        <div class="dropdown-divider"></div>
-                        {% for site in allsites %}
-                        <a class="dropdown-item" href="{% url 'org_site' sfid=site.sfid %}">
-                            {{ site.name }}
-                            {% if site.has_events %}
-                            **
-                            {% endif %}</a>
-                        {% endfor %}
-                    </div>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="{% url 'org_events_upcoming' %}" id="navbarDropdown"
-                       role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Events
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="{% url 'org_events_upcoming' %}">Upcoming Events</a>
-                        <div class="dropdown-divider"></div>
-                        {% for event in upcoming_events %}
-                            <a class="dropdown-item" href="{% url 'org_event' sfid=event.sfid %}">{{ event.name }}</a>
-                        {% endfor %}
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{% url 'org_events' %}">All Events</a>
-                    </div>
-                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'donate' %}">Donate</a>
                 </li>
@@ -97,6 +65,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="https://fragforce.lightning.force.com" rel="noopener noreferrer"
                        target="_blank">Fragforce Org Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://discord.gg/fragforce"rel="noopener noreferrer" target="_blank">Discord</a>
                 </li>
             </ul>
             <ul class="navbar-nav navbar-right">
@@ -114,7 +85,7 @@
                     <a class="fab fa-github fa-lg" href="https://github.com/fragforce" rel="noopener noreferrer" target="_blank"></a>
                 </li>
                 <li class="nav-item">
-                    <a class="fab fa-discord fa-lg" href="https://discord.fragforce.org" rel="noopener noreferrer" target="_blank"></a>
+                    <a class="fab fa-discord fa-lg" href="https://discord.gg/fragforce" rel="noopener noreferrer" target="_blank"></a>
                 </li>
             </ul>
         </div>

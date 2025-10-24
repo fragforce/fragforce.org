@@ -14,16 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.contrib import admin
-from django.urls import path, include
-from django_workflow_engine import workflow_urls
+from django.urls import path
+
+from ffsite.views import *
 
 urlpatterns = [
-    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-    path('admin/', admin.site.urls),
-    path('d/', include('ffdonations.urls')),
-    path('', include('ffsite.urls')),
-    path('stream/', include('ffstream.urls')),
-    path('overlays/', include('ffoverlay.urls')),
-    path("workflow/", workflow_urls()),
+
 ]

@@ -34,9 +34,11 @@ WORKDIR /home/appuser
 COPY extralifeapi extralifeapi
 COPY fforg fforg
 COPY ffstream ffstream
-COPY ffsfdc ffsfdc
 COPY ffdonations ffdonations
 COPY ffsite ffsite
+COPY eventer eventer
+COPY evtsignup evtsignup
+COPY ffoverlay ffoverlay
 COPY manage.py .
 RUN chown -R appuser /home/appuser
 USER appuser

@@ -24,9 +24,4 @@ urlpatterns = [
     path('join', join, name='join'),
     path('contact', contact, name='contact'),
     path('stream', stream, name='stream'),
-    path('site', sites, name='org_sites'),
-    path('site/<slug:sfid>', site, name='org_site'),
-    path('event', events, name='org_events'),
-    path('event-upcoming', events_upcoming, name='org_events_upcoming'),
-    path('event/<slug:sfid>', event, name='org_event'),
 ]

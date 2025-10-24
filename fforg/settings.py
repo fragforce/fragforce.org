@@ -50,10 +50,14 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'memoize',
+    "oauth2_provider",
+    "django_workflow_engine",
     'ffsite',
-    'ffsfdc',
     'ffdonations',
     'ffstream',
+    "eventer",
+    "evtsignup",
+    "ffoverlay.apps.FfoverlayConfig"
 ]
 
 MIDDLEWARE = [
@@ -97,12 +101,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
     },
-    'hc': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'OPTIONS': {},
-    },
 }
-DATABASE_ROUTERS = ["fforg.router.HCRouter", ]
+# DATABASE_ROUTERS = ["fforg.router.HCRouter", ]
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -127,8 +127,8 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# Change 'default' database configuration with $DATABASE_URL.
 if bool(os.environ.get('DOCKER', 'False').lower() == 'true'):
+    # CI
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -138,27 +138,14 @@ if bool(os.environ.get('DOCKER', 'False').lower() == 'true'):
             "HOST": "db",
             "PORT": 5432,
         },
-        "hc": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": "hc",
-            "USER": "postgres",
-            "PASSWORD": "postgres",
-            "HOST": "db-hc",
-            "PORT": 5432,
-        }
     }
     DATABASES['default'].update(dj_database_url.config(conn_max_age=500))
-    DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, env="HC_RO_URL"))
 elif bool(os.environ.get('DOCKER_PROD', 'False').lower() == 'true'):
+    # Production
     DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=False))
-    DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, ssl_require=False, env="HC_RO_URL"))
 else:
-    DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=True))
-    DATABASES['hc'].update(dj_database_url.config(conn_max_age=500, ssl_require=True, env="HC_RO_URL"))
-try:
-    DATABASES['hc']['OPTIONS']['options'] = '-c search_path=%s' % os.environ.get('HC_RO_SCHEMA', 'org')
-except KeyError as e:
-    pass
+    # Dev
+    DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=False))
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -181,7 +168,8 @@ STATICFILES_DIRS = [
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-if bool(os.environ.get('DOCKER', 'False').lower() == 'true') or bool(os.environ.get('DOCKER_PROD', 'False').lower() == 'true'):
+if bool(os.environ.get('DOCKER', 'False').lower() == 'true') or bool(
+        os.environ.get('DOCKER_PROD', 'False').lower() == 'true'):
     SECURE_SSL_REDIRECT = False
 else:
     SECURE_SSL_REDIRECT = True
@@ -412,10 +400,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'ffdonations.tasks.donations.update_donations_if_needed',
         'schedule': EL_DON_UPDATE_FREQUENCY_CHECK,
     },
-    'til-update-all-teams': {
-        'task': 'ffdonations.tasks.tiltify.teams.update_teams',
-        'schedule': TIL_TEAMS_UPDATE_FREQUENCY_CHECK,
-    },
+    # 'til-update-all-teams': {
+    #     'task': 'ffdonations.tasks.tiltify.teams.update_teams',
+    #     'schedule': TIL_TEAMS_UPDATE_FREQUENCY_CHECK,
+    # },
     'send-missed-tracks': {
         'task': 'ffdonations.tasks.sender.note_new_donations',
         'schedule': SEND_MISSED_DONATIONS,
@@ -451,4 +439,8 @@ LOGGING = {
             # 'level': 'INFO'
         },
     }
+}
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DJANGO_WORKFLOWS = {
+    "simple_workflow": "eventer.workflows.simple_workflow",
 }
