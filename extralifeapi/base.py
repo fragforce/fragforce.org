@@ -35,6 +35,7 @@ class DonorDriveBase(object):
         self.log_parent = log_parent
         self.log = self.log_parent.getChild(self.__class__.__name__)
         self.session = requests.Session()
+        self.session.headers.update({"User-Agent": "fragforce.org"})
         self.request_sleeper = request_sleeper
 
     def _do_sleep(self, url, data):
