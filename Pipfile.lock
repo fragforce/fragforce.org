@@ -389,12 +389,12 @@
         },
         "django-workflow-engine": {
             "hashes": [
-                "sha256:d6e52dbc262022e802e4e1336f9ffafaef68717e87c54f1570b29f06d6e2f772",
-                "sha256:fab98cadd8079946267f8d2cfa3ea242339be430537f7a83a6a958121d0dca1c"
+                "sha256:4bb14dd3d26f15c723f25904e47f212066ebba132c71548093a6cc26551af580",
+                "sha256:763559d0c1c7fc3280b729f8f9857b944c2baf518e223a1c747b272bb691d74c"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.9' and python_version < '4.0'",
-            "version": "==0.2.1"
+            "version": "==0.2.2"
         },
         "exceptiongroup": {
             "hashes": [
