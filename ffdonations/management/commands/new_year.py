@@ -16,6 +16,8 @@ from django.core.management.base import BaseCommand
 from ffdonations.management.commands.untrack_old_el_ids import Command as UntrackCommand
 from ffdonations.models import EventModel, TeamModel
 
+SKIPPED = "Dry Run - Skipped"
+
 
 class Command(BaseCommand):
     help = "Run all Extra Life new-year setup steps in order."
@@ -93,7 +95,7 @@ class Command(BaseCommand):
                 dry_run=dry_run,
             )
         else:
-            self.stdout.write("  Skipped")
+            self.stdout.write(SKIPPED)
 
         # ------------------------------------------------------------------ #
         # Step 2: Sync the new team (creates new EventModel if needed)        #
@@ -105,7 +107,7 @@ class Command(BaseCommand):
             guids = result.get()
             self.stdout.write(self.style.SUCCESS(f"  Team sync complete — {len(guids)} team(s) updated"))
         else:
-            self.stdout.write("  Skipped")
+            self.stdout.write(SKIPPED)
 
         # ------------------------------------------------------------------ #
         # Step 3: Mark the new event as tracked                               #
@@ -131,7 +133,7 @@ class Command(BaseCommand):
                             EventModel.objects.filter(id=evt.id).update(tracked=True)
                             self.stdout.write(self.style.SUCCESS("  Done"))
         else:
-            self.stdout.write("  Skipped")
+            self.stdout.write(SKIPPED)
 
         # ------------------------------------------------------------------ #
         # Step 4: Sync participants                                            #
@@ -148,6 +150,6 @@ class Command(BaseCommand):
             guids = result.get()
             self.stdout.write(self.style.SUCCESS(f"  Participant sync complete — {len(guids)} participant(s) updated"))
         else:
-            self.stdout.write("  Skipped")
+            self.stdout.write(SKIPPED)
 
         self.stdout.write(self.style.SUCCESS("\nNew year setup complete."))
