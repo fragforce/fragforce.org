@@ -305,6 +305,10 @@ EL_DON_PTCP_UPDATE_FREQUENCY_MAX = timedelta(minutes=int(os.environ.get('EL_DON_
 
 # Min time between EL REST requests
 EL_REQUEST_MIN_TIME = timedelta(seconds=int(os.environ.get('EL_REQUEST_MIN_TIME_SECONDS', 15)))
+# Seconds to wait after a 429 if no Retry-After header is present
+EL_RETRY_AFTER_SECONDS = int(os.environ.get('EL_RETRY_AFTER_SECONDS', 60))
+# Number of times to retry a request after a 429
+EL_MAX_RETRIES = int(os.environ.get('EL_MAX_RETRIES', 3))
 # Min time between EL REST requests for any given URL
 EL_REQUEST_MIN_TIME_URL = timedelta(seconds=int(os.environ.get('EL_REQUEST_MIN_TIME_URL_SECONDS', 15)))
 # Min time between request for any given remote host

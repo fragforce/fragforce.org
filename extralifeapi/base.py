@@ -1,10 +1,12 @@
 """ DonorDrive API Base Class """
 import re
+import time
 from collections import namedtuple
 from json import JSONDecodeError
 from urllib.parse import urlparse
 
 import requests
+from django.conf import settings
 
 from .log import root_logger
 
@@ -20,16 +22,22 @@ class JSONError(FetchError):
     """ JSON issues """
 
 
+class RateLimitError(FetchError):
+    """ API rate limit hit and retries exhausted """
+
+
 class DonorDriveBase(object):
     DEFAULT_BASE_URL = 'https://www.extra-life.org/api/'
     RE_MATCH_LINK = re.compile(r'^\<(.*)\>;rel="(.*)"')
 
-    def __init__(self, base_url=DEFAULT_BASE_URL, log_parent=mod_logger, request_sleeper=None):
+    def __init__(self, base_url=DEFAULT_BASE_URL, log_parent=mod_logger, request_sleeper=None,
+                 max_retries=None):
         """
         :param base_url: Base EL API URL
         :param log_parent: Parent logger to base our logger off of
         :param request_sleeper: Function. Should take any kwargs. No positional args.
         Will get at a min url (string), data (query data), and parsed (urlparse obj).
+        :param max_retries: Number of times to retry on a 429 rate limit response.
         """
         self.base_url = base_url
         self.log_parent = log_parent
@@ -37,6 +45,7 @@ class DonorDriveBase(object):
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": "fragforce.org"})
         self.request_sleeper = request_sleeper
+        self.max_retries = max_retries if max_retries is not None else settings.EL_MAX_RETRIES
 
     def _do_sleep(self, url, data):
         """ Sleep or do whatever between requests to ensure they don't happen too often """
@@ -71,30 +80,44 @@ class DonorDriveBase(object):
         """ Fetch the given URL with the given data. Returns data structure from JSON or raises an error. """
         e = dict(url=url, data=kwargs)
         try:
-            # Sleep before the call!
-            self._do_sleep(url=url, data=kwargs)
-            self.log.debug(f'Going to fetch {url}', extra=e)
-            r = self.session.get(url, data=kwargs)
-            e['result'] = r
-            self.log.log(5, f'Got result from {url}', extra=e)
-            r.raise_for_status()
-            self.log.log(5, f"Status of {url} is ok", extra=e)
-            try:
-                j = r.json()
-            except JSONDecodeError as er:
-                e['raw'] = r.raw
-                e['headers'] = r.headers
-                e['rdata'] = r.content
-                e['text'] = r.text
-                rd = ''
-                if r.text:
-                    rd = r.text[:100]
-                self.log.exception(f"Failed to decode JSON with {er} for {url} | Data: {rd}", extra=e)
-                raise JSONError(f"Failed to decode JSON with {er} for {url} | Data: {rd}")
-            e['data_len'] = len(j)
-            e['data'] = j
-            self.log.debug(f"Got JSON data from {url}", extra=e)
-            return FetchResponse(j, r.headers, self._parse_link_header(r.headers.get('Link', None)))
+            for attempt in range(self.max_retries + 1):
+                # Sleep before the call!
+                self._do_sleep(url=url, data=kwargs)
+                self.log.debug(f'Going to fetch {url}', extra=e)
+                r = self.session.get(url, data=kwargs)
+                e['result'] = r
+                self.log.log(5, f'Got result from {url}', extra=e)
+
+                if r.status_code == 429:
+                    if attempt >= self.max_retries:
+                        raise RateLimitError(f"Rate limit hit for {url} and retries exhausted")
+                    retry_after = r.headers.get('Retry-After', None)
+                    try:
+                        sleep_secs = int(retry_after) if retry_after is not None else settings.EL_RETRY_AFTER_SECONDS
+                    except ValueError:
+                        sleep_secs = settings.EL_RETRY_AFTER_SECONDS
+                    self.log.warning(f"Rate limited by {url}, sleeping {sleep_secs}s (attempt {attempt + 1}/{self.max_retries})", extra=e)
+                    time.sleep(sleep_secs)
+                    continue
+
+                r.raise_for_status()
+                self.log.log(5, f"Status of {url} is ok", extra=e)
+                try:
+                    j = r.json()
+                except JSONDecodeError as er:
+                    e['raw'] = r.raw
+                    e['headers'] = r.headers
+                    e['rdata'] = r.content
+                    e['text'] = r.text
+                    rd = ''
+                    if r.text:
+                        rd = r.text[:100]
+                    self.log.exception(f"Failed to decode JSON with {er} for {url} | Data: {rd}", extra=e)
+                    raise JSONError(f"Failed to decode JSON with {er} for {url} | Data: {rd}")
+                e['data_len'] = len(j)
+                e['data'] = j
+                self.log.debug(f"Got JSON data from {url}", extra=e)
+                return FetchResponse(j, r.headers, self._parse_link_header(r.headers.get('Link', None)))
         finally:
             self.log.log(5, f"Done fetching {url}", extra=e)
 
