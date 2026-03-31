@@ -21,6 +21,30 @@ Override with explicit values
 Also untrack old events (skipped by default since event IDs aren't in settings)
 `python manage.py untrack_old_el_ids --min-event-id 5000`
 
+## track_team Command
+
+Fetches an Extra Life team from the API and marks it as tracked. Creates the local `TeamModel` and its associated `EventModel` if they don't exist yet.
+
+### Usage
+```bash
+python manage.py track_team --team-id <id> [options]
+```
+
+### Arguments
+
+| Flag | Required | Description |
+|------|----------|-------------|
+| `--team-id` | Yes | The Extra Life team ID to fetch and track |
+| `--dry-run` | No | Fetch and display team info without marking it as tracked |
+
+### Examples
+
+Preview team info without tracking
+`python manage.py track_team --team-id 75000 --dry-run`
+
+Fetch and track a team
+`python manage.py track_team --team-id 75000`
+
 ## new_year Command
 
 Runs four steps in sequence to transition the app to a new Extra Life year.
