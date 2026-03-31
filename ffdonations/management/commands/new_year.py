@@ -16,8 +16,8 @@ from django.core.management.base import BaseCommand
 from ffdonations.management.commands.untrack_old_el_ids import Command as UntrackCommand
 from ffdonations.models import EventModel, TeamModel
 
-SKIPPED = "Dry Run - Skipped"
-
+SKIPPED_DRY = "Dry Run - Skipped"
+SKIPPED_ARG = "Step Explicitly Skipped"
 
 class Command(BaseCommand):
     help = "Run all Extra Life new-year setup steps in order."
@@ -82,74 +82,77 @@ class Command(BaseCommand):
                 "DRY RUN — untrack/event-track steps will not save; syncs skipped"
             ))
 
-        # ------------------------------------------------------------------ #
-        # Step 1: Untrack stale records                                       #
-        # ------------------------------------------------------------------ #
-        self.stdout.write(self.style.MIGRATE_HEADING("Step 1: Untracking stale Extra Life IDs"))
-        if not options['skip_untrack']:
-            untrack = UntrackCommand(stdout=self.stdout, stderr=self.stderr)
-            untrack.handle(
-                min_team_id=options['min_team_id'],
-                min_participant_id=options['min_participant_id'],
-                min_event_id=options['min_event_id'],
-                dry_run=dry_run,
-            )
-        else:
-            self.stdout.write(SKIPPED)
-
-        # ------------------------------------------------------------------ #
-        # Step 2: Sync the new team (creates new EventModel if needed)        #
-        # ------------------------------------------------------------------ #
-        self.stdout.write(self.style.MIGRATE_HEADING("Step 2: Syncing new team from Extra Life"))
-        if not options['skip_team_sync'] and not dry_run:
-            from ffdonations.tasks.teams import update_teams
-            result = update_teams.apply(kwargs={'teams': [new_team_id]})
-            guids = result.get()
-            self.stdout.write(self.style.SUCCESS(f"  Team sync complete — {len(guids)} team(s) updated"))
-        else:
-            self.stdout.write(SKIPPED)
-
-        # ------------------------------------------------------------------ #
-        # Step 3: Mark the new event as tracked                               #
-        # ------------------------------------------------------------------ #
-        self.stdout.write(self.style.MIGRATE_HEADING("Step 3: Marking new event as tracked"))
-        if not options['skip_event_track']:
-            try:
-                team = TeamModel.objects.get(id=new_team_id)
-            except TeamModel.DoesNotExist:
-                self.stdout.write(self.style.WARNING(
-                    f"  Team {new_team_id} not in DB — run step 2 first (or re-run without --skip-team-sync)"
-                ))
-            else:
-                if team.event_id is None:
-                    self.stdout.write(self.style.WARNING("  Team has no associated event yet"))
-                else:
-                    evt = team.event
-                    if evt.tracked:
-                        self.stdout.write(f"  Event {evt.id} ({evt.name!r}) already tracked")
-                    else:
-                        self.stdout.write(f"  Marking event {evt.id} ({evt.name!r}) as tracked")
-                        if not dry_run:
-                            EventModel.objects.filter(id=evt.id).update(tracked=True)
-                            self.stdout.write(self.style.SUCCESS("  Done"))
-        else:
-            self.stdout.write(SKIPPED)
-
-        # ------------------------------------------------------------------ #
-        # Step 4: Sync participants                                            #
-        # ------------------------------------------------------------------ #
-        self.stdout.write(self.style.MIGRATE_HEADING("Step 4: Syncing participants from Extra Life"))
-        if not options['skip_participant_sync'] and not dry_run:
-            if new_team_id != settings.EXTRALIFE_TEAMID:
-                self.stdout.write(self.style.WARNING(
-                    f"  Note: EXTRALIFE_TEAMID={settings.EXTRALIFE_TEAMID} but --new-team-id={new_team_id}. "
-                    "Participant sync uses EXTRALIFE_TEAMID — update the env var to match."
-                ))
-            from ffdonations.tasks.participants import update_participants
-            result = update_participants.apply()
-            guids = result.get()
-            self.stdout.write(self.style.SUCCESS(f"  Participant sync complete — {len(guids)} participant(s) updated"))
-        else:
-            self.stdout.write(SKIPPED)
+        self._step1_untrack(options, dry_run)
+        self._step2_sync_team(new_team_id, dry_run, options['skip_team_sync'])
+        self._step3_track_event(new_team_id, dry_run, options['skip_event_track'])
+        self._step4_sync_participants(new_team_id, dry_run, options['skip_participant_sync'])
 
         self.stdout.write(self.style.SUCCESS("\nNew year setup complete."))
+
+    def _step1_untrack(self, options, dry_run):
+        self.stdout.write(self.style.MIGRATE_HEADING("Step 1: Untracking stale Extra Life IDs"))
+        if options['skip_untrack']:
+            self.stdout.write(SKIPPED_ARG)
+            return
+        untrack = UntrackCommand(stdout=self.stdout, stderr=self.stderr)
+        untrack.handle(
+            min_team_id=options['min_team_id'],
+            min_participant_id=options['min_participant_id'],
+            min_event_id=options['min_event_id'],
+            dry_run=dry_run,
+        )
+
+    def _step2_sync_team(self, new_team_id, dry_run, skip):
+        self.stdout.write(self.style.MIGRATE_HEADING("Step 2: Syncing new team from Extra Life"))
+        if skip:
+            self.stdout.write(SKIPPED_ARG)
+            return
+        elif dry_run:
+            self.stdout.write(SKIPPED_DRY)
+            return
+        from ffdonations.tasks.teams import update_teams
+        guids = update_teams.apply(kwargs={'teams': [new_team_id]}).get()
+        self.stdout.write(self.style.SUCCESS(f"  Team sync complete - {len(guids)} team(s) updated"))
+
+    def _step3_track_event(self, new_team_id, dry_run, skip):
+        self.stdout.write(self.style.MIGRATE_HEADING("Step 3: Marking new event as tracked"))
+        if skip:
+            self.stdout.write(SKIPPED_ARG)
+            return
+        try:
+            team = TeamModel.objects.get(id=new_team_id)
+        except TeamModel.DoesNotExist:
+            self.stdout.write(self.style.WARNING(
+                f"  Team {new_team_id} not in DB - run step 2 first (or re-run without --skip-team-sync)"
+            ))
+            return
+        if team.event_id is None:
+            self.stdout.write(self.style.WARNING("  Team has no associated event yet"))
+            return
+        evt = team.event
+        if evt.tracked:
+            self.stdout.write(f"  Event {evt.id} ({evt.name!r}) already tracked")
+            return
+        self.stdout.write(f"  Marking event {evt.id} ({evt.name!r}) as tracked")
+        if not dry_run:
+            EventModel.objects.filter(id=evt.id).update(tracked=True)
+            self.stdout.write(self.style.SUCCESS("  Done"))
+        else:
+            self.stdout.write(SKIPPED_DRY)
+
+    def _step4_sync_participants(self, new_team_id, dry_run, skip):
+        self.stdout.write(self.style.MIGRATE_HEADING("Step 4: Syncing participants from Extra Life"))
+        if skip:
+            self.stdout.write(SKIPPED_ARG)
+            return
+        elif dry_run:
+            self.stdout.write(SKIPPED_DRY)
+            return
+        if new_team_id != settings.EXTRALIFE_TEAMID:
+            self.stdout.write(self.style.WARNING(
+                f"  Note: EXTRALIFE_TEAMID={settings.EXTRALIFE_TEAMID} but --new-team-id={new_team_id}. "
+                "Participant sync uses EXTRALIFE_TEAMID - update the env var to match."
+            ))
+        from ffdonations.tasks.participants import update_participants
+        guids = update_participants.apply().get()
+        self.stdout.write(self.style.SUCCESS(f"  Participant sync complete - {len(guids)} participant(s) updated"))
