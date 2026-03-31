@@ -32,20 +32,22 @@ python manage.py new_year --new-team-id <id> [options]
 
 ### Steps
 
-1. **Untrack stale records** - delegates to `untrack_old_el_ids` to set `tracked=False` on any `TeamModel`, `ParticipantModel`, and optionally `EventModel` records whose IDs fall below the configured minimums (`MIN_EL_TEAMID` / `MIN_EL_PARTICIPANTID` settings, overridable via flags).
+1. **Untrack stale records** - delegates to `untrack_old_el_ids` to set `tracked=False` on any `TeamModel`, `ParticipantModel`, and optionally `EventModel` records whose IDs fall below the configured minimums (`MIN_EL_TEAMID` / `MIN_EL_PARTICIPANTID` settings, overridable via flags). Dry run is passed through to `untrack_old_el_ids` so it also previews without saving.
 
-2. **Sync the new team** - calls `update_teams` synchronously for `--new-team-id`, which fetches the team from Extra Life and auto-creates the new `EventModel` if it doesn't exist yet.
+2. **Sync the new team** - calls `update_teams` synchronously for `--new-team-id`, which fetches the team from Extra Life and auto-creates the new `EventModel` if it doesn't exist yet. Skipped entirely under `--dry-run`.
 
-3. **Mark the new event as tracked** - sets `tracked=True` on the event associated with the new team, which is required for donation and participant syncs to recognise it as a valid current event.
+3. **Mark the new event as tracked** - sets `tracked=True` on the event associated with the new team, which is required for donation and participant syncs to recognise it as a valid current event. Under `--dry-run`, shows what would be tracked without saving.
 
-4. **Sync participants** - calls `update_participants` synchronously to pull the new year's participants. Warns if `EXTRALIFE_TEAMID` in settings doesn't match `--new-team-id`, since that task reads the setting directly.
+4. **Sync participants** - calls `update_participants` synchronously to pull the new year's participants. Warns if `EXTRALIFE_TEAMID` in settings doesn't match `--new-team-id`, since that task reads the setting directly. Skipped entirely under `--dry-run`.
+
+Steps output one of three statuses: completed successfully, `Dry Run - Skipped` (skipped due to `--dry-run`), or `Step Explicitly Skipped` (skipped due to a `--skip-*` flag).
 
 ### Arguments
 
 | Flag | Required | Description |
 |------|----------|-------------|
 | `--new-team-id` | Yes | The new year's Extra Life team ID |
-| `--dry-run` | No | Preview steps 1 and 3; skip all syncs |
+| `--dry-run` | No | Preview steps 1 and 3 without saving; skip syncs in steps 2 and 4 |
 | `--min-team-id` | No | Override ID floor for team untracking (default: `MIN_EL_TEAMID`) |
 | `--min-participant-id` | No | Override ID floor for participant untracking (default: `MIN_EL_PARTICIPANTID`) |
 | `--min-event-id` | No | Untrack events below this ID (skipped if not specified) |
