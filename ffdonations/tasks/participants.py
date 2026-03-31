@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from celery import shared_task
 from django.conf import settings
 from django.utils import timezone
+from requests.exceptions import HTTPError
 
 from extralifeapi.participants import Participants
 from ..models import *
@@ -58,11 +59,35 @@ def update_participants(self, participants=None):
     # Fetch data from EL
     if participants is None:
         if settings.EXTRALIFE_TEAMID >= 0:
-            tr = p.participants_for_team(settings.EXTRALIFE_TEAMID)
+            try:
+                tr = list(p.participants_for_team(settings.EXTRALIFE_TEAMID))
+            except HTTPError as e:
+                if e.response is not None and e.response.status_code == 404:
+                    try:
+                        tm = TeamModel.objects.get(id=settings.EXTRALIFE_TEAMID)
+                        tm.tracked = False
+                        tm.save()
+                    except TeamModel.DoesNotExist:
+                        pass
+                    return ret
+                raise
         else:
             raise ValueError("Invalid settings.EXTRALIFE_TEAMID value")
     else:
-        tr = [p.participant(int(participantID)) for participantID in participants]
+        tr = []
+        for participantID in participants:
+            try:
+                tr.append(p.participant(int(participantID)))
+            except HTTPError as e:
+                if e.response is not None and e.response.status_code == 404:
+                    try:
+                        pm = ParticipantModel.objects.get(id=int(participantID))
+                        pm.tracked = False
+                        pm.save()
+                    except ParticipantModel.DoesNotExist:
+                        pass
+                else:
+                    raise
 
     for participant in tr:
         if participant.eventID:

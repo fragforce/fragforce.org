@@ -153,7 +153,17 @@ def update_donations_team(self, teamID):
     if team.event_id not in current_el_events():
         return None
 
-    for donation in d.donations_for_team(teamID=teamID):
+    try:
+        donations_list = list(d.donations_for_team(teamID=teamID))
+    except HTTPError as e:
+        if e.response is not None and e.response.status_code == 404:
+            team.tracked = False
+            team.save()
+        else:
+            raise
+        return ret
+
+    for donation in donations_list:
         # Get/create participant if it's set...
         if donation.participantID:
             try:
@@ -274,11 +284,13 @@ def update_donations_participant(self, participant_id):
 
     try:
         donations = list(d.donations_for_participants(participantID=participant_id))
-    except HTTPError:
-        participant.tracked = False
-        participant.last_updated = timezone.now()
-        participant.save()
-        return None
+    except HTTPError as e:
+        if e.response is not None and e.response.status_code == 404:
+            participant.tracked = False
+            participant.last_updated = timezone.now()
+            participant.save()
+            return None
+        raise
 
     for donation in donations:
         # Get/create participant if it's set...

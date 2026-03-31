@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from celery import shared_task
 from django.conf import settings
 from django.utils import timezone
+from requests.exceptions import HTTPError
 
 from extralifeapi.teams import Teams
 from ..models import *
@@ -58,7 +59,20 @@ def update_teams(self, teams=None):
         if settings.EXTRALIFE_TEAMID >= 0:
             teams.append(settings.EXTRALIFE_TEAMID)
 
-    el_teams = [el_api.team(teamID=int(tid)) for tid in teams]
+    el_teams = []
+    for tid in teams:
+        try:
+            el_teams.append(el_api.team(teamID=int(tid)))
+        except HTTPError as e:
+            if e.response is not None and e.response.status_code == 404:
+                try:
+                    tm = TeamModel.objects.get(id=int(tid))
+                    tm.tracked = False
+                    tm.save()
+                except TeamModel.DoesNotExist:
+                    pass
+            else:
+                raise
     for team in el_teams:
         if team.eventID:
             try:
