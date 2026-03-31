@@ -24,6 +24,9 @@ def el_request_sleeper(url, data, parsed, **kwargs):
 
     time.sleep(sleep_sec)
 
-    # print(f"Slept for {sleep_sec} seconds")
+    # Reset all keys after sleeping so other workers are gated from this point
+    r_timers.reset(key_global, settings.EL_REQUEST_MIN_TIME)
+    r_timers.reset(key_host, settings.REQUEST_MIN_TIME_HOST)
+    r_timers.reset(key_url, settings.EL_REQUEST_MIN_TIME_URL)
 
     return sleep_type
