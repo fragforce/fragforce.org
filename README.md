@@ -54,8 +54,22 @@ Various donation sync options
 
 * `cp env.sample .env`
 * generate a secret key and set it in the `SECRET_KEY` value in `.env`, not required, but best practice
-* `docker-compose up -d` to spin up all the containers
-* `docker-compose exec web bash` to shell into the main web container
+* `docker compose up -d` to spin up all the containers
+* `docker compose exec web bash` to shell into the main web container
 * `dev/init.sh` to load the hc initial data, run migrations, collectstatic, and activate the pipenv
 * `python manage.py shell` to load a django shell, or `python manage.py dbshell` to connect to the database to verify data after running tasks
+
+### Running Tests
+
+```bash
+# Run all tests
+docker compose exec web pipenv run python manage.py test
+
+# Run a single app's tests
+docker compose exec web pipenv run python manage.py test ffdonations
+
+# Run a specific test class or method
+docker compose exec web pipenv run python manage.py test ffdonations.tests.TeamAdminSyncDonationsTest
+docker compose exec web pipenv run python manage.py test ffdonations.tests.TeamAdminSyncDonationsTest.test_queues_task_for_each_selected_team
+```
 
