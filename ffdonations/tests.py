@@ -12,7 +12,7 @@ from requests.exceptions import HTTPError
 from .admin import ParticipantModelAdmin, TeamModelAdmin
 from .helpers import el_request_sleeper
 from .models import EventModel, ParticipantModel, TeamModel
-from .tasks.donations import update_donations_participant
+from .tasks.donations import update_donations_participant, update_donations_team
 from .tasks.participants import update_participants
 from .tasks.teams import update_teams
 
@@ -225,6 +225,37 @@ class UpdateParticipants404Test(TestCase):
         with patch.object(_participants_tasks, '_make_p', return_value=mock_api):
             with self.assertRaises(HTTPError):
                 update_participants.apply(kwargs={'participants': [3001]}, throw=True)
+
+
+class UpdateDonationsTeam404Test(TestCase):
+    def setUp(self):
+        self.event = EventModel.objects.create(id=2026, tracked=True)
+        self.team = TeamModel.objects.create(id=6001, tracked=True, event=self.event)
+
+    def test_404_untracks_team_and_returns_empty_list(self):
+        mock_api = MagicMock()
+        mock_api.donations_for_team.side_effect = _http_error(404)
+
+        with patch.object(_donations_tasks, '_make_d', return_value=mock_api), \
+                patch.object(_donations_tasks, 'current_el_events', return_value=[self.event.id]):
+            result = update_donations_team.apply(
+                kwargs={'teamID': self.team.id}, throw=True
+            ).result
+
+        self.team.refresh_from_db()
+        self.assertFalse(self.team.tracked)
+        self.assertEqual(result, [])
+
+    def test_non_404_error_reraises(self):
+        mock_api = MagicMock()
+        mock_api.donations_for_team.side_effect = _http_error(500)
+
+        with patch.object(_donations_tasks, '_make_d', return_value=mock_api), \
+                patch.object(_donations_tasks, 'current_el_events', return_value=[self.event.id]):
+            with self.assertRaises(HTTPError):
+                update_donations_team.apply(
+                    kwargs={'teamID': self.team.id}, throw=True
+                )
 
 
 class UpdateDonationsParticipant404Test(TestCase):
