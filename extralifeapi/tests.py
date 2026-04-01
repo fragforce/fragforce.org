@@ -54,19 +54,19 @@ class ParseResponseJsonTest(TestCase):
 
     def test_returns_parsed_json_on_success(self):
         response = _mock_response(json_data={'foo': 'bar'})
-        result = self.client._parse_response_json('http://example.com', response, {})
+        result = self.client._parse_response_json('https://example.com', response, {})
         self.assertEqual(result, {'foo': 'bar'})
 
     def test_raises_json_error_on_decode_failure(self):
         response = _mock_response(raise_json=True, text='not json here')
         with self.assertRaises(JSONError):
-            self.client._parse_response_json('http://example.com', response, {})
+            self.client._parse_response_json('https://example.com', response, {})
 
     def test_json_error_message_includes_truncated_response_text(self):
         long_text = 'x' * 200
         response = _mock_response(raise_json=True, text=long_text)
         with self.assertRaises(JSONError) as ctx:
-            self.client._parse_response_json('http://example.com', response, {})
+            self.client._parse_response_json('https://example.com', response, {})
         # Only the first 100 characters of the body should appear in the error
         self.assertIn('x' * 100, str(ctx.exception))
         self.assertNotIn('x' * 101, str(ctx.exception))
@@ -74,7 +74,7 @@ class ParseResponseJsonTest(TestCase):
     def test_json_error_handles_empty_response_text(self):
         response = _mock_response(raise_json=True, text='')
         with self.assertRaises(JSONError):
-            self.client._parse_response_json('http://example.com', response, {})
+            self.client._parse_response_json('https://example.com', response, {})
 
 
 class FetchJsonRetryTest(TestCase):
@@ -86,7 +86,7 @@ class FetchJsonRetryTest(TestCase):
         ok_response = _mock_response(json_data=[{'id': 1}])
         self.client.session.get = MagicMock(return_value=ok_response)
 
-        result = self.client.fetch_json('http://example.com/api')
+        result = self.client.fetch_json('https://example.com/api')
 
         self.assertIsInstance(result, FetchResponse)
         self.assertEqual(result.data, [{'id': 1}])
@@ -101,7 +101,7 @@ class FetchJsonRetryTest(TestCase):
         ok_response = _mock_response(json_data={'ok': True})
         self.client.session.get = MagicMock(side_effect=[rate_limited, ok_response])
 
-        result = self.client.fetch_json('http://example.com/api')
+        result = self.client.fetch_json('https://example.com/api')
 
         self.assertEqual(result.data, {'ok': True})
         self.assertEqual(self.client.session.get.call_count, 2)
@@ -116,7 +116,7 @@ class FetchJsonRetryTest(TestCase):
         self.client.session.get = MagicMock(return_value=rate_limited)
 
         with self.assertRaises(RateLimitError):
-            self.client.fetch_json('http://example.com/api')
+            self.client.fetch_json('https://example.com/api')
 
         self.assertEqual(self.client.session.get.call_count, 3)
 
@@ -129,7 +129,7 @@ class FetchJsonRetryTest(TestCase):
         # Two 429s then a success
         self.client.session.get = MagicMock(side_effect=[rate_limited, rate_limited, ok_response])
 
-        self.client.fetch_json('http://example.com/api')
+        self.client.fetch_json('https://example.com/api')
 
         self.assertEqual(mock_time.sleep.call_count, 2)
         mock_time.sleep.assert_has_calls([call(10), call(10)])
@@ -142,6 +142,6 @@ class FetchJsonRetryTest(TestCase):
         ok_response = _mock_response(json_data={})
         self.client.session.get = MagicMock(side_effect=[rate_limited, ok_response])
 
-        self.client.fetch_json('http://example.com/api')
+        self.client.fetch_json('https://example.com/api')
 
         mock_time.sleep.assert_called_once_with(60)
