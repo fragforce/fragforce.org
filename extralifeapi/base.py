@@ -76,12 +76,32 @@ class DonorDriveBase(object):
                 return {}
         return n
 
+    def _get_retry_sleep(self, response):
+        """ Return how many seconds to sleep after a 429, using the Retry-After header or the configured default. """
+        retry_after = response.headers.get('Retry-After', None)
+        try:
+            return int(retry_after) if retry_after is not None else settings.EL_RETRY_AFTER_SECONDS
+        except ValueError:
+            return settings.EL_RETRY_AFTER_SECONDS
+
+    def _parse_response_json(self, url, response, e):
+        """ Parse JSON from a response, or raise JSONError with context on failure. """
+        try:
+            return response.json()
+        except JSONDecodeError as er:
+            e['raw'] = response.raw
+            e['headers'] = response.headers
+            e['rdata'] = response.content
+            e['text'] = response.text
+            rd = response.text[:100] if response.text else ''
+            self.log.exception(f"Failed to decode JSON with {er} for {url} | Data: {rd}", extra=e)
+            raise JSONError(f"Failed to decode JSON with {er} for {url} | Data: {rd}")
+
     def fetch_json(self, url, **kwargs):
         """ Fetch the given URL with the given data. Returns data structure from JSON or raises an error. """
         e = dict(url=url, data=kwargs)
         try:
             for attempt in range(self.max_retries + 1):
-                # Sleep before the call!
                 self._do_sleep(url=url, data=kwargs)
                 self.log.debug(f'Going to fetch {url}', extra=e)
                 r = self.session.get(url, data=kwargs)
@@ -91,29 +111,14 @@ class DonorDriveBase(object):
                 if r.status_code == 429:
                     if attempt >= self.max_retries:
                         raise RateLimitError(f"Rate limit hit for {url} and retries exhausted")
-                    retry_after = r.headers.get('Retry-After', None)
-                    try:
-                        sleep_secs = int(retry_after) if retry_after is not None else settings.EL_RETRY_AFTER_SECONDS
-                    except ValueError:
-                        sleep_secs = settings.EL_RETRY_AFTER_SECONDS
+                    sleep_secs = self._get_retry_sleep(r)
                     self.log.warning(f"Rate limited by {url}, sleeping {sleep_secs}s (attempt {attempt + 1}/{self.max_retries})", extra=e)
                     time.sleep(sleep_secs)
                     continue
 
                 r.raise_for_status()
                 self.log.log(5, f"Status of {url} is ok", extra=e)
-                try:
-                    j = r.json()
-                except JSONDecodeError as er:
-                    e['raw'] = r.raw
-                    e['headers'] = r.headers
-                    e['rdata'] = r.content
-                    e['text'] = r.text
-                    rd = ''
-                    if r.text:
-                        rd = r.text[:100]
-                    self.log.exception(f"Failed to decode JSON with {er} for {url} | Data: {rd}", extra=e)
-                    raise JSONError(f"Failed to decode JSON with {er} for {url} | Data: {rd}")
+                j = self._parse_response_json(url, r, e)
                 e['data_len'] = len(j)
                 e['data'] = j
                 self.log.debug(f"Got JSON data from {url}", extra=e)
