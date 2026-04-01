@@ -26,7 +26,7 @@ class TimersDBTimeUntilTest(TestCase):
         delta = timedelta(seconds=10)
         last_called = 995.0
         now = 1000.0
-        # expected = 995 + 10 = 1005, diff = 1005 - 1000 = 5
+        # Key was set 5 seconds ago; with a 10-second delta it should not expire for another 5 seconds
         self.mock_db.get.return_value = str(last_called).encode()
 
         result = self.timers.time_until('mykey', delta=delta, now=now)
@@ -38,7 +38,7 @@ class TimersDBTimeUntilTest(TestCase):
         delta = timedelta(seconds=10)
         last_called = 980.0
         now = 1000.0
-        # expected = 980 + 10 = 990, diff = 990 - 1000 = -10 (elapsed)
+        # Key was set 20 seconds ago, well past the 10-second delta - should return zero and reset
         self.mock_db.get.return_value = str(last_called).encode()
 
         result = self.timers.time_until('mykey', delta=delta, now=now)
@@ -50,7 +50,7 @@ class TimersDBTimeUntilTest(TestCase):
         delta = timedelta(seconds=10)
         last_called = 990.0
         now = 1000.0
-        # expected = 990 + 10 = 1000, diff = 0
+        # Key was set exactly 10 seconds ago, right at the boundary - should still return zero and reset
         self.mock_db.get.return_value = str(last_called).encode()
 
         result = self.timers.time_until('mykey', delta=delta, now=now)
