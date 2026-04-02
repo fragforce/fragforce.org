@@ -21,6 +21,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout dev
+          git checkout -B dev origin/dev
           git merge --ff-only origin/master
           git push origin dev
