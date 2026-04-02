@@ -1,0 +1,26 @@
+name: Sync dev to master
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  sync:
+    name: Fast-forward dev to master
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.head_commit.message, 'Merge pull request') && endsWith(github.event.head_commit.message, '/dev')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fast-forward dev to master
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout dev
+          git merge --ff-only origin/master
+          git push origin dev
