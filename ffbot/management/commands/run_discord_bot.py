@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand
 
 from ffbot.utils import get_or_create_stream_key, get_or_register_user
 from ffdiscord.utils import sync_user_roles
+from ffdiscord.validators import discord_bot_token_valid
 
 log = logging.getLogger(__name__)
 
@@ -15,6 +16,9 @@ class Command(BaseCommand):
     help = 'Run the Fragforce Discord bot'
 
     def handle(self, *args, **options):
+        if not discord_bot_token_valid(settings.DISCORD_BOT_TOKEN):
+            raise SystemExit("DISCORD_BOT_TOKEN is missing or invalid - bot cannot start.")
+
         intents = discord.Intents.default()
         bot = discord.Bot(intents=intents)
 

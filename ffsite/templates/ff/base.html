@@ -76,9 +76,11 @@
                     </form>
                 </li>
                 {% else %}
+                {% if discord_login_enabled %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'social:begin' 'discord' %}">Login</a>
                 </li>
+                {% endif %}
                 {% endif %}
             </ul>
             <ul class="navbar-nav navbar-right">
