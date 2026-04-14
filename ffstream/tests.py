@@ -5,7 +5,7 @@ from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
-from ffstream.models import Key
+from ffstream.models import Key, Stream
 from ffstream.wordlist import WORDS, generate_stream_key
 
 # Test credentials - not real secrets
@@ -294,3 +294,161 @@ class StreamingViewOwnerCheckTest(TestCase):
         response = self.client.post(reverse('pub-start-livestream'), {'name': self.owned_key.stream_key})
         self.assertEqual(response.status_code, 403)
         self.assertIn(b'not allowed to livestream', response.content)
+
+
+class StopViewTest(TestCase):
+    def setUp(self):
+        from django.utils import timezone as tz
+        self.user = User.objects.create_user(username='streamer', password=TEST_PASSWORD)
+        self.key = Key.objects.create(name='streamer', owner=self.user, superstream=True, is_live=True)
+        self.stream1 = Stream.objects.create(key=self.key, is_live=True, started=tz.now())
+        self.stream2 = Stream.objects.create(key=self.key, is_live=True, started=tz.now())
+
+    def test_sets_key_is_live_false(self):
+        self.client.post(reverse('pub-stop'), {'name': self.key.stream_key})
+        self.key.refresh_from_db()
+        self.assertFalse(self.key.is_live)
+
+    def test_ends_all_active_streams(self):
+        self.client.post(reverse('pub-stop'), {'name': self.key.stream_key})
+        self.stream1.refresh_from_db()
+        self.stream2.refresh_from_db()
+        self.assertFalse(self.stream1.is_live)
+        self.assertFalse(self.stream2.is_live)
+        self.assertIsNotNone(self.stream1.ended)
+        self.assertIsNotNone(self.stream2.ended)
+
+    def test_only_ends_streams_where_ended_is_none(self):
+        from django.utils import timezone as tz
+        already_ended = Stream.objects.create(
+            key=self.key, is_live=False, started=tz.now(), ended=tz.now()
+        )
+        self.client.post(reverse('pub-stop'), {'name': self.key.stream_key})
+        already_ended.refresh_from_db()
+        self.assertFalse(already_ended.is_live)  # unchanged
+
+    def test_nonexistent_key_returns_404(self):
+        response = self.client.post(reverse('pub-stop'), {'name': 'NonExistentKey'})
+        self.assertEqual(response.status_code, 404)
+
+    def test_returns_ok(self):
+        response = self.client.post(reverse('pub-stop'), {'name': self.key.stream_key})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'OK')
+
+
+class PlayViewTest(TestCase):
+    def setUp(self):
+        from django.utils import timezone as tz
+        pull_key_owner = User.objects.create_user(username='pull-key-owner', password=TEST_PASSWORD)
+        stream_owner = User.objects.create_user(username='stream-owner', password=TEST_PASSWORD)
+        self.pull_key = Key.objects.create(name='pull', owner=pull_key_owner, pull=True)
+        self.stream_key = Key.objects.create(name='streamer', owner=stream_owner, superstream=True)
+        self.stream = Stream.objects.create(key=self.stream_key, is_live=True, started=tz.now())
+
+    def test_missing_key_param_returns_403(self):
+        response = self.client.post(reverse('pub-play'), {'name': 'streamer'})
+        self.assertEqual(response.status_code, 403)
+        self.assertIn(b'no key given', response.content)
+
+    def test_non_pull_key_returns_403(self):
+        non_pull_owner = User.objects.create_user(username='non-pull-owner', password=TEST_PASSWORD)
+        non_pull = Key.objects.create(name='nonpull', owner=non_pull_owner, pull=False)
+        response = self.client.post(reverse('pub-play'), {
+            'name': 'streamer',
+            'key': non_pull.stream_key,
+        })
+        self.assertEqual(response.status_code, 403)
+        self.assertIn(b'not a pull key', response.content)
+
+    def test_no_active_stream_returns_403(self):
+        self.stream.is_live = False
+        self.stream.save()
+        response = self.client.post(reverse('pub-play'), {
+            'name': 'streamer',
+            'key': self.pull_key.stream_key,
+        })
+        self.assertEqual(response.status_code, 403)
+        self.assertIn(b'inactive stream', response.content)
+
+    def test_self_pull_superstream_redirects(self):
+        # self-pull: use the stream key as both pull key and stream key
+        response = self.client.post(reverse('pub-play'), {
+            'name': self.stream_key.name,
+            'key': self.stream_key.stream_key,
+        })
+        self.assertEqual(response.status_code, 302)
+
+    def test_pull_key_redirects_to_active_stream(self):
+        response = self.client.post(reverse('pub-play'), {
+            'name': 'streamer',
+            'key': self.pull_key.stream_key,
+        })
+        self.assertEqual(response.status_code, 302)
+
+
+class ViewEndpointTest(TestCase):
+    def setUp(self):
+        pull_key_owner = User.objects.create_user(username='pull-key-owner', password=TEST_PASSWORD)
+        no_pull_key_owner = User.objects.create_user(username='no-pull-key-owner', password=TEST_PASSWORD)
+        self.pull_key = Key.objects.create(name='pull', owner=pull_key_owner, pull=True)
+        self.no_pull_key = Key.objects.create(name='nopull', owner=no_pull_key_owner, pull=False)
+
+    def test_require_safe_rejects_post(self):
+        response = self.client.post(reverse('view', args=[self.pull_key.stream_key]))
+        self.assertEqual(response.status_code, 405)
+
+    def test_non_pull_key_returns_403(self):
+        response = self.client.get(reverse('view', args=[self.no_pull_key.stream_key]))
+        self.assertEqual(response.status_code, 403)
+
+    def test_nonexistent_key_returns_404(self):
+        response = self.client.get(reverse('view', args=['NonExistentKey']))
+        self.assertEqual(response.status_code, 404)
+
+    def test_valid_pull_key_renders_template(self):
+        response = self.client.get(reverse('view', args=[self.pull_key.stream_key]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'ffstream/view.html')
+
+
+class GotoViewTest(TestCase):
+    def setUp(self):
+        from django.utils import timezone as tz
+        pull_key_owner = User.objects.create_user(username='pull-key-owner', password=TEST_PASSWORD)
+        no_pull_key_owner = User.objects.create_user(username='no-pull-key-owner', password=TEST_PASSWORD)
+        stream_owner = User.objects.create_user(username='stream-owner', password=TEST_PASSWORD)
+        self.pull_key = Key.objects.create(name='pull', owner=pull_key_owner, pull=True)
+        self.no_pull_key = Key.objects.create(name='nopull', owner=no_pull_key_owner, pull=False)
+        self.stream_key = Key.objects.create(name='streamer', owner=stream_owner)
+        self.stream = Stream.objects.create(key=self.stream_key, is_live=True, started=tz.now())
+
+    def test_require_safe_rejects_post(self):
+        response = self.client.post(
+            reverse('goto', args=[self.pull_key.stream_key, 'streamer'])
+        )
+        self.assertEqual(response.status_code, 405)
+
+    def test_non_pull_key_returns_403(self):
+        response = self.client.get(
+            reverse('goto', args=[self.no_pull_key.stream_key, 'streamer'])
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_nonexistent_pull_key_returns_404(self):
+        response = self.client.get(
+            reverse('goto', args=['NonExistentKey', 'streamer'])
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_nonexistent_stream_name_returns_404(self):
+        response = self.client.get(
+            reverse('goto', args=[self.pull_key.stream_key, 'nonexistent'])
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_active_stream_redirects_to_url(self):
+        response = self.client.get(
+            reverse('goto', args=[self.pull_key.stream_key, 'streamer'])
+        )
+        self.assertEqual(response.status_code, 302)
