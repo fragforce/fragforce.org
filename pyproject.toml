@@ -10,7 +10,7 @@ dependencies = [
     "psycopg2-binary",
     "gunicorn",
     "requests[security]",
-    "celery[redis]>=5.2",
+    "celery[redis]>=5.6.3",
     "redis>=2.10.3,<5",
     "dj-database-url>=3.0",
     "django-redis-cache>=2.1",
