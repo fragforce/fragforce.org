@@ -1428,9 +1428,9 @@ pure-eval==0.2.3 \
     --hash=sha256:1db8e35b67b3d218d818ae653e27f06c3aa420901fa7b081ca98cbedc874e0d0 \
     --hash=sha256:5f4e983f40564c576c7c8635ae88db5956bb2229d7e9237d03b3c0b0190eaf42
     # via stack-data
-py-cord==2.7.2 \
-    --hash=sha256:86d2172c5b0de33d3aa5611d940dd98acfb1b95adfa10ae7b749e6aaf923ffff \
-    --hash=sha256:e25e5e9392f297b3d8fb8f9f31e57989276c1e2b12ebed5a7b1040dd5891d972
+py-cord==2.8.0 \
+    --hash=sha256:24f9180b4df432ddef732e388a905aa7d9cdf8f2f26318f18a193bccb2d7f642 \
+    --hash=sha256:57a7efefa80e7f6ef890fbfc054d686782c347c9e4d86fa7c91f7ae5285b353f
     # via fragforce-org (/code/pyproject.toml)
 pycparser==3.0 \
     --hash=sha256:600f49d217304a5902ac3c37e1281c9fe94e4d0489de643a9504c5cdfdfc6b29 \

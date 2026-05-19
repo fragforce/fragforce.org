@@ -21,7 +21,7 @@ dependencies = [
     "django-oauth-toolkit>=3.0",
     "django-workflow-engine",
     "social-auth-app-django>=5.9",
-    "py-cord>=2,<3",
+    "py-cord>=2.8.0,<3",
     "django-markdownify",
 ]
 
