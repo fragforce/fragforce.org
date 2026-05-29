@@ -11,7 +11,7 @@ dependencies = [
     "gunicorn",
     "requests[security]",
     "celery>=5.5",
-    "redis>=7.0",
+    "redis>=8.0.0",
     "dj-database-url>=3.0",
     "django-redis>=5.0",
     "hiredis",
