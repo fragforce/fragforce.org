@@ -8,11 +8,15 @@ from ..models import DonationModel
 from ..tasks.donations import update_donations_if_needed
 from ..utils import el_teams
 
+VALID_ORDER_FIELDS = {'id', '-id', 'amount', '-amount', 'created', '-created'}
+
 
 @require_safe
 @cache_page(settings.VIEW_DONATIONS_CACHE)
 def v_donations(request):
     orderByVar = request.GET.get('orderBy', 'id')
+    if orderByVar not in VALID_ORDER_FIELDS:
+        orderByVar = 'id'
     filterByVar = request.GET.get('filterBy', 'none')
     recordCountVar = request.GET.get('recordCount', '0')
     recordCountInt = int(recordCountVar)
@@ -36,6 +40,8 @@ def v_donations(request):
 @cache_page(settings.VIEW_DONATIONS_CACHE)
 def v_tracked_donations(request):
     orderByVar = request.GET.get('orderBy', 'id')
+    if orderByVar not in VALID_ORDER_FIELDS:
+        orderByVar = 'id'
     update_donations_if_needed.delay()
     return JsonResponse(
         [d for d in
