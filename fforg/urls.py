@@ -31,7 +31,6 @@ def logout(request):
 urlpatterns = [
     path('auth/', include('social_django.urls', namespace='social')),
     path('auth/logout/', logout, name='logout'),
-    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path('admin/', admin.site.urls),
     path('d/', include('ffdonations.urls')),
     path('', include('ffsite.urls')),
