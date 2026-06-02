@@ -458,7 +458,6 @@ cryptography==48.0.0 \
     --hash=sha256:f5333311663ea94f75dd408665686aaf426563556bb5283554a3539177e03b8c \
     --hash=sha256:fdfef35d751d510fcef5252703621574364fec16418c4a1e5e1055248401054b
     # via
-    #   jwcrypto
     #   pyjwt
     #   social-auth-core
 defusedxml==0.7.1 \
@@ -478,7 +477,6 @@ django==5.2.14 \
     #   dj-database-url
     #   django-markdownify
     #   django-memoize
-    #   django-oauth-toolkit
     #   django-redis
     #   fragforce-org (/code/pyproject.toml)
     #   social-auth-app-django
@@ -488,10 +486,6 @@ django-markdownify==0.9.7 \
     # via fragforce-org (/code/pyproject.toml)
 django-memoize==2.3.1 \
     --hash=sha256:62ac4807710ecf22a7397d008d64d0f798e7230482d4b6072d916cac852a47cd
-    # via fragforce-org (/code/pyproject.toml)
-django-oauth-toolkit==3.3.0 \
-    --hash=sha256:2b375d14b1c0ff86e5df5e5de5d1a6d9868873304f54aca37c50158552d5b922 \
-    --hash=sha256:7af1365cd80735211454b0dca810bc9e860c631e61fd17768ad0fa331737954f
     # via fragforce-org (/code/pyproject.toml)
 django-redis==6.0.0 \
     --hash=sha256:20bf0063a8abee567eb5f77f375143c32810c8700c0674ced34737f8de4e36c0 \
@@ -756,10 +750,6 @@ idna==3.17 \
     # via
     #   requests
     #   yarl
-jwcrypto==1.5.7 \
-    --hash=sha256:70204d7cca406eda8c82352e3c41ba2d946610dafd19e54403f0a1f4f18633c6 \
-    --hash=sha256:729463fefe28b6de5cf1ebfda3e94f1a1b41d2799148ef98a01cb9678ebe2bb0
-    # via django-oauth-toolkit
 kombu==5.6.2 \
     --hash=sha256:8060497058066c6f5aed7c26d7cd0d3b574990b09de842a8c5aaed0b92cc5a55 \
     --hash=sha256:efcfc559da324d41d61ca311b0c64965ea35b4c55cc04ee36e55386145dace93
@@ -922,7 +912,6 @@ oauthlib==3.3.1 \
     --hash=sha256:0f0f8aa759826a193cf66c12ea1af1637f87b9b4622d46e866952bb022e538c9 \
     --hash=sha256:88119c938d2b8fb88561af5f6ee0eec8cc8d552b7bb1f712743136eb7523b7a1
     # via
-    #   django-oauth-toolkit
     #   requests-oauthlib
     #   social-auth-core
 packaging==26.2 \
@@ -1161,7 +1150,6 @@ requests[security]==2.34.2 \
     --hash=sha256:2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0 \
     --hash=sha256:f288924cae4e29463698d6d60bc6a4da69c89185ad1e0bcc4104f584e960b9ed
     # via
-    #   django-oauth-toolkit
     #   fragforce-org (/code/pyproject.toml)
     #   requests-oauthlib
     #   social-auth-core
@@ -1197,7 +1185,6 @@ typing-extensions==4.15.0 \
     #   asgiref
     #   cryptography
     #   exceptiongroup
-    #   jwcrypto
     #   multidict
     #   py-cord
     #   pyjwt

@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'memoize',
-    "oauth2_provider",
     "social_django",
     "django_workflow_engine",
     'ffsite',
