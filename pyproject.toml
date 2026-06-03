@@ -16,7 +16,7 @@ dependencies = [
     "django-redis>=5.0",
     "hiredis",
     "django-memoize",
-    "django>=5.2.14",
+    "django>=5.2.15",
     "whitenoise",
     "django-workflow-engine",
     "social-auth-app-django>=5.9",
