@@ -19,7 +19,7 @@ dependencies = [
     "django>=5.2.16",
     "whitenoise",
     "django-workflow-engine",
-    "social-auth-app-django>=5.9",
+    "social-auth-app-django>=6.0.1",
     "py-cord>=2.8.1,<3",
     "django-markdownify",
 ]
