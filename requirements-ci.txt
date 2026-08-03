@@ -1353,9 +1353,9 @@ six==1.17.0 \
     --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274 \
     --hash=sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81
     # via python-dateutil
-social-auth-app-django==5.9.0 \
-    --hash=sha256:5b79c53321f9528334d53ddb154452a3b7e598b7ff4c2c1302be9a76b1349e8d \
-    --hash=sha256:80edf5c207d871f2225a0fc6bb414004c0342c30deb3a217eb38a63b66e749bb
+social-auth-app-django==6.0.1 \
+    --hash=sha256:43002de0530e2ad13ef067f54aba7185a05fc8527310006c5328dc0b5e7a4cfd \
+    --hash=sha256:652ec21105ef58a34ffd223a02c338bc03e5f56d357ee69c33283afd08442065
     # via fragforce-org (/code/pyproject.toml)
 social-auth-core==4.9.1 \
     --hash=sha256:2eca8a6ae678bae7e24e5aa3c72f99c77983012a09b8916ce9791dcfccade725 \
