@@ -4,4 +4,20 @@ updates:
   directory: "/"
   schedule:
     interval: daily
-  open-pull-requests-limit: 10
+  cooldown:
+    default-days: 3
+    semver-major-days: 30
+    semver-minor-days: 7
+    semver-patch-days: 3
+  groups:
+    prod-patch:
+      applies-to: "version-updates"
+      dependency-type: "production"
+      update-types:
+        - "patch"
+    dev-minor-patch:
+      applies-to: "version-updates"
+      dependency-type: "development"
+      update-type:
+        - "patch"
+        - "minor"
