@@ -1509,9 +1509,9 @@ tomli==2.4.1 \
     # via
     #   build
     #   pip-tools
-traitlets==5.15.1 \
-    --hash=sha256:770a53705f84b81ac107e83a1b3328ff2dae16094d8fc3cfc004e4b22dfd8e92 \
-    --hash=sha256:7b1c07854fe25acb39e009bae49f11b79ff6cbb2f27999104e9110e7a6b53722
+traitlets==5.16.0 \
+    --hash=sha256:7de0a3fabaf5971ff15c8905545f9febfa850309fb8e86e1b42bdb5b46b293ed \
+    --hash=sha256:94a9967ba45e89e837cf9934029c8d019bea9149cfffa115ed8c1900f679beba
     # via
     #   ipython
     #   matplotlib-inline
