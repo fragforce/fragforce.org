@@ -1,4 +1,6 @@
 # Fragforce
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ffragforce%2Ffragforce.org.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Ffragforce%2Ffragforce.org?ref=badge_shield)
+
 ## About
 This is a rewrite of Fragforce.org using Django. 
 
@@ -47,3 +49,7 @@ Various donation sync options
 
 See [DEVELOPMENT.md](DEVELOPMENT.md) for setup instructions, dev scripts, and how to run tests.
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ffragforce%2Ffragforce.org.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Ffragforce%2Ffragforce.org?ref=badge_large)
