@@ -10,9 +10,8 @@ updates:
     semver-minor-days: 7
     semver-patch-days: 3
   groups:
-    prod-patch:
+    all-patch:
       applies-to: "version-updates"
-      dependency-type: "production"
       update-types:
         - "patch"
     dev-minor-patch:
