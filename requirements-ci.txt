@@ -1370,9 +1370,9 @@ social-auth-app-django==6.0.1 \
     --hash=sha256:43002de0530e2ad13ef067f54aba7185a05fc8527310006c5328dc0b5e7a4cfd \
     --hash=sha256:652ec21105ef58a34ffd223a02c338bc03e5f56d357ee69c33283afd08442065
     # via fragforce-org (/code/pyproject.toml)
-social-auth-core==5.0.2 \
-    --hash=sha256:c7250f0c1d539bb1420a7d165b240f066d866ec19d9b829e660260f024f0e2d3 \
-    --hash=sha256:f53930c9b2a86ee0fc8e8fb0eac79221cfc2f017d9efb578691e5a3e2cf36784
+social-auth-core==5.1.0 \
+    --hash=sha256:1e8b678473fef38a972d3e4c5f6fa898558abe7ba46bd56b8429cc484483bf7b \
+    --hash=sha256:7a622ceeab857c8310e358b4ad7727e410b735052ab90cc408835c16304b18e8
     # via social-auth-app-django
 sqlparse==0.5.5 \
     --hash=sha256:12a08b3bf3eec877c519589833aed092e2444e68240a3577e8e26148acc7b1ba \
