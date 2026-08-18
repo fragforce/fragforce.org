@@ -17,6 +17,6 @@ updates:
     dev-minor-patch:
       applies-to: "version-updates"
       dependency-type: "development"
-      update-type:
+      update-types:
         - "patch"
         - "minor"
