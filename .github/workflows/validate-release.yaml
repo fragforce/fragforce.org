@@ -1,0 +1,69 @@
+name: Validate Release
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  validate:
+    name: Validate version and changelog
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Fetch base branch
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: git fetch origin "$BASE_REF"
+
+      - name: Run all validation checks
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          FAILED=0
+
+          echo "### Release Validation" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          # Check 1: Version bump
+          BASE_VERSION=$(git show "origin/$BASE_REF:pyproject.toml" | grep '^version = ' | cut -d'"' -f2)
+          PR_VERSION=$(grep '^version = ' pyproject.toml | cut -d'"' -f2)
+
+          if [ "$BASE_VERSION" = "$PR_VERSION" ]; then
+            echo "❌ Version not bumped in pyproject.toml (still $BASE_VERSION)" >> "$GITHUB_STEP_SUMMARY"
+            FAILED=1
+          else
+            echo "✅ Version bumped from $BASE_VERSION to $PR_VERSION" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          # Check 2: CHANGELOG.md updated
+          if ! git diff --name-only "origin/$BASE_REF...HEAD" | grep -q '^CHANGELOG.md$'; then
+            echo "❌ CHANGELOG.md not updated" >> "$GITHUB_STEP_SUMMARY"
+            FAILED=1
+          else
+            echo "✅ CHANGELOG.md updated" >> "$GITHUB_STEP_SUMMARY"
+
+            # Check 3: Version in changelog (only if version was bumped and changelog updated)
+            if [ "$BASE_VERSION" != "$PR_VERSION" ]; then
+              if ! grep -q "^## \[$PR_VERSION\]" CHANGELOG.md; then
+                echo "❌ Version $PR_VERSION not found in CHANGELOG.md (expected: \`## [$PR_VERSION] - YYYY-MM-DD\`)" >> "$GITHUB_STEP_SUMMARY"
+                FAILED=1
+              else
+                echo "✅ Version $PR_VERSION found in CHANGELOG.md" >> "$GITHUB_STEP_SUMMARY"
+              fi
+            fi
+          fi
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ $FAILED -eq 1 ]; then
+            echo "**Result:** ❌ Validation failed" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          else
+            echo "**Result:** ✅ All checks passed" >> "$GITHUB_STEP_SUMMARY"
+          fi
