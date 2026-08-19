@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgrade social-auth-core 5.0.2 to 5.1.0: OpenID Connect backends now validate ID tokens on refresh and reject identity changes
 - Upgrade wheel 0.47.0 to 0.48.0: fixes GHSA-vgq5-9859-3mmw (path traversal / arbitrary file write via crafted project name)
 
+### Added
+- `validate-release.yaml`: PR check that enforces version bump in `pyproject.toml` and matching entry in `CHANGELOG.md` on every merge to `master`
+- `create-release.yaml`: automatically creates a GitHub release and tag on push to `master`, using the matching `CHANGELOG.md` section as release notes; idempotent if tag already exists
+
 ### Removed
 - Remove `django-oauth-toolkit` (unused OAuth2 provider)
 
