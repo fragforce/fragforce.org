@@ -28,8 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove `django-oauth-toolkit` (unused OAuth2 provider)
 
 ### Changed
-- Upgrade redis client 7.4.0 to 8.0.0
+- Upgrade redis client 7.4.0 to 8.1.0
 - Dependency updates (certifi, idna, aiohappyeyeballs, coverage, click)
+- All Login with discord flows are now using POST instead of GET, per [Changelog](https://github.com/python-social-auth/social-app-django/releases/tag/6.0.0)
 
 ### Fixed
 - Fix SonarCloud JRE provisioning 403 by adding explicit Java setup step
