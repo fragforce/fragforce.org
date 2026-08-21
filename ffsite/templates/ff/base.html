@@ -86,7 +86,10 @@
                 {% else %}
                 {% if discord_login_enabled %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'social:begin' 'discord' %}">Login</a>
+                    <form method="post" action="{% url 'social:begin' 'discord' %}" class="d-inline m-0 p-0">
+                        {% csrf_token %}
+                        <button type="submit" class="nav-link">Login</button>
+                    </form>
                 </li>
                 {% endif %}
                 {% endif %}

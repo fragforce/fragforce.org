@@ -15,7 +15,11 @@
             </a>
         </p>
         <p class="mt-2">
-            Once you've joined, <a href="{% url 'social:begin' 'discord' %}">try logging in again</a>.
+            Once you've joined,
+            <form method="post" action="{% url 'social:begin' 'discord' %}" class="d-inline m-0 p-0">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-link">try logging in again</button>
+            </form>
         </p>
     </div>
 </div>
