@@ -3,6 +3,8 @@
 # On first run (no built image), builds containers and runs first-time setup.
 # On subsequent runs, just starts containers and waits for readiness.
 
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
+
 cd "$(git rev-parse --show-toplevel)"
 
 if [[ ! -f .env ]]; then
@@ -11,27 +13,29 @@ if [[ ! -f .env ]]; then
     exit 1
 fi
 
+require_engine
+
 FIRST_RUN=false
-if ! docker image inspect fragforceorg-web &>/dev/null; then
+if ! engine image inspect fragforceorg-web &>/dev/null; then
     FIRST_RUN=true
 fi
 
 if [[ "$FIRST_RUN" = true ]]; then
     echo "First run detected — building containers (this will take a few minutes)..."
-    docker compose up --build -d
+    dc up --build -d
     echo ""
     echo "Waiting for migrations to finish..."
-    docker compose wait init
+    dc wait init
     echo ""
     echo "Running collectstatic..."
-    docker compose exec -T web python manage.py collectstatic --no-input
+    dc exec -T web python manage.py collectstatic --no-input
 else
-    docker compose up -d
+    dc up -d
 fi
 
 echo ""
 echo "Installing dev dependencies (pyflakes, etc.)..."
-docker compose exec -T web pip install --quiet --require-hashes --only-binary :all: --no-binary django-redis-cache,django-memoize -r requirements-dev.txt
+dc exec -T web pip install --quiet --require-hashes --only-binary :all: --no-binary django-redis-cache,django-memoize -r requirements-dev.txt
 
 echo ""
 echo "Waiting for web server at http://localhost:8000/ ..."
@@ -45,4 +49,4 @@ done
 echo ""
 echo "Dev server ready: http://localhost:8000/"
 echo ""
-docker compose ps
+dc ps
