@@ -14,7 +14,7 @@
 {{ block.super }}
 {% if discord_login_enabled %}
 <div style="padding-top: 1.5rem; border-top: 1px solid #ccc; text-align: center; max-width: 28em; margin: 0 auto;">
-    <form method="post" action="{% url 'social:begin' 'discord' %}?next={{ request.GET.next|default:'/admin/' }}" class="d-inline">
+    <form method="post" action="{% url 'social:begin' 'discord' %}" class="d-inline">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.GET.next|default:'/admin/' }}">
         <button type="submit" class="button">{% trans "Login with Discord" %}</button>

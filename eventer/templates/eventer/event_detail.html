@@ -31,7 +31,11 @@
     <a href="{% url 'evtsignup-signup' event_slug=event.slug %}" class="btn btn-outline-primary btn-lg mb-4">Edit Profile</a>
     {% elif not user.is_authenticated %}
     <p class="text-muted">
-      <a href="{% url 'social:begin' 'discord' %}?next={% url 'evtsignup-signup' event_slug=event.slug %}">Log in with Discord</a> to sign up.
+      <form method="post" action="{% url 'social:begin' 'discord' %}" class="d-inline m-0 p-0">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{% url 'evtsignup-signup' event_slug=event.slug %}">
+        <button type="submit" class="btn btn-link">Log in with Discord</button> to sign up.
+      </form>
     </p>
     {% endif %}
 
