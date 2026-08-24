@@ -1246,3 +1246,82 @@ class DonationViewOrderByWhitelistTest(TestCase):
         for field in VALID_ORDER_FIELDS:
             response = self.client.get(f'/d/donations/tracked?orderBy={field}')
             self.assertEqual(response.status_code, 200, f'tracked orderBy={field} should be accepted')
+
+
+class DonationViewRecordCountTest(TestCase):
+    def setUp(self):
+        event = EventModel.objects.create(id=1, name='Test Event')
+        team = TeamModel.objects.create(id=73149, name='Fragforce', event=event, tracked=True)
+        for i in range(3):
+            DonationModel.objects.create(id=f'RC{i:02d}', amount=10.0, team=team, created=timezone.now())
+
+    @patch('ffdonations.views.donations.update_donations_if_needed')
+    def test_invalid_recordcount_falls_back_to_full_list(self, mock_task):
+        # Non-integer recordCount used to raise ValueError (500) - now falls back to 0
+        response = self.client.get('/d/donations?recordCount=abc')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data), 3)
+
+    @patch('ffdonations.views.donations.update_donations_if_needed')
+    def test_negative_recordcount_falls_back_to_full_list(self, mock_task):
+        # Negative recordCount is out of range - falls back to the full list
+        response = self.client.get('/d/donations?recordCount=-5')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data), 3)
+
+    @patch('ffdonations.views.donations.update_donations_if_needed')
+    def test_valid_recordcount_limits_rows(self, mock_task):
+        response = self.client.get('/d/donations?recordCount=2')
+        data = response.json()
+        self.assertEqual(len(data), 2)
+
+    @override_settings(MAX_API_ROWS=2)
+    @patch('ffdonations.views.donations.update_donations_if_needed')
+    def test_recordcount_above_max_is_capped(self, mock_task):
+        # recordCount > MAX_API_ROWS falls back to the MAX_API_ROWS slice
+        response = self.client.get('/d/donations?recordCount=10')
+        data = response.json()
+        self.assertEqual(len(data), 2)
+
+
+class DonationViewFilterByTest(TestCase):
+    def setUp(self):
+        event = EventModel.objects.create(id=1, name='Test Event')
+        team = TeamModel.objects.create(id=73149, name='Fragforce', event=event, tracked=True)
+        self.participant = ParticipantModel.objects.create(
+            id=5001, displayName='Alice', event=event, tracked=True
+        )
+        other = ParticipantModel.objects.create(
+            id=5002, displayName='Bob', event=event, tracked=True
+        )
+        DonationModel.objects.create(id='FB01', amount=10.0, team=team, participant=self.participant, created=timezone.now())
+        DonationModel.objects.create(id='FB02', amount=20.0, team=team, participant=other, created=timezone.now())
+
+    @patch('ffdonations.views.donations.update_donations_if_needed')
+    def test_digit_filterby_filters_to_participant(self, mock_task):
+        response = self.client.get('/d/donations?filterBy=5001')
+        data = response.json()
+        self.assertEqual([d['id'] for d in data], ['FB01'])
+
+    @patch('ffdonations.views.donations.update_donations_if_needed')
+    def test_non_digit_filterby_treated_as_none(self, mock_task):
+        # Non-digit filterBy used to crash the queryset - now ignored
+        response = self.client.get('/d/donations?filterBy=abc')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data), 2)
+
+    @patch('ffdonations.views.donations.update_donations_if_needed')
+    def test_negative_filterby_treated_as_none(self, mock_task):
+        # '-5' isn't a digit - treated as none
+        response = self.client.get('/d/donations?filterBy=-5')
+        data = response.json()
+        self.assertEqual(len(data), 2)
+
+    @patch('ffdonations.views.donations.update_donations_if_needed')
+    def test_none_filterby_returns_all(self, mock_task):
+        response = self.client.get('/d/donations?filterBy=none')
+        data = response.json()
+        self.assertEqual(len(data), 2)

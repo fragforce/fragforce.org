@@ -39,7 +39,14 @@ jobs:
             echo "❌ Version not bumped in pyproject.toml (still $BASE_VERSION)" >> "$GITHUB_STEP_SUMMARY"
             FAILED=1
           else
-            echo "✅ Version bumped from $BASE_VERSION to $PR_VERSION" >> "$GITHUB_STEP_SUMMARY"
+            # Ensure the version actually increased, not downgraded (sort -Vr puts highest first)
+            TOP=$(printf '%s\n%s\n' "$BASE_VERSION" "$PR_VERSION" | sort -Vr | head -n 1)
+            if [ "$TOP" = "$PR_VERSION" ]; then
+              echo "✅ Version bumped from $BASE_VERSION to $PR_VERSION" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "❌ Version downgraded from $BASE_VERSION to $PR_VERSION (must increase)" >> "$GITHUB_STEP_SUMMARY"
+              FAILED=1
+            fi
           fi
 
           # Check 2: CHANGELOG.md updated
