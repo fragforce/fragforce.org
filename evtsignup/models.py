@@ -1,5 +1,5 @@
+from django.contrib.auth.models import User
 from django.db import models
-from django_workflow_engine.executor import User
 
 
 class EventInterest(models.Model):
