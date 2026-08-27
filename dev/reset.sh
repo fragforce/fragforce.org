@@ -8,7 +8,11 @@
 #   dev/reset.sh --force  # skip confirmation prompt
 #   dev/reset.sh --clean --force
 
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
+
 cd "$(git rev-parse --show-toplevel)"
+
+require_engine
 
 CLEAN=false
 FORCE=false
@@ -35,9 +39,9 @@ fi
 echo ""
 echo "Tearing down containers and volumes..."
 if [[ "$CLEAN" = true ]]; then
-    docker compose down -v --rmi local
+    dc down -v --rmi local
 else
-    docker compose down -v
+    dc down -v
 fi
 
 echo ""
