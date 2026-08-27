@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Changed
+- Upgrade all dev scripts to autodetect and support `podman compose` or `docker compose`
+
 ## [2.6.0] - 2026-08-19
 
 ### Security

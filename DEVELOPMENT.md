@@ -3,7 +3,7 @@
 ## Requirements
 
 - [Docker](https://docker.com)
-- [Docker Compose](https://docs.docker.com/compose/)
+- [Docker Compose](https://docs.docker.com/compose/) or [Podman Compose](https://docs.podman.io/en/v5.6.2/markdown/podman-compose.1.html)
 - [GitHub CLI (`gh`)](https://cli.github.com/) — required for `dev/pr.sh`
 
 ## Initial Setup
@@ -29,7 +29,8 @@ dev/start.sh
 All developer scripts live in `dev/` and can be run from the repo root.
 
 | Script | Description |
-|--------|-------------|
+| -------- | ------------- |
+| `dev/lib.sh` | Library script to autodetech compose engine, make sure the engine is running, and check if the web stack is running. |
 | `dev/start.sh` | Start the dev stack. Detects first run and handles setup automatically. |
 | `dev/update.sh` | Pull latest changes, rebuild image if dependencies changed, and run migrations. |
 | `dev/pip-compile.sh [prod\|ci\|dev] [--upgrade] [--upgrade-package pkg]` | Regenerate pip-tools lockfiles inside the dev container. Defaults to all three. `--upgrade` upgrades all packages; `--upgrade-package pkg` upgrades a single package across all files. |
@@ -64,6 +65,10 @@ Or use Django directly:
 docker compose exec web python manage.py test
 ```
 
+```bash
+podman compose exec web python manage.py test
+```
+
 ## Useful Commands
 
 Inside the container (`dev/shell.sh`):
@@ -82,20 +87,20 @@ Copy `env.sample` to `.env` to get started. All optional variables have sensible
 ### Required
 
 | Variable | Description |
-|----------|-------------|
+| ---------- | ------------- |
 | `SECRET_KEY` | Django secret key (generate with `python -c "import secrets; print(secrets.token_urlsafe(50))"`) |
 
 ### Redis
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+| ---------- | --------- | ------------- |
 | `REDIS_URL` | `redis://localhost` | Single Redis instance (split across DB indexes 0-4) |
 | `REDIS0_URL`-`REDIS4_URL` | - | Override individual Redis DB URLs (default, tasks, tombs, timers, cache) |
 
 ### Discord OAuth2
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+| ---------- | --------- | ------------- |
 | `DISCORD_CLIENT_ID` | - | OAuth2 app client ID |
 | `DISCORD_CLIENT_SECRET` | - | OAuth2 app client secret |
 | `DISCORD_GUILD_ID` | `164136635762606081` | Required guild; users not in this guild are denied login |
@@ -103,7 +108,7 @@ Copy `env.sample` to `.env` to get started. All optional variables have sensible
 ### Discord Bot
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+| ---------- | --------- | ------------- |
 | `DISCORD_BOT_TOKEN` | - | Bot token for role sync and slash commands |
 | `ADD_DISCORD_COMMANDS` | `true` | Set to `false` to start the bot without registering slash commands |
 | `DISCORD_ROLE_SYNC_HOURS` | `1` | How often to sync Discord roles (hours) |
@@ -112,7 +117,7 @@ Copy `env.sample` to `.env` to get started. All optional variables have sensible
 ### Extra Life / DonorDrive
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+| ---------- | --------- | ------------- |
 | `EXTRALIFE_TEAMID` | `73149` | Extra Life team ID to sync |
 | `MIN_EL_TEAMID` | `73127` | Minimum valid team ID |
 | `MIN_EL_PARTICIPANTID` | `565075` | Minimum valid participant ID |
@@ -128,7 +133,7 @@ Copy `env.sample` to `.env` to get started. All optional variables have sensible
 ### Tiltify
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+| ---------- | --------- | ------------- |
 | `TILTIFY_TOKEN` | - | Tiltify API token |
 | `TILTIFY_TEAMS` | `fragforce` | Comma-separated team slugs |
 | `TILTIFY_TIMEOUT` | `60` | API request timeout (seconds) |
@@ -137,7 +142,7 @@ Copy `env.sample` to `.env` to get started. All optional variables have sensible
 ### IGDB
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+| ---------- | --------- | ------------- |
 | `IGDB_CLIENT_ID` | - | Twitch app client ID (create at https://dev.twitch.tv/console/apps) |
 | `IGDB_CLIENT_SECRET` | - | Twitch app client secret |
 | `IGDB_RATE_LIMIT_RETRIES` | `3` | Max retries on IGDB 429 rate limit response |
@@ -146,7 +151,7 @@ Copy `env.sample` to `.env` to get started. All optional variables have sensible
 ### Twitch Bot Integration
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+| ---------- | --------- | ------------- |
 | `FRAG_BOT_API` | `https://bot.fragforce.org/dbquery` | Twitch bot API endpoint |
 | `FRAG_BOT_KEY` | - | API key |
 | `FRAG_BOT_BOT` | `misterfragbot` | Bot username |
@@ -154,7 +159,7 @@ Copy `env.sample` to `.env` to get started. All optional variables have sensible
 ### Donations
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+| ---------- | --------- | ------------- |
 | `SINGAPORE_DONATIONS` | `0.0` | Manual donation adjustment (SGD region) |
 | `OTHER_DONATIONS` | `0.0` | Manual donation adjustment (other) |
 | `TARGET_DONATIONS` | `1.0` | Donation goal override |
@@ -170,7 +175,7 @@ Copy `env.sample` to `.env` to get started. All optional variables have sensible
 ### Django / Performance
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+| ---------- | --------- | ------------- |
 | `DEBUG` | `True` | Django debug mode |
 | `DJANGO_LOG_LEVEL` | `INFO` | Log level |
 | `MAX_API_ROWS` | `1024` | Max rows returned by API endpoints |
@@ -183,7 +188,7 @@ Copy `env.sample` to `.env` to get started. All optional variables have sensible
 ### View Cache Timeouts (seconds)
 
 | Variable | Default |
-|----------|---------|
+| ---------- | --------- |
 | `VIEW_TEAMS_CACHE` | `20` |
 | `VIEW_PARTICIPANTS_CACHE` | `20` |
 | `VIEW_DONATIONS_CACHE` | `20` |
@@ -199,7 +204,7 @@ See `env.sample` for a commented template of all variables.
 Dependencies are declared in `pyproject.toml` and locked in three files:
 
 | File | Used by |
-|------|---------|
+| ------ | --------- |
 | `requirements.txt` | Production Docker images |
 | `requirements-ci.txt` | CI (GitHub Actions coverage workflow) |
 | `requirements-dev.txt` | Local dev container |
