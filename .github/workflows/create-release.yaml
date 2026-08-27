@@ -44,8 +44,23 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Check if CHANGELOG.md is non-empty
+        id: changelog-file-check
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if [ ! -s CHANGELOG.md ]; then
+            echo "CHANGELOG.md is missing or empty, skipping release" >> "$GITHUB_STEP_SUMMARY"
+            echo "has-changelog=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "### Release Notes for $VERSION" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "CHANGELOG.md exists, extracting section for $VERSION" >> "$GITHUB_STEP_SUMMARY"
+            echo "has-changelog=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Extract changelog
-        if: steps.tag-check.outputs.exists == 'false'
+        if: steps.tag-check.outputs.exists == 'false' && steps.changelog-file-check.outputs.has_changelog == 'true'
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
@@ -55,8 +70,21 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           cat changelog.txt >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Check if extracted section is non-empty
+        id: changelog-section-check
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if [ ! -s changelog.txt ]; then
+            echo "CHANGELOG.md section for $VERSION is empty, skipping release" >> "$GITHUB_STEP_SUMMARY"
+            echo "has-section=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Section for $VERSION extracted successfully" >> "$GITHUB_STEP_SUMMARY"
+            echo "has-section=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Create GitHub release
-        if: steps.tag-check.outputs.exists == 'false'
+        if: steps.tag-check.outputs.exists == 'false' && steps.changelog-file-check.outputs.has_changelog == 'true' && steps.changelog-section-check.outputs.has_section == 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           TAG: ${{ steps.version.outputs.tag }}
@@ -72,10 +100,10 @@ jobs:
           echo "✅ Created release $TAG" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Skip summary
-        if: steps.tag-check.outputs.exists == 'true'
+        if: steps.tag-check.outputs.exists == 'true' || steps.changelog-file-check.outputs.has_changelog == 'false' || steps.changelog-section-check.outputs.has_section == 'false'
         env:
           TAG: ${{ steps.version.outputs.tag }}
         run: |
           echo "### Release Skipped" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "Tag $TAG already exists" >> "$GITHUB_STEP_SUMMARY"
+          echo "Tag $TAG already exists, or CHANGELOG.md is missing/empty, or section for $VERSION is empty" >> "$GITHUB_STEP_SUMMARY"
