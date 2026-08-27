@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'memoize',
     "social_django",
-    "django_workflow_engine",
     'ffsite',
     'ffdonations',
     'ffstream',
@@ -504,6 +503,4 @@ LOGIN_REDIRECT_URL = '/stream/my-keys'
 SOCIAL_AUTH_LOGIN_ERROR_URL = '/login-error'
 
 TEST_RUNNER = 'fforg.test_runner.GitHashTestRunner'
-DJANGO_WORKFLOWS = {
-    "simple_workflow": "eventer.workflows.simple_workflow",
-}
+
