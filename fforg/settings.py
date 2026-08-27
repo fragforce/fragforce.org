@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'memoize',
-    "oauth2_provider",
     "social_django",
     "django_workflow_engine",
     'ffsite',
@@ -194,6 +193,17 @@ if bool(os.environ.get('DOCKER', 'False').lower() == 'true') or bool(
     SECURE_SSL_REDIRECT = False
 else:
     SECURE_SSL_REDIRECT = True
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://fragforce.org',
+    'https://dev.fragforce.org',
+]
+if os.environ.get('CSRF_TRUSTED_ORIGINS'):
+    CSRF_TRUSTED_ORIGINS += [
+        origin.strip()
+        for origin in os.environ['CSRF_TRUSTED_ORIGINS'].split(',')
+        if origin.strip()
+    ]
 
 SINGAPORE_DONATIONS = float(os.environ.get('SINGAPORE_DONATIONS', '0.0'))
 OTHER_DONATIONS = float(os.environ.get('OTHER_DONATIONS', '0.0'))

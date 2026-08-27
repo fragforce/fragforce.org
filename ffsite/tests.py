@@ -141,7 +141,8 @@ class AdminLoginDiscordButtonTest(TestCase):
     )
     def test_discord_button_includes_default_admin_next(self):
         response = self.client.get(reverse('admin:login'))
-        self.assertContains(response, reverse('social:begin', args=['discord']) + '?next=/admin/')
+        self.assertContains(response, 'action="%s"' % reverse('social:begin', args=['discord']))
+        self.assertContains(response, '<input type="hidden" name="next" value="/admin/">')
 
     @override_settings(
         SOCIAL_AUTH_DISCORD_KEY='123456789012345678',
@@ -149,7 +150,8 @@ class AdminLoginDiscordButtonTest(TestCase):
     )
     def test_discord_button_preserves_next_param(self):
         response = self.client.get(reverse('admin:login') + '?next=/admin/ffstream/')
-        self.assertContains(response, reverse('social:begin', args=['discord']) + '?next=/admin/ffstream/')
+        self.assertContains(response, 'action="%s"' % reverse('social:begin', args=['discord']))
+        self.assertContains(response, '<input type="hidden" name="next" value="/admin/ffstream/">')
 
 
 class JoinAndContactViewTest(TestCase):
