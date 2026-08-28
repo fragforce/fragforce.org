@@ -41,6 +41,11 @@ services:
     depends_on:
       - db
       - redis
+  compile:
+    build: .
+    volumes:
+      - .:/code
+    command: bash
 networks:
   fragforceorg_default:
     name: "fragforceorg_default"

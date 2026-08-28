@@ -17,14 +17,12 @@ cd "$(git rev-parse --show-toplevel)"
 
 require_engine
 
-ensure_web_running
-
 UPGRADE_FLAG=""
 UPGRADE_PACKAGES=()
 TARGET="all"
 
 # Ensure pip>=26 - older pip fails on kombu's setup.py (use_2to3 removed in setuptools 58+)
-dc exec -T web pip install --quiet "pip>=26" 2>/dev/null || true
+dc run --rm compile pip install --quiet "pip>=26" 2>/dev/null || true
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -46,7 +44,7 @@ fi
 
 compile_prod() {
     echo "Compiling requirements.txt..."
-    dc exec -T web pip-compile /code/pyproject.toml \
+    dc run --rm compile pip-compile /code/pyproject.toml \
         -o /code/requirements.txt \
         --generate-hashes \
         $UPGRADE_OR_NO_UPGRADE
@@ -54,7 +52,7 @@ compile_prod() {
 
 compile_ci() {
     echo "Compiling requirements-ci.txt..."
-    dc exec -T web pip-compile /code/pyproject.toml \
+    dc run --rm compile pip-compile /code/pyproject.toml \
         --extra ci \
         -o /code/requirements-ci.txt \
         --generate-hashes \
@@ -64,7 +62,7 @@ compile_ci() {
 
 compile_dev() {
     echo "Compiling requirements-dev.txt..."
-    dc exec -T web pip-compile /code/pyproject.toml \
+    dc run --rm compile pip-compile /code/pyproject.toml \
         --extra dev \
         -o /code/requirements-dev.txt \
         --generate-hashes \
