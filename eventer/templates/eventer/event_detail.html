@@ -1,5 +1,5 @@
 {% extends "ff/base.html" %}
-{% load fftz markdownify %}
+{% load fftz ffmarkdown %}
 
 {% block title %}{{ event.name }} - Fragforce{% endblock %}
 
@@ -12,7 +12,7 @@
     <div class="card mb-4">
       <div class="card-body">
         {% if event.description %}
-        {{ event.description|markdownify }}
+        {{ event.description|ffmarkdown }}
         {% endif %}
         {% if event.start %}
         <p class="mb-1"><strong>Starts:</strong> {{ event.start|date:"Y-m-d H:i:s"|localtime_short }}</p>
