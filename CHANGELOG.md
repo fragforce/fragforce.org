@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Dependency management migrated from pip-compile to uv. Backwards incompatible change
+- Replaced pyflakes with ruff for linting
+
+### Removed
+- Removed ipython from dev dependencies - cleaned up a lot of transitive dependencies
+
 ## [2.7.0]
 
 ### Changed
