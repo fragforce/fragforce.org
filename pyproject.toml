@@ -16,7 +16,7 @@ dependencies = [
     "django-redis>=7.0.0",
     "hiredis",
     "django-memoize",
-    "django>=5.2.17",
+    "django>=6.1",
     "whitenoise",
     "social-auth-app-django>=6.0.1",
     "py-cord>=2.8.1,<3",
