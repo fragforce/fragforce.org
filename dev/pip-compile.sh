@@ -21,9 +21,6 @@ UPGRADE_FLAG=""
 UPGRADE_PACKAGES=()
 TARGET="all"
 
-# Ensure pip>=26 - older pip fails on kombu's setup.py (use_2to3 removed in setuptools 58+)
-dc run --rm compile pip install --quiet "pip>=26" 2>/dev/null || true
-
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --upgrade) UPGRADE_FLAG="--upgrade"; shift ;;
