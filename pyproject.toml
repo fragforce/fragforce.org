@@ -1,7 +1,3 @@
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.backends.legacy:build"
-
 [project]
 name = "fragforce-org"
 version = "2.7.0"
