@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.7.0]
+
 ### Changed
 - Upgrade all dev scripts to autodetect and support `podman compose` or `docker compose`
 - Upgrade base python for project from 3.10 to 3.13
@@ -216,7 +218,8 @@ Initial public release.
 
 ---
 
-[unreleased]: https://github.com/fragforce/fragforce.org/compare/v2.6.0...HEAD
+[unreleased]: https://github.com/fragforce/fragforce.org/compare/v2.7.0...HEAD
+[2.7.0]: https://github.com/fragforce/fragforce.org/compare/v2.6.0...v2.7.0
 [2.6.0]: https://github.com/fragforce/fragforce.org/compare/v2.5.2...v2.6.0
 [2.5.2]: https://github.com/fragforce/fragforce.org/compare/v2.5.1...v2.5.2
 [2.5.1]: https://github.com/fragforce/fragforce.org/compare/v2.5.0...v2.5.1
