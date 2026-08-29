@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove `django-workflow-engine` (unused scaffolding; `simple_workflow` was a Hello World demo, `onboard_contractor`/`onboard_perm` were never registered)
 - Remove `django-markdownify` + `bleach`, replaced with custom `ffmarkdown` filter using `nh3`
 
-## [2.6.0] - 2026-08-19
+## [2.6.0] - 2026-08-27
 
 ### Security
 - Whitelist `orderBy` query parameter in donation views to prevent injection
