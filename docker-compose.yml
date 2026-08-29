@@ -4,7 +4,7 @@ services:
     volumes:
       - .:/code
     env_file: .env
-    command: python manage.py runserver 0.0.0.0:8000
+    command: uv run --frozen python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
     environment:
@@ -13,34 +13,51 @@ services:
       DJANGO_LOG_LEVEL: "DEBUG"
       REDIS_URL: "redis://redis"
     depends_on:
-      - db
-      - redis
-      - init
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
   db:
     image: postgres:18.3
     restart: unless-stopped
+    env_file: .env
     environment:
       TZ: "Etc/UTC"
       POSTGRES_HOST_AUTH_METHOD: "trust"
-      POSTGRES_DB: "fragforce_test"
-      POSTGRES_PASSWORD: "insecure"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   redis:
     image: redis
     environment:
       TZ: "Etc/UTC"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   init:
     build: .
     volumes:
       - .:/code
-    command: bash -c 'sleep 10 && python manage.py migrate'
+    command: bash -c 'uv run --frozen python manage.py collectstatic --no-input && uv run --frozen python manage.py migrate'
+    env_file: .env
     environment:
       TZ: "Etc/UTC"
       DOCKER: "True"
       DJANGO_LOG_LEVEL: "DEBUG"
       REDIS_URL: "redis://redis"
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
   compile:
     build: .
     volumes:

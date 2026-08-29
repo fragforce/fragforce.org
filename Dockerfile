@@ -6,14 +6,12 @@ RUN apt-get update && apt-get install -y \
   vim sqlite3 postgresql \
   && rm -rf /var/lib/apt/lists/*
 
+COPY --from=ghcr.io/astral-sh/uv:0.12.7@sha256:9e049ccf355e1c6d11416ba84760b4af443e5d2f0d45867c03b36744beb6ee22 /usr/local/bin/uv /usr/local/bin/uv
+
 WORKDIR /code
 
-COPY requirements-dev.txt .
-
-RUN pip install --require-hashes \
-    --only-binary :all: \
-    --no-binary django-redis-cache,django-memoize \
-    -r requirements-dev.txt
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --extra dev
 
 VOLUME /code
 
