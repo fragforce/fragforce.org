@@ -28,14 +28,14 @@ if [[ "$FIRST_RUN" = true ]]; then
     dc wait init
     echo ""
     echo "Running collectstatic..."
-    dc exec -T web python manage.py collectstatic --no-input
+    dc exec -T web uv run --frozen python manage.py collectstatic --no-input
 else
     dc up -d
 fi
 
-echo ""
-echo "Installing dev dependencies (pyflakes, etc.)..."
-dc exec -T web pip install --quiet --require-hashes --only-binary :all: --no-binary django-redis-cache,django-memoize -r requirements-dev.txt
+#echo ""
+#echo "Installing dev dependencies (pyflakes, etc.)..."
+#dc exec -T web pip install --quiet --require-hashes --only-binary :all: --no-binary django-redis-cache,django-memoize -r requirements-dev.txt
 
 echo ""
 echo "Waiting for web server at http://localhost:8000/ ..."

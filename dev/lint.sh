@@ -15,7 +15,7 @@ require_engine
 ensure_web_running
 
 TARGET="${1:-.}"
-FILES=$(find "$TARGET" -name "*.py" | grep -v '\.git' | grep -v migrations | tr '\n' ' ')
+FILES=$(find "$TARGET" -name "*.py" | grep -v '\.git' | grep -v '\.venv' | grep -v migrations | tr '\n' ' ')
 
 if [[ -z "$FILES" ]]; then
     echo "No Python files found in: $TARGET"
@@ -23,4 +23,4 @@ if [[ -z "$FILES" ]]; then
 fi
 
 echo "Running pyflakes on $(echo $FILES | wc -w | tr -d ' ') Python files..."
-dc exec -T web python -m pyflakes $FILES
+dc exec -T web uv run --frozen python -m pyflakes $FILES

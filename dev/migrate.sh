@@ -13,4 +13,4 @@ require_engine
 
 ensure_web_running
 
-dc exec -T web python manage.py migrate "$@"
+dc exec -T web uv run --frozen python manage.py migrate "$@"

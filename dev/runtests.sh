@@ -28,7 +28,7 @@ if [[ "${1:-}" == "--fresh" ]]; then
 fi
 
 # Run tests, capturing all output (Django test runner writes to stderr)
-OUTPUT=$(dc exec -T web python manage.py test $KEEPDB "$@" 2>&1)
+OUTPUT=$(dc exec -T web uv run --frozen python manage.py test $KEEPDB "$@" 2>&1)
 EXIT_CODE=$?
 
 # Extract summary lines
