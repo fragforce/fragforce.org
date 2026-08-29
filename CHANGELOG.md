@@ -10,12 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Upgrade all dev scripts to autodetect and support `podman compose` or `docker compose`
 - Upgrade base python for project from 3.10 to 3.13
+- Upgrade Django from 5.x to 6.x
 
 ### Removed
 - Remove `django-workflow-engine` (unused scaffolding; `simple_workflow` was a Hello World demo, `onboard_contractor`/`onboard_perm` were never registered)
 - Remove `django-markdownify` + `bleach`, replaced with custom `ffmarkdown` filter using `nh3`
 
-## [2.6.0] - 2026-08-19
+## [2.6.0] - 2026-08-27
 
 ### Security
 - Whitelist `orderBy` query parameter in donation views to prevent injection
