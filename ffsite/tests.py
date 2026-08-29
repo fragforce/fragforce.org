@@ -14,7 +14,7 @@ class LoginErrorViewTest(TestCase):
 
     def test_contains_discord_invite_link(self):
         response = self.client.get(reverse('login-error'))
-        self.assertContains(response, 'discord.gg/fragforce')
+        self.assertContains(response, 'discord.gg/waN8AMJtdr')
 
 
 class DiscordLoginButtonTest(TestCase):
