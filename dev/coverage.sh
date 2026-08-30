@@ -5,19 +5,13 @@
 #   dev/coverage.sh               # run all tests with coverage
 #   dev/coverage.sh ffdonations   # run a single app with coverage
 
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
+
 cd "$(git rev-parse --show-toplevel)"
 
-# Check Docker daemon is available before proceeding
-if ! docker info > /dev/null 2>&1; then
-    echo "Error: Docker daemon is not running or not accessible." >&2
-    exit 1
-fi
+require_engine
 
-# Ensure containers are running
-if ! docker compose ps -q --status running web 2>/dev/null | grep -q .; then
-    echo "Containers not running - starting dev stack..."
-    dev/start.sh
-fi
+ensure_web_running
 
 COMMIT=$(git rev-parse --short HEAD)
 DATE=$(date +%Y-%m-%d)
@@ -32,7 +26,7 @@ if [[ -n "${1:-}" && "$1" != --* ]]; then
     COVERAGE_RUN_ARGS+=("--source=$1")
     TEST_ARGS+=("--keepdb")
 fi
-OUTPUT=$(docker compose exec -T web coverage run "${COVERAGE_RUN_ARGS[@]}" manage.py test "${TEST_ARGS[@]}" 2>&1)
+OUTPUT=$(dc exec -T web coverage run "${COVERAGE_RUN_ARGS[@]}" manage.py test "${TEST_ARGS[@]}" 2>&1)
 EXIT_CODE=$?
 
 # Extract test summary
@@ -46,7 +40,7 @@ if [[ $EXIT_CODE -ne 0 ]]; then
 fi
 
 # Generate coverage report, sorted by coverage % ascending (worst first)
-RAW_COVERAGE=$(docker compose exec -T web coverage report --skip-covered 2>&1)
+RAW_COVERAGE=$(dc exec -T web coverage report --skip-covered 2>&1)
 HEADER=$(echo "$RAW_COVERAGE" | grep -E '^(Loading|Name|---)')
 TOTAL_LINE=$(echo "$RAW_COVERAGE" | grep '^TOTAL')
 SEPARATOR=$(echo "$RAW_COVERAGE" | grep '^---' | head -1)

@@ -6,23 +6,23 @@
 #   dev/shell.sh django     # Django manage.py shell
 #   dev/shell.sh db         # Django dbshell (postgres)
 
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
+
 cd "$(git rev-parse --show-toplevel)"
 
-# Ensure containers are running
-if ! docker compose ps -q --status running web 2>/dev/null | grep -q .; then
-    echo "Containers not running - starting dev stack..."
-    dev/start.sh
-fi
+require_engine
+
+ensure_web_running
 
 case "${1:-bash}" in
     django)
-        docker compose exec web python manage.py shell
+        dc exec web python manage.py shell
         ;;
     db)
-        docker compose exec web python manage.py dbshell
+        dc exec web python manage.py dbshell
         ;;
     bash|"")
-        docker compose exec web bash
+        dc exec web bash
         ;;
     *)
         echo "Usage: dev/shell.sh [bash|django|db]"

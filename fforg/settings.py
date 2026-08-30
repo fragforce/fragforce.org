@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'memoize',
     "social_django",
-    "django_workflow_engine",
     'ffsite',
     'ffdonations',
     'ffstream',
@@ -60,24 +59,7 @@ INSTALLED_APPS = [
     "ffoverlay.apps.FfoverlayConfig",
     "ffbot",
     "ffdiscord",
-    "markdownify.apps.MarkdownifyConfig",
 ]
-
-MARKDOWNIFY = {
-    "default": {
-        "WHITELIST_TAGS": [
-            "a", "abbr", "acronym", "b", "blockquote", "br", "code",
-            "em", "i", "li", "ol", "p", "strong", "ul", "h1", "h2",
-            "h3", "h4", "h5", "h6", "pre", "hr",
-        ],
-        "WHITELIST_ATTRS": {
-            "a": ["href", "title"],
-        },
-        "LINKIFY_TEXT": {"PARSE_URLS": False},
-        "STRIP": False,
-        "MARKDOWN_EXTENSIONS": ["fenced_code", "tables"],
-    }
-}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -504,6 +486,4 @@ LOGIN_REDIRECT_URL = '/stream/my-keys'
 SOCIAL_AUTH_LOGIN_ERROR_URL = '/login-error'
 
 TEST_RUNNER = 'fforg.test_runner.GitHashTestRunner'
-DJANGO_WORKFLOWS = {
-    "simple_workflow": "eventer.workflows.simple_workflow",
-}
+

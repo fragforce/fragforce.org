@@ -5,12 +5,12 @@
 #   dev/makemigrations.sh              # detect changes across all apps
 #   dev/makemigrations.sh ffdonations  # create migrations for a specific app
 
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
+
 cd "$(git rev-parse --show-toplevel)"
 
-# Ensure containers are running
-if ! docker compose ps -q --status running web 2>/dev/null | grep -q .; then
-    echo "Containers not running - starting dev stack..."
-    dev/start.sh
-fi
+require_engine
 
-docker compose exec -T web python manage.py makemigrations "$@"
+ensure_web_running
+
+dc exec -T web python manage.py makemigrations "$@"

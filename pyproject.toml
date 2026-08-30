@@ -4,8 +4,8 @@ build-backend = "setuptools.backends.legacy:build"
 
 [project]
 name = "fragforce-org"
-version = "2.6.0"
-requires-python = "==3.10.*"
+version = "2.7.0"
+requires-python = "==3.13.*"
 dependencies = [
     "psycopg2-binary",
     "gunicorn",
@@ -16,12 +16,12 @@ dependencies = [
     "django-redis>=7.0.0",
     "hiredis",
     "django-memoize",
-    "django>=5.2.17",
+    "django>=6.1",
     "whitenoise",
-    "django-workflow-engine",
     "social-auth-app-django>=6.0.1",
     "py-cord>=2.8.1,<3",
-    "django-markdownify",
+    "markdown",
+    "nh3",
 ]
 
 [project.optional-dependencies]

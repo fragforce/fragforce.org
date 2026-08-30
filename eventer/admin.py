@@ -5,6 +5,7 @@ from django import forms
 
 log = logging.getLogger(__name__)
 from django.contrib import admin, messages
+from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import path
@@ -267,7 +268,6 @@ class EventAdmin(admin.ModelAdmin):
 
     def build_schedule_view(self, request, event_id):
         from django.db import transaction
-        from django_workflow_engine.executor import User
         event = get_object_or_404(Event, pk=event_id)
 
         if request.method == 'POST':
@@ -345,7 +345,6 @@ class EventAdmin(admin.ModelAdmin):
 
     def assign_slot_view(self, request, event_id):
         """Assign or unassign a single slot/role - inline fine-tuning from availability grid."""
-        from django_workflow_engine.executor import User
         if request.method != 'POST':
             return HttpResponseRedirect(f'../../{event_id}/availability/')
         event = get_object_or_404(Event, pk=event_id)
@@ -375,7 +374,6 @@ class EventAdmin(admin.ModelAdmin):
         POST: create EventInterest + EventAvailabilityInterest rows + EventScheduleAssignment.
         """
         from django import forms as django_forms
-        from django_workflow_engine.executor import User
 
         event = get_object_or_404(Event, pk=event_id)
         slot_pk = request.POST.get('slot_pk') or request.GET.get('slot')
@@ -419,7 +417,6 @@ class EventAdmin(admin.ModelAdmin):
 
     def _multi_slot_view(self, request, event_id, action):
         """Add or remove a user from a multi-assignment slot. action: 'assign' or 'remove'."""
-        from django_workflow_engine.executor import User
         if request.method != 'POST':
             return HttpResponseRedirect(f'../../{event_id}/availability/')
         event = get_object_or_404(Event, pk=event_id)

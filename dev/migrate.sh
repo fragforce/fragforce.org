@@ -5,12 +5,12 @@
 #   dev/migrate.sh              # run all pending migrations
 #   dev/migrate.sh ffdonations  # migrate a specific app
 
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
+
 cd "$(git rev-parse --show-toplevel)"
 
-# Ensure containers are running
-if ! docker compose ps -q --status running web 2>/dev/null | grep -q .; then
-    echo "Containers not running - starting dev stack..."
-    dev/start.sh
-fi
+require_engine
 
-docker compose exec -T web python manage.py migrate "$@"
+ensure_web_running
+
+dc exec -T web python manage.py migrate "$@"

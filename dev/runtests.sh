@@ -8,19 +8,13 @@
 #   dev/runtests.sh --fresh       # drop and recreate the test DB first, then run all tests
 #   dev/runtests.sh --fresh ffdonations  # drop and recreate, then run a single app
 
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
+
 cd "$(git rev-parse --show-toplevel)"
 
-# Check Docker daemon is available before proceeding
-if ! docker info > /dev/null 2>&1; then
-    echo "Error: Docker daemon is not running or not accessible." >&2
-    exit 1
-fi
+require_engine
 
-# Ensure containers are running
-if ! docker compose ps -q --status running web 2>/dev/null | grep -q .; then
-    echo "Containers not running - starting dev stack..."
-    dev/start.sh
-fi
+ensure_web_running
 
 COMMIT=$(git rev-parse --short HEAD)
 DATE=$(date +%Y-%m-%d)
@@ -34,7 +28,7 @@ if [[ "${1:-}" == "--fresh" ]]; then
 fi
 
 # Run tests, capturing all output (Django test runner writes to stderr)
-OUTPUT=$(docker compose exec -T web python manage.py test $KEEPDB "$@" 2>&1)
+OUTPUT=$(dc exec -T web python manage.py test $KEEPDB "$@" 2>&1)
 EXIT_CODE=$?
 
 # Extract summary lines

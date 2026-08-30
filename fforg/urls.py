@@ -19,8 +19,6 @@ from django.contrib.auth import logout as auth_logout
 from django.shortcuts import redirect
 from django.urls import path, include
 from django.views.decorators.http import require_POST
-from django_workflow_engine import workflow_urls
-
 
 @require_POST
 def logout(request):
@@ -36,7 +34,6 @@ urlpatterns = [
     path('', include('ffsite.urls')),
     path('stream/', include('ffstream.urls')),
     path('overlays/', include('ffoverlay.urls')),
-    path("workflow/", workflow_urls()),
     path('signup/', include('evtsignup.urls')),
     path('events/', include('eventer.urls')),
 ]

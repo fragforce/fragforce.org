@@ -6,13 +6,13 @@
 #   dev/lint.sh             # lint all Python files
 #   dev/lint.sh ffdonations # lint a specific app directory
 
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
+
 cd "$(git rev-parse --show-toplevel)"
 
-# Ensure containers are running
-if ! docker compose ps -q --status running web 2>/dev/null | grep -q .; then
-    echo "Containers not running - starting dev stack..."
-    dev/start.sh
-fi
+require_engine
+
+ensure_web_running
 
 TARGET="${1:-.}"
 FILES=$(find "$TARGET" -name "*.py" | grep -v '\.git' | grep -v migrations | tr '\n' ' ')
@@ -23,4 +23,4 @@ if [[ -z "$FILES" ]]; then
 fi
 
 echo "Running pyflakes on $(echo $FILES | wc -w | tr -d ' ') Python files..."
-docker compose exec -T web python -m pyflakes $FILES
+dc exec -T web python -m pyflakes $FILES
