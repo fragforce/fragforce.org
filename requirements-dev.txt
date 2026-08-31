@@ -929,9 +929,9 @@ idna==3.19 \
     # via
     #   requests
     #   yarl
-ipython==8.39.0 \
-    --hash=sha256:4110ae96012c379b8b6db898a07e186c40a2a1ef5d57a7fa83166047d9da7624 \
-    --hash=sha256:bb3c51c4fa8148ab1dea07a79584d1c854e234ea44aa1283bcb37bc75054651f
+ipython==9.16.0 \
+    --hash=sha256:3d02b96de2a59074d153b1ac1c3865de738df114e430e879e6e5ef100a4d470c \
+    --hash=sha256:d2f92587b1ef51d84f934dffe05fabb9255f0038ed0a21426f2ea761e39ad09a
     # via fragforce-org (/code/pyproject.toml)
 jedi==0.20.0 \
     --hash=sha256:7bdd9c2634f56713299976f4cbd59cb3fa92165cc5e05ea811fb253480728b67 \
