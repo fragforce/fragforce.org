@@ -18,7 +18,7 @@ RUN useradd --create-home appuser
 WORKDIR /home/appuser
 
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev
+RUN uv sync --frozen --no-build --no-binary-package django-memoize --no-dev
 
 # Install application into container
 COPY extralifeapi extralifeapi
@@ -37,6 +37,6 @@ COPY manage.py .
 RUN chown -R appuser /home/appuser
 USER appuser
 
-RUN uv run --frozen python manage.py collectstatic --no-input
+RUN uv run --no-sync --no-build python manage.py collectstatic --no-input
 
-CMD [ "uv", "run", "--frozen", "gunicorn", "fforg.wsgi" ]
+CMD [ "uv", "run", "--no-sync", "--no-build", "gunicorn", "fforg.wsgi" ]
