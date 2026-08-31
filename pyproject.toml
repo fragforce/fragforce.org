@@ -1,6 +1,6 @@
 [project]
 name = "fragforce-org"
-version = "2.7.0"
+version = "3.0.0"
 requires-python = "==3.13.*"
 dependencies = [
     "celery>=5.5",
