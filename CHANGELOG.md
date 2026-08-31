@@ -18,13 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed ipython from dev dependencies - cleaned up a lot of transitive dependencies
 
-## [2.7.0]
+## [2.7.0] - 2026-08-30
 
 ### Changed
 
 - Upgrade all dev scripts to autodetect and support `podman compose` or `docker compose`
 - Upgrade base python for project from 3.10 to 3.13
 - Upgrade Django from 5.x to 6.x
+
+### Fixed
+
+- Fixed all discord invite links to use new invite code
 
 ### Removed
 
