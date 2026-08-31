@@ -135,16 +135,9 @@ fi
 
 # --- Push branch and create PR ----------------------------------------------
 echo ""
-echo "==> Pushing $CURRENT_BRANCH to origin"
-git push -u origin "$CURRENT_BRANCH"
-
-echo ""
 echo "==> Creating release PR: $PR_VERSION -> $BASE"
 
-gh pr create \
-    --title "Release $PR_VERSION" \
-    --base "$BASE" \
-    --body "$(cat <<EOF
+PR_BODY="$(cat <<EOF
 ## Release $PR_VERSION
 
 $CHANGELOG_HEADER
@@ -158,3 +151,20 @@ $CHANGELOG_SECTION
 $TEST_OUTPUT
 EOF
 )"
+
+if [[ "$BASE" == "master" ]]; then
+    # Code is already on upstream/dev - just open the PR from there
+    gh pr create \
+        --title "Release $PR_VERSION" \
+        --base master \
+        --head dev \
+        --body "$PR_BODY"
+else
+    echo "==> Pushing $CURRENT_BRANCH to origin"
+    git push -u origin "$CURRENT_BRANCH"
+
+    gh pr create \
+        --title "Release $PR_VERSION" \
+        --base "$BASE" \
+        --body "$PR_BODY"
+fi
