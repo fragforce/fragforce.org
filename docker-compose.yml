@@ -4,7 +4,7 @@ services:
     volumes:
       - .:/code
     env_file: .env
-    command: uv run --frozen python manage.py runserver 0.0.0.0:8000
+    command: uv run --no-sync --no-build python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
     environment:
@@ -46,7 +46,7 @@ services:
     build: .
     volumes:
       - .:/code
-    command: bash -c 'uv run --frozen python manage.py collectstatic --no-input && uv run --frozen python manage.py migrate'
+    command: bash -c 'uv run --no-sync --no-build python manage.py collectstatic --no-input && uv run --no-sync --no-build python manage.py migrate'
     env_file: .env
     environment:
       TZ: "Etc/UTC"
