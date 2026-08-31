@@ -9,8 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.0.0]
 
+### Fixed
+
+- Reduce Celery queue buildup by throttling donation sync for teams/participants with no donation records via their own `last_updated` field
+- Deduplicate team-donation sync tasks dispatched from participant sync - previously dispatched one task per participant rather than one per unique team
+- Set `CELERY_TASK_IGNORE_RESULT = True` to stop accumulating unused task results in Redis DB2; no callers retrieve results from any task
+
 ### Changed
 
+- Route stream alert tasks (`note_new_donation`, `note_new_donations`) to a dedicated `alerts` queue so donation alerts are not delayed by bulk sync work
 - Dependency management migrated from pip-compile to uv. Backwards incompatible change
 - Replaced pyflakes with ruff for linting
 

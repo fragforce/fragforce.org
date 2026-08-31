@@ -10,6 +10,8 @@ COPY --from=ghcr.io/astral-sh/uv:0.12.7@sha256:9e049ccf355e1c6d11416ba84760b4af4
 
 WORKDIR /code
 
+ENV UV_PROJECT_ENVIRONMENT=/opt/.venv
+
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-build --no-binary-package django-memoize --extra dev
 
