@@ -13,4 +13,4 @@ require_engine
 
 ensure_web_running
 
-dc exec -T web python manage.py makemigrations "$@"
+dc exec -T web uv run --no-sync --no-build python manage.py makemigrations "$@"

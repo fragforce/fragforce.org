@@ -15,11 +15,11 @@ require_engine
 ensure_web_running
 
 case "${1:-bash}" in
-    django)
-        dc exec web python manage.py shell
+    django|dj)
+        dc exec web uv run --no-sync --no-build python manage.py shell
         ;;
     db)
-        dc exec web python manage.py dbshell
+        dc exec web uv run --no-sync --no-build python manage.py dbshell
         ;;
     bash|"")
         dc exec web bash
