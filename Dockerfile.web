@@ -6,26 +6,19 @@ ENV LC_ALL=C.UTF-8
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONFAULTHANDLER=1
 
-FROM base AS python-deps
-
 # Install compilation dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends gcc git && rm -rf /var/lib/apt/lists/*
 
-# Install python dependencies in /.venv
-COPY requirements.txt .
-
-RUN python -m venv /.venv && /.venv/bin/pip install --require-hashes -r requirements.txt
-
-
 FROM base AS runtime
 
-# Copy virtual env from python-deps stage
-COPY --from=python-deps /.venv /.venv
-ENV PATH="/.venv/bin:$PATH"
+COPY --from=ghcr.io/astral-sh/uv:0.12.7@sha256:9e049ccf355e1c6d11416ba84760b4af443e5d2f0d45867c03b36744beb6ee22 /usr/local/bin/uv /usr/local/bin/uv
 
 # Create and switch to a new user
 RUN useradd --create-home appuser
 WORKDIR /home/appuser
+
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-build --no-binary-package django-memoize --no-dev
 
 # Install application into container
 COPY extralifeapi extralifeapi
@@ -44,7 +37,6 @@ COPY manage.py .
 RUN chown -R appuser /home/appuser
 USER appuser
 
-RUN /.venv/bin/python manage.py collectstatic --no-input
+RUN uv run --no-sync --no-build python manage.py collectstatic --no-input
 
-
-CMD [ "gunicorn", "fforg.wsgi" ]
+CMD [ "uv", "run", "--no-sync", "--no-build", "gunicorn", "fforg.wsgi" ]

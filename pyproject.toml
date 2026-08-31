@@ -1,27 +1,23 @@
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.backends.legacy:build"
-
 [project]
 name = "fragforce-org"
-version = "2.7.0"
+version = "3.0.0"
 requires-python = "==3.13.*"
 dependencies = [
-    "psycopg2-binary",
-    "gunicorn",
-    "requests[security]",
     "celery>=5.5",
-    "redis>=8.1.0",
     "dj-database-url>=3.0",
-    "django-redis>=7.0.0",
-    "hiredis",
-    "django-memoize",
     "django>=6.1",
-    "whitenoise",
-    "social-auth-app-django>=6.0.1",
-    "py-cord>=2.8.1,<3",
+    "django-memoize",
+    "django-redis>=7.0.0",
+    "gunicorn",
+    "hiredis",
     "markdown",
     "nh3",
+    "psycopg2-binary",
+    "py-cord>=2.8.1,<3",
+    "redis>=8.1.0",
+    "requests[security]",
+    "social-auth-app-django>=6.0.1",
+    "whitenoise",
 ]
 
 [project.optional-dependencies]
@@ -30,20 +26,20 @@ ci = [
     "unittest-xml-reporting",
 ]
 dev = [
-    "ipython",
-    "pip-tools",
-    "pyflakes",
-    "coverage",
+    "coverage>7.15.4",
+    "ruff>=0.16.2",
     "unittest-xml-reporting",
 ]
 
-[tool.pip-tools]
-generate-hashes = true
-strip-extras = false
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+extend-exclude =  ["*/migrations/*"]
 
-# To regenerate lockfiles:
-#   pip-compile pyproject.toml -o requirements.txt --generate-hashes --no-upgrade
-#   pip-compile pyproject.toml --extra ci -o requirements-ci.txt --generate-hashes --no-upgrade --allow-unsafe
-#   pip-compile pyproject.toml --extra dev -o requirements-dev.txt --generate-hashes --no-upgrade --allow-unsafe
-# (--allow-unsafe pins pip and setuptools in ci/dev only, not needed in production)
-# Note: requires pip>=26 to compile (kombu's setup.py uses use_2to3 which older pip rejects)
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "fforg.settings"
+python_files = ["test_*.py"]
+testpaths = ["*/tests", "tests"]

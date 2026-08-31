@@ -7,20 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.7.0]
+## [3.0.0] - 2026-08-31
+
+### Fixed
+
+- Reduce Celery queue buildup by throttling donation sync for teams/participants with no donation records via their own `last_updated` field
+- Deduplicate team-donation sync tasks dispatched from participant sync - previously dispatched one task per participant rather than one per unique team
+- Set `CELERY_TASK_IGNORE_RESULT = True` to stop accumulating unused task results in Redis DB2; no callers retrieve results from any task
 
 ### Changed
+
+- Route stream alert tasks (`note_new_donation`, `note_new_donations`) to a dedicated `alerts` queue so donation alerts are not delayed by bulk sync work
+- Dependency management migrated from pip-compile to uv. Backwards incompatible change
+- Replaced pyflakes with ruff for linting
+
+### Removed
+
+- Removed ipython from dev dependencies - cleaned up a lot of transitive dependencies
+
+## [2.7.0] - 2026-08-30
+
+### Changed
+
 - Upgrade all dev scripts to autodetect and support `podman compose` or `docker compose`
 - Upgrade base python for project from 3.10 to 3.13
 - Upgrade Django from 5.x to 6.x
 
+### Fixed
+
+- Fixed all discord invite links to use new invite code
+
 ### Removed
+
 - Remove `django-workflow-engine` (unused scaffolding; `simple_workflow` was a Hello World demo, `onboard_contractor`/`onboard_perm` were never registered)
 - Remove `django-markdownify` + `bleach`, replaced with custom `ffmarkdown` filter using `nh3`
 
 ## [2.6.0] - 2026-08-27
 
 ### Security
+
 - Whitelist `orderBy` query parameter in donation views to prevent injection
 - Use cryptographic PRNG and expand wordlist for stream key generation
 - Add `CSRF_TRUSTED_ORIGINS` setting required by Django 5.2
@@ -32,31 +57,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgrade wheel 0.47.0 to 0.48.0: fixes GHSA-vgq5-9859-3mmw (path traversal / arbitrary file write via crafted project name)
 
 ### Added
+
 - `validate-release.yaml`: PR check that enforces version bump in `pyproject.toml` and matching entry in `CHANGELOG.md` on every merge to `master`
 - `create-release.yaml`: automatically creates a GitHub release and tag on push to `master`, using the matching `CHANGELOG.md` section as release notes; idempotent if tag already exists
 
 ### Removed
+
 - Remove `django-oauth-toolkit` (unused OAuth2 provider)
 
 ### Changed
+
 - Upgrade redis client 7.4.0 to 8.1.0
 - Dependency updates (certifi, idna, aiohappyeyeballs, coverage, click)
 - All Login with discord flows are now using POST instead of GET, per [Changelog](https://github.com/python-social-auth/social-app-django/releases/tag/6.0.0)
 
 ### Fixed
+
 - Fix SonarCloud JRE provisioning 403 by adding explicit Java setup step
 
 ## [2.5.2] - 2026-05-20
 
 ### Security
+
 - Upgrade lxml 6.1.0 to 6.1.1: fixes CVE-2025-7424 and CVE-2025-11731 in bundled libxslt (GHSA-4jhm-jv67-739f)
 
 ### Changed
+
 - Dependency updates (py-cord, yarl, decorator, django-markdownify, click)
 
 ## [2.5.1] - 2026-05-15
 
 ### Fixed
+
 - Data migration reliability: add `batch_size=1000` to `bulk_create`, assert update counts, raise on missing roles/slugs
 - Schedule view no longer swallows DB errors from narrow exception handlers
 - Slot generator surfaces empty groups instead of silently skipping them
@@ -66,11 +98,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.5.0] - 2026-05-05
 
 ### Changed
+
 - Replaced `django-redis-cache` with `django-redis`; upgraded redis client 3.5.3 → 7.4.0
 - Upgraded Celery 5.2.7 → 5.6.3 and billiard 3.6.4 → 4.2.4
 - Replaced pipenv / `Pipfile` with pip-tools / `pyproject.toml` and `requirements*.txt`
 
 ### Added
+
 - `dev/pip-compile.sh` wrapper for reproducible lockfile generation
 - `dev/check-requirements.sh` to detect version skew between lockfiles
 - `requirements-ci.txt` for a minimal CI install surface
@@ -78,6 +112,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.4.0] - 2026-05-01
 
 ### Added
+
 - Public schedule display showing the game being played in each slot
 - Coordinator schedule preview before the schedule is published
 - Multi-slot assignments: Participant role tracked as `EventScheduleMultiAssignment`
@@ -90,6 +125,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `URL_RESOLUTION_MAX_ATTEMPTS` setting; resolution skipped and retried separately after exhaustion
 
 ### Fixed
+
 - Fundraising URL resolution skips re-queuing when URL is unchanged and already resolved
 - Redirect following strips query params and fragments; only scheme/host/path are followed
 - CodeQL: sanitize user-provided values in log statements
@@ -98,6 +134,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.3.0] - 2026-04-24
 
 ### Added
+
 - IGDB game metadata fields on `Game`: cover hash, summary, URL, multiplayer capacity, IGDB slug
 - `Game.multiplayer_max_override` for capacity overrides on top of IGDB data
 - `Game.status` choices field with coordinator notes; `suggested` flag for coordinators
@@ -108,22 +145,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Grouped timezone choices on the `Event` model
 
 ### Changed
+
 - Signup form: mobile-responsive 2×2 grid for role buttons, pill-style slot buttons with consistent column widths
 - `EventSlotConfig`/`EventSlotTemplate` renamed to `EventSignupSlotConfig`/`EventSignupSlot`
 
 ### Removed
+
 - `InterestLevel` model (unused in the signup flow)
 - `SalesforceEventUser` model
 - Unused `team_info` HStoreField from `TeamModel`
 - Unused `flags` HStoreField from `Game`
 
 ### Fixed
+
 - Extra Life team API `IndexError` on empty response
 - Invalid `<li>` elements outside `<ul>` in admin templates
 
 ## [2.2.0] - 2026-04-17
 
 ### Added
+
 - Superstream signup form (`evtsignup`): hourly availability model, role selection, slot sign-up
 - CodeQL Advanced Setup workflow for Actions and Python
 - SonarCloud integration: quality gate check run via GitHub App token, PR analysis, JUnit test reporting
@@ -131,25 +172,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Admin nav link visible to staff users
 
 ### Changed
+
 - `DiscordEventUser` model removed; signups now reference `UserSocialAuth` directly
 - Tiltify CELERY_IMPORTS entry removed alongside v3 model removal
 
 ### Removed
+
 - Tiltify v3 models, tasks, and settings
 
 ### Fixed
+
 - ReDoS-vulnerable regex in Link header parser (S2631)
 - Various SonarCloud-flagged code quality issues: commented-out code, wildcard imports, deprecated `datetime.utcnow()`, snake_case renames, redundant branches
 
 ## [2.1.0] - 2026-04-13
 
 ### Added
+
 - Discord bot (`ffbot`) with `/stream-key` slash command; `ADD_DISCORD_COMMANDS` setting gates registration
 - `clear_discord_commands` management command
 - Discord role sync: separate role-list and member-sync tasks; `grants_staff_access` flag on `DiscordRoleMapping`
 - `DISCORD_ROLE_SYNC_HOURS` and `DISCORD_MEMBER_SYNC_MINUTES` env vars for sync schedule
 
 ### Fixed
+
 - Stream key admin display: string lookup values, `BooleanField` comparison, stream count in deletion summary
 - Key display name slugification for Discord usernames containing periods
 - Bot lifecycle: use `asyncio.Event` instead of `on_ready` to prevent reconnect after intentional close
@@ -157,25 +203,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0] - 2026-04-10
 
 ### Added
+
 - Discord OAuth2 login: users authenticate with Discord; access denied if not in the configured guild
 - Stream key management page with click-to-copy buttons for OBS setup
 - OBS setup instructions for Super Stream and Direct Livestream keys
 - Deferred FK constraint handling for stream key regeneration when stream history exists
 
 ### Changed
+
 - Stream key wordlist expanded to 310 three-syllable words; uniqueness enforced at the database level
 - `Key` model: primary key separated from `stream_key` field
 
 ### Removed
+
 - Heroku Connect SQL fixture from dev setup
 
 ### Fixed
+
 - Stream key regeneration FK constraint error when stream history exists
 - Stream key name collision for users with pre-existing keys
 
 ## [1.2.0] - 2026-04-02
 
 ### Added
+
 - `new_year` management command for yearly team/participant reset
 - `untrack` and `track_team` management commands
 - Admin actions to trigger on-demand donation sync for teams and participants
@@ -186,6 +237,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - sync-dev-to-master GitHub Actions workflow
 
 ### Fixed
+
 - Untrack teams, participants, and events automatically on 404 from Extra Life API
 - `TimersDB.time_until` using stale import-time timestamp
 - Redis timer keys not refreshing after use
@@ -193,23 +245,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.0] - 2025-10-24
 
 ### Added
+
 - Set `User-Agent: fragforce.org` header on all Extra Life API requests
 
 ### Fixed
+
 - `note_new_donations` returning early before posting missed donations to the Twitch bot
 
 ## [1.0.1] - 2024-04-13
 
 ### Changed
+
 - Updated GitHub Actions workflows to Node.js 20
 - Removed old Salesforce integration code
 
 ### Fixed
+
 - Contact page Discord URL
 - Stream schedule display
 - `python3-dev` package install in Dockerfiles
 
 ### Removed
+
 - Google Calendar embed from stream schedule page
 
 ## [1.0.0] - 2023-05-08
@@ -218,7 +275,8 @@ Initial public release.
 
 ---
 
-[unreleased]: https://github.com/fragforce/fragforce.org/compare/v2.7.0...HEAD
+[unreleased]: https://github.com/fragforce/fragforce.org/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/fragforce/fragforce.org/compare/v2.7.0...v3.0.0
 [2.7.0]: https://github.com/fragforce/fragforce.org/compare/v2.6.0...v2.7.0
 [2.6.0]: https://github.com/fragforce/fragforce.org/compare/v2.5.2...v2.6.0
 [2.5.2]: https://github.com/fragforce/fragforce.org/compare/v2.5.1...v2.5.2

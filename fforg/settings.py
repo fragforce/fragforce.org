@@ -240,8 +240,8 @@ CELERY_IMPORTS = [
     'ffdonations.tasks.teams',
 ]
 CELERY_ACCEPT_CONTENT = ['json', ]
-CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_ACKS_LATE = True
+CELERY_TASK_IGNORE_RESULT = True
 CELERY_BROKER_URL = REDIS_URL_TASKS
 CELERY_RESULT_BACKEND = REDIS_URL_TOMBS
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
@@ -381,9 +381,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'ffdonations.tasks.donations.update_donations_if_needed',
         'schedule': EL_DON_UPDATE_FREQUENCY_CHECK,
     },
-'send-missed-tracks': {
+    'send-missed-tracks': {
         'task': 'ffdonations.tasks.sender.note_new_donations',
         'schedule': SEND_MISSED_DONATIONS,
+        'options': {'queue': 'alerts'},
     },
     'sync-discord-guild-roles': {
         'task': 'ffdiscord.tasks.sync_discord_roles',

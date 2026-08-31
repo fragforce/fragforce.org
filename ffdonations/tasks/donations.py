@@ -113,6 +113,10 @@ def update_donations_if_needed_team(self, teamID):
     if bfilter.filter(last_updated__gte=minc).count() > 0:
         return None
 
+    # No donation records yet - throttle via the team record itself to avoid hammering the API
+    if bfilter.count() == 0 and team.last_updated >= minc:
+        return None
+
     # Only force this if there are known donations but none in DB
     # Don't simplify to != as this could cause trashing if team update is behind the donations
     # update
@@ -196,7 +200,7 @@ def update_donations_team(self, teamID):
             tm.message = ''
         tm.save()
 
-        note_new_donation.s()(tm.id)
+        note_new_donation.apply_async((tm.id,), queue='alerts')
 
 
 @shared_task(bind=True)
@@ -242,6 +246,10 @@ def update_donations_if_needed_participant(self, participantID):
     # Skip updating if it's been less than EL_DON_PTCP_UPDATE_FREQUENCY_MIN since last update
     # for any record
     if bfilter.filter(last_updated__gte=minc).count() > 0:
+        return None
+
+    # No donation records yet - throttle via the participant record itself to avoid hammering the API
+    if bfilter.count() == 0 and participant.last_updated >= minc:
         return None
 
     # Only force this if there are known donations but none in DB
@@ -325,7 +333,7 @@ def update_donations_participant(self, participant_id):
             tm.message = ''
         tm.save()
 
-        note_new_donation.s()(tm.id)
+        note_new_donation.apply_async((tm.id,), queue='alerts')
 
         ret.append(tm.guid)
     return ret
