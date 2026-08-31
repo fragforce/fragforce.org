@@ -26,7 +26,7 @@ if [[ -n "${1:-}" && "$1" != --* ]]; then
     COVERAGE_RUN_ARGS+=("--source=$1")
     TEST_ARGS+=("--keepdb")
 fi
-OUTPUT=$(dc exec -T web uv run --frozen coverage run "${COVERAGE_RUN_ARGS[@]}" manage.py test "${TEST_ARGS[@]}" 2>&1)
+OUTPUT=$(dc exec -T web uv run --no-sync --no-build coverage run "${COVERAGE_RUN_ARGS[@]}" manage.py test "${TEST_ARGS[@]}" 2>&1)
 EXIT_CODE=$?
 
 # Extract test summary
@@ -40,7 +40,7 @@ if [[ $EXIT_CODE -ne 0 ]]; then
 fi
 
 # Generate coverage report, sorted by coverage % ascending (worst first)
-RAW_COVERAGE=$(dc exec -T web uv run --frozen coverage report --skip-covered 2>&1)
+RAW_COVERAGE=$(dc exec -T web uv run --no-sync --no-build coverage report --skip-covered 2>&1)
 HEADER=$(echo "$RAW_COVERAGE" | grep -E '^(Loading|Name|---)')
 TOTAL_LINE=$(echo "$RAW_COVERAGE" | grep '^TOTAL')
 SEPARATOR=$(echo "$RAW_COVERAGE" | grep '^---' | head -1)

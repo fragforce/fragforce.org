@@ -24,4 +24,4 @@ fi
 
 echo "Linting is not currently enforced, but would be appreciated until it is enforced"
 echo "Running ruff on $(echo $FILES | wc -w | tr -d ' ') Python files..."
-dc exec -T web uv run --frozen ruff check $FILES
+dc exec -T web uv run --no-sync --no-build ruff check $FILES

@@ -16,10 +16,10 @@ ensure_web_running
 
 case "${1:-bash}" in
     django|dj)
-        dc exec web uv run --frozen python manage.py shell
+        dc exec web uv run --no-sync --no-build python manage.py shell
         ;;
     db)
-        dc exec web uv run --frozen python manage.py dbshell
+        dc exec web uv run --no-sync --no-build python manage.py dbshell
         ;;
     bash|"")
         dc exec web bash
