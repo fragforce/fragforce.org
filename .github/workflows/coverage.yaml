@@ -54,7 +54,7 @@ jobs:
           python-version: '3.13'
 
       - name: Install dependencies
-        run: uv sync --frozen --extra ci
+        run: uv sync --frozen --no-build --no-binary-package django-memoize --extra ci
 
       # Linting will come after the migration to uv is complete, disabled for now
       #- name: Lint with ruff
@@ -64,7 +64,7 @@ jobs:
         env:
           DATABASE_URL: postgres://postgres:insecure@localhost/fragforce_test
           SECRET_KEY: insecure-test-key-not-used-in-production
-        run: uv run --frozen python manage.py check
+        run: uv run --no-sync --no-build python manage.py check
 
       - name: Run tests with coverage
         continue-on-error: true
@@ -75,8 +75,8 @@ jobs:
           SECRET_KEY: insecure-test-key-not-used-in-production
           DJANGO_LOG_LEVEL: WARNING
         run: |
-          uv run --frozen coverage run manage.py test --testrunner=xmlrunner.extra.djangotestrunner.XMLTestRunner
-          uv run --frozen coverage xml
+          uv run --no-sync --no-build coverage run manage.py test --testrunner=xmlrunner.extra.djangotestrunner.XMLTestRunner
+          uv run --no-sync --no-build coverage xml
 
       - name: Save PR metadata
         run: |
