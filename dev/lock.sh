@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
-# Run pyflakes across the entire codebase (not just staged files).
-# Useful for a full check before opening a PR.
+# Run uv sync to update the uv.lock file according to current constraints in pyproject.toml
 #
 # Usage:
-#   dev/lint.sh             # lint all Python files
-#   dev/lint.sh ffdonations # lint a specific app directory
+#   dev/lock.sh             # run a fresh uv sync to update the uv.lock file
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
