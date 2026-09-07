@@ -34,7 +34,6 @@ All developer scripts live in `dev/` and can be run from the repo root.
 | `dev/start.sh` | Start the dev stack. Detects first run and handles setup automatically. |
 | `dev/update.sh` | Pull latest changes, rebuild image if dependencies changed, and run migrations. |
 | `dev/lock.sh` | Regenerate uv lockfile inside the dev container. Defaults to all three. `--upgrade` upgrades all packages; `--upgrade-package pkg` upgrades a single package across all files. |
-| `dev/check-requirements.sh [--quiet\|--exclusive]` | Check for version differences between the three lockfiles (`--quiet` for exit-code only). `--exclusive` shows which packages are dev-only, ci+dev-only, or shared across all files - useful for evaluating Dependabot PR scope. |
 | `dev/reset.sh [--clean] [--force]` | Tear down volumes and restart. `--clean` also removes built images forcing a full Docker rebuild. `--force` skips the confirmation prompt. |
 | `dev/shell.sh [bash\|django\|db]` | Open a shell in the web container: `bash` (default), `django` (Django shell), `db` (dbshell). |
 | `dev/lint.sh [dir]` | Run `ruff` across all Python files (or a specific app directory). |
