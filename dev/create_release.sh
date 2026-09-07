@@ -122,16 +122,13 @@ echo ""
 require_engine
 ensure_web_running
 
-TEST_OUTPUT=$(dev/runtests.sh 2>/dev/null)
-TEST_EXIT=$?
+if ! TEST_OUTPUT=$(dev/runtests.sh); then
+    echo "$TEST_OUTPUT" >&2
+    echo "Tests failed - aborting." >&2
+    exit 1
+fi
 
 echo "$TEST_OUTPUT"
-
-if [[ $TEST_EXIT -ne 0 ]]; then
-    echo ""
-    echo "Tests failed - aborting." >&2
-    exit $TEST_EXIT
-fi
 
 # --- Push branch and create PR ----------------------------------------------
 echo ""
