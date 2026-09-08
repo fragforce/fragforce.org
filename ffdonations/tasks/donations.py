@@ -109,7 +109,9 @@ def update_donations_if_needed_team(self, teamID):
     # Match on team and event id
     bfilter = DonationModel.objects.filter(team=team)
     # Skip updating if it's been less than EL_DON_TEAM_UPDATE_FREQUENCY_MIN since last update
-    # for any record - do this first
+    # for any record - do this first. The MIN_FREQUENCY is to avoid hammering the API, the MAX_FREQUENCY tells us
+    # when data is stale and should be refreshed. Even if we don't check anywhere near the MIN_FREQUENCY, it is an
+    # absolute minimum time between requests so that we don't hammer the donor drive API.
     if bfilter.filter(last_updated__gte=minc).count() > 0:
         return None
 
@@ -118,7 +120,7 @@ def update_donations_if_needed_team(self, teamID):
         return None
 
     # Only force this if there are known donations but none in DB
-    # Don't simplify to != as this could cause trashing if team update is behind the donations
+    # Don't simplify to != as this could cause thrashing if team update is behind the donations
     # update
     # if team.numDonations > 0 and bfilter.count() <= 0:
     if team.numDonations is None:
