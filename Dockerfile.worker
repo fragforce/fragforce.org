@@ -35,4 +35,4 @@ COPY manage.py .
 RUN chown -R appuser /home/appuser
 USER appuser
 
-CMD [ "uv", "run", "--no-sync", "--no-build", "celery", "-A", "fforg", "worker", "--autoscale=6,2" ]
+CMD [ "uv", "run", "--no-sync", "--no-build", "celery", "-A", "fforg", "worker", "--autoscale=6,2", "-Q", "alerts,celery" ]

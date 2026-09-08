@@ -38,8 +38,3 @@ extend-exclude =  ["*/migrations/*"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W"]
-
-[tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "fforg.settings"
-python_files = ["test_*.py"]
-testpaths = ["*/tests", "tests"]
