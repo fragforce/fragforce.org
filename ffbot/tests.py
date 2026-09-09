@@ -19,7 +19,10 @@ class GetOrRegisterUserTest(TestCase):
     def test_creates_new_user_with_correct_records(self):
         result = get_or_register_user('333333333333333333', 'newuser')
         self.assertEqual(result.username, 'newuser')
-        self.assertTrue(UserSocialAuth.objects.filter(user=result, provider='discord', uid='333333333333333333').exists())
+        self.assertTrue(UserSocialAuth.objects.filter(
+            user=result,
+            provider='discord',
+            uid='333333333333333333').exists())
 
     def test_handles_username_collision(self):
         User.objects.create_user(username='streamer')
