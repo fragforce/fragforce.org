@@ -5,7 +5,7 @@ requires-python = "==3.13.*"
 dependencies = [
     "celery>=5.5",
     "dj-database-url>=3.0",
-    "django>=6.1",
+    "django>=6.1.1",
     "django-memoize",
     "django-redis>=7.0.0",
     "gunicorn",
@@ -27,7 +27,7 @@ ci = [
 ]
 dev = [
     "coverage>7.15.4",
-    "ruff>=0.16.2",
+    "ruff>=0.16.6",
     "unittest-xml-reporting",
 ]
 
