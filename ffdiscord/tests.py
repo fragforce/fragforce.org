@@ -46,11 +46,11 @@ class DiscordOAuthCredentialsValidTest(TestCase):
 
 
 class DiscordBotTokenValidTest(TestCase):
-    def test_valid_token_starts_with_M(self):
+    def test_valid_token_starts_with_m(self):
         token = 'M' + 'A' * 25 + '.' + 'B' * 6 + '.' + 'C' * 38
         self.assertTrue(discord_bot_token_valid(token))
 
-    def test_valid_token_starts_with_N(self):
+    def test_valid_token_starts_with_n(self):
         token = 'N' + 'A' * 25 + '.' + 'B' * 6 + '.' + 'C' * 38
         self.assertTrue(discord_bot_token_valid(token))
 
