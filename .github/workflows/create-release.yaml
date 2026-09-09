@@ -77,10 +77,10 @@ jobs:
         run: |
           if [ ! -s changelog.txt ]; then
             echo "CHANGELOG.md section for $VERSION is empty, skipping release" >> "$GITHUB_STEP_SUMMARY"
-            echo "has-section=false" >> "$GITHUB_OUTPUT"
+            echo "has_section=false" >> "$GITHUB_OUTPUT"
           else
             echo "Section for $VERSION extracted successfully" >> "$GITHUB_STEP_SUMMARY"
-            echo "has-section=true" >> "$GITHUB_OUTPUT"
+            echo "has_section=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create GitHub release
