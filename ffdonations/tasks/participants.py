@@ -91,6 +91,7 @@ def update_participants(self, participants=None):
                 else:
                     raise
 
+    team_ids_to_sync = set()
     for participant in tr:
         if participant.eventID:
             try:
@@ -147,8 +148,12 @@ def update_participants(self, participants=None):
         if tm.tracked:
             update_donations_if_needed_participant.delay(participantID=tm.id)
             if tm.team:
-                update_donations_if_needed_team.delay(teamID=tm.team.id)
+                team_ids_to_sync.add(tm.team.id)
 
         ret.append(tm.guid)
+
+    # Dispatch one team-donation sync per unique team rather than one per participant
+    for team_id in team_ids_to_sync:
+        update_donations_if_needed_team.delay(teamID=team_id)
 
     return ret

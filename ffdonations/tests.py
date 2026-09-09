@@ -629,13 +629,11 @@ class UpdateDonationsTeamHappyPathTest(TestCase):
         tid = team_id if team_id is not None else self.team.id
         mock_api = MagicMock()
         mock_api.donations_for_team.return_value = donations
-        note_sig = MagicMock()
         with patch.object(_donations_tasks, '_make_d', return_value=mock_api), \
                 patch.object(_donations_tasks, 'current_el_events', return_value=[self.event.id]), \
                 patch.object(_donations_tasks, 'note_new_donation') as mock_note:
-            mock_note.s.return_value = note_sig
             update_donations_team.apply(kwargs={'teamID': tid}, throw=True)
-        return mock_note, note_sig
+        return mock_note
 
     def test_donation_is_saved_to_db_with_correct_fields(self):
         donation = _make_donation(donation_id='DON001', amount=25.0, display_name='Alice', message='Go team!')
@@ -649,10 +647,9 @@ class UpdateDonationsTeamHappyPathTest(TestCase):
 
     def test_note_new_donation_called_per_donation(self):
         donations = [_make_donation('D1'), _make_donation('D2')]
-        mock_note, note_sig = self._run(donations)
+        mock_note = self._run(donations)
 
-        self.assertEqual(mock_note.s.call_count, 2)
-        self.assertEqual(note_sig.call_count, 2)
+        self.assertEqual(mock_note.apply_async.call_count, 2)
 
     def test_null_display_name_saved_as_empty_string(self):
         donation = _make_donation('DON002', display_name=None)
@@ -733,15 +730,13 @@ class UpdateDonationsParticipantHappyPathTest(TestCase):
         pid = participant_id if participant_id is not None else self.participant.id
         mock_api = MagicMock()
         mock_api.donations_for_participants.return_value = donations
-        note_sig = MagicMock()
         with patch.object(_donations_tasks, '_make_d', return_value=mock_api), \
                 patch.object(_donations_tasks, 'current_el_events', return_value=[self.event.id]), \
                 patch.object(_donations_tasks, 'note_new_donation') as mock_note:
-            mock_note.s.return_value = note_sig
             result = update_donations_participant.apply(
                 kwargs={'participant_id': pid}, throw=True
             ).result
-        return result, mock_note, note_sig
+        return result, mock_note
 
     def test_donation_is_saved_to_db_with_correct_fields(self):
         donation = _make_donation('PDON001', amount=15.0, display_name='Bob', message='Nice work!')
@@ -755,17 +750,16 @@ class UpdateDonationsParticipantHappyPathTest(TestCase):
 
     def test_returns_list_of_guids(self):
         donation = _make_donation('PDON002')
-        result, _, _ = self._run([donation])
+        result, _ = self._run([donation])
 
         saved = DonationModel.objects.get(id='PDON002')
         self.assertEqual(result, [saved.guid])
 
     def test_note_new_donation_called_per_donation(self):
         donations = [_make_donation('PD1'), _make_donation('PD2')]
-        _, mock_note, note_sig = self._run(donations)
+        _, mock_note = self._run(donations)
 
-        self.assertEqual(mock_note.s.call_count, 2)
-        self.assertEqual(note_sig.call_count, 2)
+        self.assertEqual(mock_note.apply_async.call_count, 2)
 
     def test_null_display_name_saved_as_empty_string(self):
         donation = _make_donation('PDON003', display_name=None)
@@ -1189,7 +1183,7 @@ class NoteNewDonationsTest(TestCase):
         with patch.object(_sender_tasks, 'note_new_donation') as mock_task:
             note_new_donations.apply(throw=True)
 
-        self.assertEqual(mock_task.delay.call_count, 2)
+        self.assertEqual(mock_task.apply_async.call_count, 2)
 
     def test_skips_already_tracked_donations(self):
         DonationModel.objects.create(id='SENT1', amount=10.0, tracking={'TRACKING_BOT': '1'})
@@ -1198,7 +1192,7 @@ class NoteNewDonationsTest(TestCase):
         with patch.object(_sender_tasks, 'note_new_donation') as mock_task:
             note_new_donations.apply(throw=True)
 
-        mock_task.delay.assert_called_once_with('UNSENT3')
+        mock_task.apply_async.assert_called_once_with(('UNSENT3',), queue='alerts')
 
 
 from ffdonations.views.donations import VALID_ORDER_FIELDS

@@ -51,12 +51,12 @@ jobs:
         run: |
           if [ ! -s CHANGELOG.md ]; then
             echo "CHANGELOG.md is missing or empty, skipping release" >> "$GITHUB_STEP_SUMMARY"
-            echo "has-changelog=false" >> "$GITHUB_OUTPUT"
+            echo "has_changelog=false" >> "$GITHUB_OUTPUT"
           else
             echo "### Release Notes for $VERSION" >> "$GITHUB_STEP_SUMMARY"
             echo "" >> "$GITHUB_STEP_SUMMARY"
             echo "CHANGELOG.md exists, extracting section for $VERSION" >> "$GITHUB_STEP_SUMMARY"
-            echo "has-changelog=true" >> "$GITHUB_OUTPUT"
+            echo "has_changelog=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Extract changelog

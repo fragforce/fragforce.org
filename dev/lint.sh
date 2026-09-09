@@ -15,12 +15,13 @@ require_engine
 ensure_web_running
 
 TARGET="${1:-.}"
-FILES=$(find "$TARGET" -name "*.py" | grep -v '\.git' | grep -v migrations | tr '\n' ' ')
+FILES=$(find "$TARGET" -name "*.py" | grep -v '\.git' | grep -v '\.venv' | grep -v migrations | tr '\n' ' ')
 
 if [[ -z "$FILES" ]]; then
     echo "No Python files found in: $TARGET"
     exit 0
 fi
 
-echo "Running pyflakes on $(echo $FILES | wc -w | tr -d ' ') Python files..."
-dc exec -T web python -m pyflakes $FILES
+echo "Linting is not currently enforced, but would be appreciated until it is enforced"
+echo "Running ruff on $(echo $FILES | wc -w | tr -d ' ') Python files..."
+dc exec -T web uv run --no-sync --no-build ruff check $FILES

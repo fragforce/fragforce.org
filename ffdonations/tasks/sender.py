@@ -9,14 +9,14 @@ from ..models import DonationModel
 TRACKING_BOT = 'TRACKING_BOT'
 
 
-@shared_task(bind=True)
+@shared_task(bind=True, queue='alerts')
 def note_new_donations(self):
     """ Check for missed donations """
     for donation in DonationModel.objects.filter(~Q(tracking__contains={TRACKING_BOT: "1"})).all():
-        note_new_donation.delay(donation.id)
+        note_new_donation.apply_async((donation.id,), queue='alerts')
 
 
-@shared_task(bind=True)
+@shared_task(bind=True, queue='alerts')
 def note_new_donation(self, donationID):
     """ Send out a new donation """
 

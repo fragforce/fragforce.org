@@ -109,12 +109,18 @@ def update_donations_if_needed_team(self, teamID):
     # Match on team and event id
     bfilter = DonationModel.objects.filter(team=team)
     # Skip updating if it's been less than EL_DON_TEAM_UPDATE_FREQUENCY_MIN since last update
-    # for any record - do this first
+    # for any record - do this first. The MIN_FREQUENCY is to avoid hammering the API, the MAX_FREQUENCY tells us
+    # when data is stale and should be refreshed. Even if we don't check anywhere near the MIN_FREQUENCY, it is an
+    # absolute minimum time between requests so that we don't hammer the donor drive API.
     if bfilter.filter(last_updated__gte=minc).count() > 0:
         return None
 
+    # No donation records yet - throttle via the team record itself to avoid hammering the API
+    if bfilter.count() == 0 and team.last_updated >= minc:
+        return None
+
     # Only force this if there are known donations but none in DB
-    # Don't simplify to != as this could cause trashing if team update is behind the donations
+    # Don't simplify to != as this could cause thrashing if team update is behind the donations
     # update
     # if team.numDonations > 0 and bfilter.count() <= 0:
     if team.numDonations is None:
@@ -196,7 +202,7 @@ def update_donations_team(self, teamID):
             tm.message = ''
         tm.save()
 
-        note_new_donation.s()(tm.id)
+        note_new_donation.apply_async((tm.id,), queue='alerts')
 
 
 @shared_task(bind=True)
@@ -242,6 +248,10 @@ def update_donations_if_needed_participant(self, participantID):
     # Skip updating if it's been less than EL_DON_PTCP_UPDATE_FREQUENCY_MIN since last update
     # for any record
     if bfilter.filter(last_updated__gte=minc).count() > 0:
+        return None
+
+    # No donation records yet - throttle via the participant record itself to avoid hammering the API
+    if bfilter.count() == 0 and participant.last_updated >= minc:
         return None
 
     # Only force this if there are known donations but none in DB
@@ -325,7 +335,7 @@ def update_donations_participant(self, participant_id):
             tm.message = ''
         tm.save()
 
-        note_new_donation.s()(tm.id)
+        note_new_donation.apply_async((tm.id,), queue='alerts')
 
         ret.append(tm.guid)
     return ret
