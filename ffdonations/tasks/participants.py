@@ -119,11 +119,11 @@ def update_participants(self, participants=None):
 
         # Get/create
         try:
-            tm = ParticipantModel.objects.get(id=participant.participant_id)
+            tm = ParticipantModel.objects.get(id=participant.participantID)
         except ParticipantModel.DoesNotExist:
             tm = ParticipantModel(
                 tracked=False,
-                id=participant.participant_id,
+                id=participant.participantID,
             )
         tm.sum_pledges = participant.sumPledges
         tm.display_name = participant.displayName

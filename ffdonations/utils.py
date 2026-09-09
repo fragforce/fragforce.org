@@ -28,7 +28,7 @@ def el_teams(year=timezone.now().year):
 def el_num_donations(year=timezone.now().year):
     """ For current year """
     teams = TeamModel.objects.filter(id__in=el_teams(year=year))
-    tsum = teams.aggregate(ttl=Sum('numDonations')).get('ttl', 0)
+    tsum = teams.aggregate(ttl=Sum('num_donations')).get('ttl', 0)
     if tsum is None:
         tsum = 0
     return dict(
@@ -40,7 +40,7 @@ def el_num_donations(year=timezone.now().year):
 def el_donation_stats(year=timezone.now().year):
     """ For current year """
     teams = TeamModel.objects.filter(id__in=el_teams(year=year))
-    tsum = teams.aggregate(ttl=Sum('sumDonations')).get('ttl', 0)
+    tsum = teams.aggregate(ttl=Sum('sum_donations')).get('ttl', 0)
     if tsum is None:
         tsum = 0
     return dict(

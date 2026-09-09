@@ -219,7 +219,7 @@ class RandomContactTest(TestCase):
         from ffdonations.models import EventModel, ParticipantModel, TeamModel
         event = EventModel.objects.create(id=1, name='Test', tracked=True)
         team = TeamModel.objects.create(id=1, name='Team', tracked=True, event=event)
-        participant = ParticipantModel.objects.create(id=1, displayName='Alice', tracked=True, team=team, event=event)
+        participant = ParticipantModel.objects.create(id=1, display_name='Alice', tracked=True, team=team, event=event)
         from ffsite.utils import random_contact
         result = random_contact()
         self.assertEqual(result.id, participant.id)

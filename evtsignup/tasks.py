@@ -157,7 +157,7 @@ def _resolve_participant(interest, result):
 
     participant, created = ParticipantModel.objects.get_or_create(
         id=numeric_id,
-        defaults={'displayName': api_participant.get('displayName', ''), 'tracked': False},
+        defaults={'display_name': api_participant.get('display_name', ''), 'tracked': False},
     )
 
     interest.el_participant = participant

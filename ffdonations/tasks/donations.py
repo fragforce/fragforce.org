@@ -177,11 +177,11 @@ def update_donations_team(self, team_id):
 
     for donation in donations_list:
         # Get/create participant if it's set...
-        if donation.participant_id:
+        if donation.participantID:
             try:
-                participant = ParticipantModel.objects.get(id=donation.participant_id)
+                participant = ParticipantModel.objects.get(id=donation.participantID)
             except ParticipantModel.DoesNotExist:
-                participant = ParticipantModel(id=donation.participant_id, tracked=False)
+                participant = ParticipantModel(id=donation.participantID, tracked=False)
                 participant.save()
         else:
             participant = None
@@ -310,11 +310,11 @@ def update_donations_participant(self, participant_id):
 
     for donation in donations:
         # Get/create participant if it's set...
-        if donation.team_id:
+        if donation.teamID:
             try:
-                team = TeamModel.objects.get(id=donation.team_id)
+                team = TeamModel.objects.get(id=donation.teamID)
             except TeamModel.DoesNotExist:
-                team = TeamModel(id=donation.team_id, tracked=False)
+                team = TeamModel(id=donation.teamID, tracked=False)
                 team.save()
         else:
             team = None

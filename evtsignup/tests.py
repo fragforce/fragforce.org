@@ -675,7 +675,7 @@ class ResolveFundraisingUrlTaskTest(TestCase):
 
         from evtsignup.tasks import resolve_fundraising_url
         interest = self._make_interest('https://www.extra-life.org/participants/511438')
-        mock_api = {'participantID': 511438, 'displayName': 'AevumDecessus'}
+        mock_api = {'participantID': 511438, 'display_name': 'AevumDecessus'}
         with patch('evtsignup.tasks.Participants.participant', return_value=mock_api):
             resolve_fundraising_url(interest.pk)
         interest.refresh_from_db()
@@ -758,7 +758,7 @@ class SignalQueueTest(TestCase):
         from evtsignup.models import EventInterest
         from ffdonations.models import ParticipantModel
         participant = ParticipantModel.objects.create(
-            id=511438, displayName='Test', tracked=False
+            id=511438, display_name='Test', tracked=False
         )
         interest = EventInterest.objects.create(
             user=self.user, event=self.event, acknowledged=True,
@@ -776,7 +776,7 @@ class SignalQueueTest(TestCase):
         from evtsignup.models import EventInterest
         from ffdonations.models import ParticipantModel
         participant = ParticipantModel.objects.create(
-            id=511438, displayName='Test', tracked=False
+            id=511438, display_name='Test', tracked=False
         )
         interest = EventInterest.objects.create(
             user=self.user, event=self.event, acknowledged=True,
@@ -852,8 +852,8 @@ class FundraisingUrlSignalTest(TestCase):
 
         from ffdonations.models import ParticipantModel
         participant = ParticipantModel.objects.create(
-            id=99991, displayName='Test', sumDonations=0,
-            numDonations=0, fundraisingGoal=0,
+            id=99991, display_name='Test', sum_donations=0,
+            num_donations=0, fundraising_goal=0,
         )
         interest = EventInterest.objects.create(
             user=self.user, event=self.event, acknowledged=True,
