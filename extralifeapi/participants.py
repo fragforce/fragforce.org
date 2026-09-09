@@ -35,14 +35,14 @@ class Participants(DonorDriveBase):
     def sub_base(self):
         return 'participants'
 
-    def sub_by_pid(self, participantID):
-        return 'participants/%s' % participantID
+    def sub_by_pid(self, participant_id):
+        return 'participants/%s' % participant_id
 
-    def sub_by_eid(self, eventID):
-        return 'events/%d/participants' % eventID
+    def sub_by_eid(self, event_id):
+        return 'events/%d/participants' % event_id
 
-    def sub_by_tid(self, teamID):
-        return 'teams/%d/participants' % teamID
+    def sub_by_tid(self, team_id):
+        return 'teams/%d/participants' % team_id
 
     @classmethod
     def _p_to_p(cls, data):
@@ -62,20 +62,20 @@ class Participants(DonorDriveBase):
         for t in fresp:
             yield self._p_to_p(t)
 
-    def participant(self, participantID):
+    def participant(self, participant_id):
         """ Get a single EL participant
         """
-        fresp = list(self.fetch(sub_url=self.sub_by_pid(participantID)))[0]
+        fresp = list(self.fetch(sub_url=self.sub_by_pid(participant_id)))[0]
         return self._p_to_p(fresp)
 
-    def participants_for_event(self, eventID):
+    def participants_for_event(self, event_id):
         """ Get all participants for the given event """
-        fresp = self.fetch(sub_url=self.sub_by_eid(eventID))
+        fresp = self.fetch(sub_url=self.sub_by_eid(event_id))
         for t in fresp:
             yield self._p_to_p(t)
 
-    def participants_for_team(self, teamID):
+    def participants_for_team(self, team_id):
         """ Get all participants for the given team """
-        fresp = self.fetch(sub_url=self.sub_by_tid(teamID))
+        fresp = self.fetch(sub_url=self.sub_by_tid(team_id))
         for t in fresp:
             yield self._p_to_p(t)

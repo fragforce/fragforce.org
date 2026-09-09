@@ -61,7 +61,10 @@ class DonorDriveBase(object):
         self.session.headers.update({"User-Agent": "fragforce.org"})
         self.request_sleeper = request_sleeper
         self.max_retries = max_retries if max_retries is not None else settings.EL_MAX_RETRIES
-        self.server_max_retries = server_max_retries if server_max_retries is not None else settings.EL_SERVER_MAX_RETRIES
+        self.server_max_retries = (
+            server_max_retries if server_max_retries is not None
+            else settings.EL_SERVER_MAX_RETRIES
+        )
         self.http_cache = http_cache
 
     def _do_sleep(self, url, data):
@@ -123,7 +126,10 @@ class DonorDriveBase(object):
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as err:
             if attempt >= self.server_max_retries:
                 raise NetworkError(f"Network error fetching {url} after {self.server_max_retries} retries: {err}")
-            self.log.warning(f"Network error fetching {url}, retrying (attempt {attempt + 1}/{self.server_max_retries}): {err}", extra=e)
+            self.log.warning(
+                f"Network error fetching {url}, retrying (attempt {attempt + 1}/{self.server_max_retries}): {err}",
+                extra=e
+                )
             time.sleep(settings.EL_SERVER_RETRY_AFTER_SECONDS)
             return None
 
@@ -138,14 +144,20 @@ class DonorDriveBase(object):
             if attempt >= self.max_retries:
                 raise RateLimitError(f"Rate limit hit for {url} and retries exhausted")
             sleep_secs = self._get_retry_sleep(r)
-            self.log.warning(f"Rate limited by {url}, sleeping {sleep_secs}s (attempt {attempt + 1}/{self.max_retries})", extra=e)
+            self.log.warning(
+                f"Rate limited by {url}, sleeping {sleep_secs}s (attempt {attempt + 1}/{self.max_retries})",
+                extra=e
+                )
             time.sleep(sleep_secs)
             return None
 
         if r.status_code >= 500:
             if attempt >= self.server_max_retries:
                 raise ServerError(f"Server error {r.status_code} from {url} and retries exhausted")
-            self.log.warning(f"Server error {r.status_code} from {url}, retrying (attempt {attempt + 1}/{self.server_max_retries})", extra=e)
+            self.log.warning(
+                f"Server error {r.status_code} from {url}, retrying (attempt {attempt + 1}/{self.server_max_retries})",
+                extra=e
+                )
             time.sleep(settings.EL_SERVER_RETRY_AFTER_SECONDS)
             return None
 
