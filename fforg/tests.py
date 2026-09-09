@@ -6,8 +6,8 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.test import TestCase
 
+from .permissions import GROUP_DEFINITIONS, seed_permission_groups
 from .redisdb import HttpCacheDB, TimersDB
-from .permissions import seed_permission_groups, GROUP_DEFINITIONS
 
 
 class SeedPermissionGroupsTest(TestCase):

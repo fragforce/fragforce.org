@@ -1,10 +1,9 @@
 from functools import wraps
 
+from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import Http404
 from django.views.decorators.http import require_safe
-
-from django.conf import settings
 
 from ..models import ParticipantModel, TeamModel
 from ..tasks.donations import update_donations_existing, update_donations_participant, update_donations_team

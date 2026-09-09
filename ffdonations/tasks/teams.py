@@ -6,13 +6,15 @@ from django.utils import timezone
 from requests.exceptions import HTTPError
 
 from extralifeapi.teams import Teams
+
 from ..models import EventModel, TeamModel
 
 
 def _make_team(*args, **kwargs):
     """ Make a safe team object """
-    from ..helpers import el_request_sleeper
     from fforg.rdbs import r_http_cache
+
+    from ..helpers import el_request_sleeper
     kwargs.setdefault('request_sleeper', el_request_sleeper)
     kwargs.setdefault('http_cache', r_http_cache)
     return Teams(*args, **kwargs)

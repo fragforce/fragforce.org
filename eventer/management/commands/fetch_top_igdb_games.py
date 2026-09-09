@@ -27,8 +27,9 @@ class Command(BaseCommand):
         limit = options['limit']
         min_rating_count = options['min_rating_count']
 
-        from eventer.tasks import _sync_game_list
         from django.conf import settings
+
+        from eventer.tasks import _sync_game_list
         delay = getattr(settings, 'IGDB_BULK_SYNC_DELAY', 0.5)
 
         if by in ('hypes', 'both'):

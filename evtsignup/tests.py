@@ -1,13 +1,13 @@
-from datetime import datetime, timezone as dt_timezone
+from datetime import datetime
+from datetime import timezone as dt_timezone
 from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
-
 from social_core.exceptions import AuthForbidden
 
 from eventer.models import Event, EventPeriod, EventRole, EventSignupSlot
-from evtsignup.models import EventInterest, EventAvailabilityHour
+from evtsignup.models import EventAvailabilityHour, EventInterest
 from evtsignup.pipeline import require_discord_guild
 from evtsignup.utils import parse_fundraising_url
 
@@ -523,14 +523,15 @@ class ParseFundraisingUrlTest(TestCase):
 class EventInterestAdminTest(TestCase):
     def setUp(self):
         from django.contrib.auth.models import Group
-        from fforg.permissions import seed_permission_groups
+
         from eventer.models import Event
+        from fforg.permissions import seed_permission_groups
         seed_permission_groups()
         self.coordinator = User.objects.create_user('coord_ei', 'c@example.com', 'pass', is_staff=True)
         self.coordinator.groups.add(Group.objects.get(name='Coordinator'))
         self.client.login(username='coord_ei', password='pass')
         self.event = Event.objects.create(name='Admin Test Event', slug='admin-test-event', description='')
-        from evtsignup.models import EventInterest, EventAvailabilityHour
+        from evtsignup.models import EventAvailabilityHour, EventInterest
         self.ei = EventInterest.objects.create(
             user=self.coordinator, event=self.event,
             display_name='Test Coord', acknowledged=True,
@@ -561,19 +562,21 @@ class EventInterestAdminTest(TestCase):
         self.assertContains(response, 'Game selections')
 
     def test_roles_summary_no_availability(self):
-        from evtsignup.models import EventInterest
         from eventer.models import Event
+        from evtsignup.models import EventInterest
         event2 = Event.objects.create(name='Admin Test 2', slug='admin-test-2', description='')
         ei2 = EventInterest.objects.create(user=self.coordinator, event=event2, acknowledged=True)
-        from evtsignup.admin import EventInterestAdmin
         from django.contrib.admin.sites import AdminSite
+
+        from evtsignup.admin import EventInterestAdmin
         admin = EventInterestAdmin(EventInterest, AdminSite())
         self.assertEqual(admin.roles_summary(ei2), '—')
 
     def test_game_count_zero_shows_dash(self):
-        from evtsignup.models import EventInterest
-        from evtsignup.admin import EventInterestAdmin
         from django.contrib.admin.sites import AdminSite
+
+        from evtsignup.admin import EventInterestAdmin
+        from evtsignup.models import EventInterest
         admin = EventInterestAdmin(EventInterest, AdminSite())
         self.assertEqual(admin.game_count(self.ei), '—')
 
@@ -606,7 +609,8 @@ class IsFollowableUrlTest(TestCase):
 
 class FollowRedirectTest(TestCase):
     def test_returns_final_url_on_success(self):
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
+
         from evtsignup.tasks import _follow_redirect
         mock_resp = MagicMock()
         mock_resp.url = 'https://www.extra-life.org/participants/511438'
@@ -617,8 +621,10 @@ class FollowRedirectTest(TestCase):
 
     def test_returns_none_on_network_error(self):
         from unittest.mock import patch
-        from evtsignup.tasks import _follow_redirect
+
         import requests
+
+        from evtsignup.tasks import _follow_redirect
         with patch('evtsignup.tasks.requests.get', side_effect=requests.exceptions.ConnectionError):
             result = _follow_redirect('https://el.0n5.us')
         self.assertIsNone(result)
@@ -638,6 +644,7 @@ class ResolveFundraisingUrlTaskTest(TestCase):
 
     def test_resolves_participant_url(self):
         from unittest.mock import patch
+
         from evtsignup.tasks import resolve_fundraising_url
         interest = self._make_interest('https://www.extra-life.org/participants/511438')
         mock_api = {'participantID': 511438, 'displayName': 'AevumDecessus'}
@@ -648,8 +655,8 @@ class ResolveFundraisingUrlTaskTest(TestCase):
         self.assertEqual(interest.el_participant.id, 511438)
 
     def test_skips_if_no_url(self):
-        from evtsignup.tasks import resolve_fundraising_url
         from evtsignup.models import EventInterest
+        from evtsignup.tasks import resolve_fundraising_url
         interest = EventInterest.objects.create(
             user=self.user, event=self.event, acknowledged=True
         )
@@ -664,6 +671,7 @@ class ResolveFundraisingUrlTaskTest(TestCase):
 
     def test_follows_redirect_for_vanity_url(self):
         from unittest.mock import patch
+
         from evtsignup.tasks import resolve_fundraising_url
         interest = self._make_interest('https://el.0n5.us')
         mock_api = {'participantID': 511438, 'displayName': 'AevumDecessus'}
@@ -676,6 +684,7 @@ class ResolveFundraisingUrlTaskTest(TestCase):
 
     def test_skips_redirect_for_freetext(self):
         from unittest.mock import patch
+
         from evtsignup.tasks import resolve_fundraising_url
         interest = self._make_interest('I have not signed up yet')
         with patch('evtsignup.tasks._follow_redirect') as mock_follow:
@@ -695,6 +704,7 @@ class SignalQueueTest(TestCase):
 
     def test_queues_task_when_url_set_on_create(self):
         from unittest.mock import patch
+
         from evtsignup.models import EventInterest
         with patch('evtsignup.tasks.resolve_fundraising_url') as mock_task:
             mock_task.delay = mock_task
@@ -706,6 +716,7 @@ class SignalQueueTest(TestCase):
 
     def test_does_not_queue_when_no_url(self):
         from unittest.mock import patch
+
         from evtsignup.models import EventInterest
         with patch('evtsignup.tasks.resolve_fundraising_url') as mock_task:
             EventInterest.objects.create(
@@ -715,6 +726,7 @@ class SignalQueueTest(TestCase):
 
     def test_skips_requeue_when_url_unchanged_and_resolved(self):
         from unittest.mock import patch
+
         from evtsignup.models import EventInterest
         from ffdonations.models import ParticipantModel
         participant = ParticipantModel.objects.create(
@@ -732,6 +744,7 @@ class SignalQueueTest(TestCase):
 
     def test_requeues_when_url_changes(self):
         from unittest.mock import patch
+
         from evtsignup.models import EventInterest
         from ffdonations.models import ParticipantModel
         participant = ParticipantModel.objects.create(
@@ -808,6 +821,7 @@ class FundraisingUrlSignalTest(TestCase):
 
     def test_update_unchanged_url_with_el_participant_does_not_queue(self):
         from unittest.mock import patch
+
         from ffdonations.models import ParticipantModel
         participant = ParticipantModel.objects.create(
             id=99991, displayName='Test', sumDonations=0,

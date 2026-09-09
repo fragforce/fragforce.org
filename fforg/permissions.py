@@ -10,9 +10,10 @@ entry and it will be applied on next deploy.
 To apply immediately in a running environment:
     pipenv run python manage.py seed_permission_groups
 """
+import logging
+
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-import logging
 
 log = logging.getLogger(__name__)
 

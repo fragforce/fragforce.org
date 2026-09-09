@@ -7,12 +7,12 @@ from django.contrib import messages
 log = logging.getLogger(__name__)
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
-from eventer.models import Event, EventSignupSlot, EventRole, Game
+from eventer.models import Event, EventRole, EventSignupSlot, Game
 from eventer.slot_generator import _expand_to_hours
-from evtsignup.models import EventInterest, EventAvailabilityHour, EventInterestNote, GameInterestUserEvent
+from evtsignup.models import EventAvailabilityHour, EventInterest, EventInterestNote, GameInterestUserEvent
 
 SIGNUP_TEMPLATE = 'evtsignup/signup.html'
 

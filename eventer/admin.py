@@ -10,14 +10,31 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import path
 
-from eventer.models import Event, EventPeriod, EventRole, EventSignupSlotConfig, EventSignupSlot, EventScheduleAssignment, EventScheduleMultiAssignment, EventSlotGroup, EventSlotGroupMembership, Game, Team, TeamMember, TeamRole, HOUR_SECONDS
-from eventer.schedule import build_schedule_grid, LOCAL_TIME_FMT
+from eventer.models import (
+    HOUR_SECONDS,
+    Event,
+    EventPeriod,
+    EventRole,
+    EventScheduleAssignment,
+    EventScheduleMultiAssignment,
+    EventSignupSlot,
+    EventSignupSlotConfig,
+    EventSlotGroup,
+    EventSlotGroupMembership,
+    Game,
+    Team,
+    TeamMember,
+    TeamRole,
+)
+from eventer.schedule import LOCAL_TIME_FMT, build_schedule_grid
 from eventer.slot_generator import generate_slots
+
 
 def _save_coordinator_assignment(event, slot, role, user):
     """Create EventInterest, availability rows, and schedule assignment for a coordinator-sourced signup."""
     from datetime import timedelta
-    from evtsignup.models import EventInterest, EventAvailabilityHour
+
+    from evtsignup.models import EventAvailabilityHour, EventInterest
 
     interest, _ = EventInterest.objects.get_or_create(
         user=user, event=event,
@@ -702,16 +719,16 @@ class GameAdmin(admin.ModelAdmin):
         Used by the IGDB search panel on the EventInterest change form.
         Returns JSON.
         """
-        from django.http import JsonResponse
         from django.core.exceptions import PermissionDenied
+        from django.http import JsonResponse
         if not request.user.has_perm('eventer.search_igdb'):
             raise PermissionDenied
         if request.method != 'POST':
             return JsonResponse({'error': 'POST required'}, status=405)
 
         from eventer.igdb import IGDBError, sync_game_from_igdb
-        from evtsignup.models import EventInterest, GameInterestUserEvent
         from eventer.models import EventRole
+        from evtsignup.models import EventInterest, GameInterestUserEvent
 
         igdb_id = request.POST.get('igdb_id', '').strip()
         event_interest_id = request.POST.get('event_interest_id', '').strip()

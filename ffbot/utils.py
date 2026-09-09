@@ -2,7 +2,6 @@ import logging
 
 from django.contrib.auth.models import User
 from django.utils.text import slugify
-
 from social_django.models import UserSocialAuth
 
 from ffstream.models import Key

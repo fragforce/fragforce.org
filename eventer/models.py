@@ -191,7 +191,7 @@ class Event(models.Model):
 
     @classmethod
     def add_details(cls, fq=None):
-        from django.db.models import Sum, F
+        from django.db.models import F, Sum
 
         if fq is None:
             fq = cls.objects

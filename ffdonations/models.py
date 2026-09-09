@@ -5,7 +5,6 @@ from django.contrib.postgres.fields import HStoreField
 from django.db import models
 from django.db.models import Q
 
-
 IS_TRACKED = "Is Tracked"
 LAST_FETCHED = "Date Record Last Fetched"
 CREATED_AT = "Created At"

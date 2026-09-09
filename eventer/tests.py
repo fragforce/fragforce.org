@@ -1,12 +1,25 @@
 import zoneinfo
-from datetime import datetime, timezone as dt_timezone, timedelta
+from datetime import datetime, timedelta
+from datetime import timezone as dt_timezone
 
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from eventer.models import Event, EventPeriod, EventRole, EventSignupSlotConfig, EventSignupSlot, EventSlotGroup, EventSlotGroupMembership, HOUR_SECONDS
+from eventer.models import (
+    HOUR_SECONDS,
+    Event,
+    EventPeriod,
+    EventRole,
+    EventSignupSlot,
+    EventSignupSlotConfig,
+    EventSlotGroup,
+    EventSlotGroupMembership,
+)
 from eventer.schedule import (
-    _event_all_hours, slot_hour_range, generate_twitch_commands, build_schedule_grid,
+    _event_all_hours,
+    build_schedule_grid,
+    generate_twitch_commands,
+    slot_hour_range,
 )
 from eventer.slot_generator import _expand_to_hours, _format_label, _variable_block_hours, generate_slots
 
@@ -800,6 +813,7 @@ class IGDBClientTest(TestCase):
 
     def test_credentials_valid_returns_true_on_success(self):
         from unittest.mock import patch
+
         from eventer.igdb import IGDBClient
         client = IGDBClient()
         with patch.object(client, '_get_token', return_value='token'):
@@ -807,6 +821,7 @@ class IGDBClientTest(TestCase):
 
     def test_credentials_valid_returns_false_on_401(self):
         from unittest.mock import patch
+
         from eventer.igdb import IGDBClient, IGDBError
         client = IGDBClient()
         with patch.object(client, '_get_token', side_effect=IGDBError('bad', status_code=401)):
@@ -814,6 +829,7 @@ class IGDBClientTest(TestCase):
 
     def test_credentials_valid_returns_false_on_403(self):
         from unittest.mock import patch
+
         from eventer.igdb import IGDBClient, IGDBError
         client = IGDBClient()
         with patch.object(client, '_get_token', side_effect=IGDBError('forbidden', status_code=403)):
@@ -821,6 +837,7 @@ class IGDBClientTest(TestCase):
 
     def test_credentials_valid_reraises_non_auth_errors(self):
         from unittest.mock import patch
+
         from eventer.igdb import IGDBClient, IGDBError
         client = IGDBClient()
         with patch.object(client, '_get_token', side_effect=IGDBError('timeout')):
@@ -828,7 +845,8 @@ class IGDBClientTest(TestCase):
                 client.credentials_valid()
 
     def test_rate_limit_retries_and_succeeds(self):
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
+
         from eventer.igdb import IGDBClient
         client = IGDBClient()
         rate_limited = MagicMock()
@@ -847,7 +865,8 @@ class IGDBClientTest(TestCase):
         mock_sleep.assert_called_once_with(0.0)
 
     def test_rate_limit_raises_after_max_retries(self):
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
+
         from eventer.igdb import IGDBClient, IGDBError
         client = IGDBClient()
         rate_limited = MagicMock()
@@ -878,8 +897,9 @@ class SyncGameFromIgdbTest(TestCase):
         }
 
     def test_creates_game(self):
-        from unittest.mock import patch, MagicMock
-        from eventer.igdb import sync_game_from_igdb, IGDBClient
+        from unittest.mock import MagicMock, patch
+
+        from eventer.igdb import IGDBClient, sync_game_from_igdb
         mock_client = MagicMock(spec=IGDBClient)
         mock_client.fetch_game.return_value = self._mock_data()
         with patch('eventer.igdb.IGDBClient', return_value=mock_client):
@@ -890,8 +910,9 @@ class SyncGameFromIgdbTest(TestCase):
         self.assertEqual(game.igdb_cover_hash, 'mockhash')
 
     def test_updates_existing_game(self):
-        from unittest.mock import patch, MagicMock
-        from eventer.igdb import sync_game_from_igdb, IGDBClient
+        from unittest.mock import MagicMock, patch
+
+        from eventer.igdb import IGDBClient, sync_game_from_igdb
         from eventer.models import Game
         Game.objects.create(name='Old Name', igdb_id=9999)
         mock_client = MagicMock(spec=IGDBClient)
@@ -902,8 +923,9 @@ class SyncGameFromIgdbTest(TestCase):
         self.assertEqual(game.name, 'Updated Name')
 
     def test_raises_on_not_found(self):
-        from unittest.mock import patch, MagicMock
-        from eventer.igdb import sync_game_from_igdb, IGDBClient
+        from unittest.mock import MagicMock, patch
+
+        from eventer.igdb import IGDBClient, sync_game_from_igdb
         mock_client = MagicMock(spec=IGDBClient)
         mock_client.fetch_game.return_value = None
         with patch('eventer.igdb.IGDBClient', return_value=mock_client):
@@ -926,7 +948,7 @@ class IGDBClientGetTokenTest(TestCase):
         self.assertEqual(token, 'cached_token')
 
     def test_fetches_and_caches_token(self):
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
         client = self._make_client()
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -943,7 +965,9 @@ class IGDBClientGetTokenTest(TestCase):
 
     def test_raises_on_timeout(self):
         from unittest.mock import patch
+
         import requests as req
+
         from eventer.igdb import IGDBError
         client = self._make_client()
         with patch('eventer.igdb.cache') as mock_cache, \
@@ -955,7 +979,9 @@ class IGDBClientGetTokenTest(TestCase):
 
     def test_raises_on_network_error(self):
         from unittest.mock import patch
+
         import requests as req
+
         from eventer.igdb import IGDBError
         client = self._make_client()
         with patch('eventer.igdb.cache') as mock_cache, \
@@ -966,7 +992,8 @@ class IGDBClientGetTokenTest(TestCase):
         self.assertIn('Network error', str(cm.exception))
 
     def test_raises_on_bad_response(self):
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
+
         from eventer.igdb import IGDBError
         client = self._make_client()
         mock_resp = MagicMock()
@@ -989,7 +1016,9 @@ class IGDBClientDoRequestTest(TestCase):
 
     def test_raises_on_timeout(self):
         from unittest.mock import patch
+
         import requests as req
+
         from eventer.igdb import IGDBError
         client = self._make_client()
         with patch('eventer.igdb.requests.post', side_effect=req.exceptions.Timeout):
@@ -999,7 +1028,9 @@ class IGDBClientDoRequestTest(TestCase):
 
     def test_raises_on_network_error(self):
         from unittest.mock import patch
+
         import requests as req
+
         from eventer.igdb import IGDBError
         client = self._make_client()
         with patch('eventer.igdb.requests.post', side_effect=req.exceptions.ConnectionError('refused')):
@@ -1023,7 +1054,7 @@ class IGDBClientRequestTest(TestCase):
         return resp
 
     def test_401_clears_cache_and_retries(self):
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
         client = self._make_client()
         unauth = MagicMock()
         unauth.status_code = 401
@@ -1136,8 +1167,9 @@ class ParseIgdbGameMultiplayerTest(TestCase):
 
 class SyncIgdbGameCommandTest(TestCase):
     def _call_command(self, *args, **kwargs):
-        from django.core.management import call_command
         from io import StringIO
+
+        from django.core.management import call_command
         out = StringIO()
         call_command('sync_igdb_game', *args, stdout=out, **kwargs)
         return out.getvalue()
@@ -1152,7 +1184,9 @@ class SyncIgdbGameCommandTest(TestCase):
 
     def test_errors_when_credentials_invalid(self):
         from unittest.mock import patch
+
         from django.core.management.base import CommandError
+
         from eventer.igdb import IGDBClient
         with self.settings(IGDB_CLIENT_ID='bad', IGDB_CLIENT_SECRET='bad'):
             with patch.object(IGDBClient, 'credentials_valid', return_value=False):
@@ -1162,7 +1196,8 @@ class SyncIgdbGameCommandTest(TestCase):
 
     def _patch_credentials(self):
         """Context manager that patches credential checks to pass."""
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
+
         from eventer.igdb import IGDBClient
         mock_client = MagicMock(spec=IGDBClient)
         mock_client.credentials_valid.return_value = True
@@ -1171,7 +1206,7 @@ class SyncIgdbGameCommandTest(TestCase):
                      return_value=mock_client)
 
     def test_prints_created_on_success(self):
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
         mock_game = MagicMock()
         mock_game.name = 'Test Game'
         with self.settings(IGDB_CLIENT_ID='x', IGDB_CLIENT_SECRET='y'), \
@@ -1182,7 +1217,7 @@ class SyncIgdbGameCommandTest(TestCase):
         self.assertIn('Created', out)
 
     def test_prints_updated_on_existing(self):
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
         mock_game = MagicMock()
         mock_game.name = 'Test Game'
         with self.settings(IGDB_CLIENT_ID='x', IGDB_CLIENT_SECRET='y'), \
@@ -1194,7 +1229,9 @@ class SyncIgdbGameCommandTest(TestCase):
 
     def test_raises_command_error_on_igdb_error(self):
         from unittest.mock import patch
+
         from django.core.management.base import CommandError
+
         from eventer.igdb import IGDBError
         with self.settings(IGDB_CLIENT_ID='x', IGDB_CLIENT_SECRET='y'), \
              self._patch_credentials(), \
@@ -1206,6 +1243,7 @@ class SyncIgdbGameCommandTest(TestCase):
 
     def test_raises_command_error_on_not_found(self):
         from unittest.mock import patch
+
         from django.core.management.base import CommandError
         with self.settings(IGDB_CLIENT_ID='x', IGDB_CLIENT_SECRET='y'), \
              self._patch_credentials(), \
@@ -1219,6 +1257,7 @@ class SyncIgdbGameCommandTest(TestCase):
 def _make_coordinator(username='coord'):
     """Create a staff user with the Coordinator group and return them."""
     from django.contrib.auth.models import Group
+
     from fforg.permissions import seed_permission_groups
     seed_permission_groups()
     user = User.objects.create_user(username, f'{username}@example.com', 'pass', is_staff=True)
@@ -1247,6 +1286,7 @@ class SearchIgdbViewTest(TestCase):
 
     def test_get_with_query_returns_results(self):
         from unittest.mock import patch
+
         from eventer.igdb import IGDBClient
         mock_results = [{'id': 1905, 'name': 'Fortnite', 'slug': 'fortnite',
                          'cover': {'image_id': 'hash'}, 'first_release_date': 1498780800, 'category': 0}]
@@ -1259,6 +1299,7 @@ class SearchIgdbViewTest(TestCase):
 
     def test_get_json_format_returns_json(self):
         from unittest.mock import patch
+
         from eventer.igdb import IGDBClient
         with patch.object(IGDBClient, 'credentials_configured', return_value=True), \
              patch.object(IGDBClient, 'search_games', return_value=[]), \
@@ -1270,7 +1311,7 @@ class SearchIgdbViewTest(TestCase):
         self.assertIn('results', data)
 
     def test_post_syncs_games(self):
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
         mock_game = MagicMock()
         mock_game.name = 'Fortnite'
         with patch('eventer.igdb.sync_game_from_igdb', return_value=(mock_game, True)):
@@ -1313,6 +1354,7 @@ class SyncAndLinkViewTest(TestCase):
 
     def test_syncs_and_links_game(self):
         from unittest.mock import patch
+
         from eventer.models import Game
         from evtsignup.models import GameInterestUserEvent
         game = Game.objects.create(name='Fortnite', igdb_id=1905, status='approved')
@@ -1327,6 +1369,7 @@ class SyncAndLinkViewTest(TestCase):
 
     def test_auto_approves_pending_game(self):
         from unittest.mock import patch
+
         from eventer.models import Game
         game = Game.objects.create(name='Fortnite Pending', igdb_id=19051, status='pending')
         with patch('eventer.igdb.sync_game_from_igdb', return_value=(game, False)):
@@ -1359,8 +1402,9 @@ class SyncAndLinkViewTest(TestCase):
 class SyncSingleIgdbGameTaskTest(TestCase):
     def test_syncs_game(self):
         from unittest.mock import patch
-        from eventer.tasks import sync_single_igdb_game
+
         from eventer.models import Game
+        from eventer.tasks import sync_single_igdb_game
         game = Game.objects.create(name='Test Game', igdb_id=1234)
         with patch('eventer.igdb.sync_game_from_igdb', return_value=(game, False)):
             result = sync_single_igdb_game(1234)
@@ -1368,8 +1412,9 @@ class SyncSingleIgdbGameTaskTest(TestCase):
 
     def test_raises_on_igdb_error(self):
         from unittest.mock import patch
-        from eventer.tasks import sync_single_igdb_game
+
         from eventer.igdb import IGDBError
+        from eventer.tasks import sync_single_igdb_game
         with patch('eventer.igdb.sync_game_from_igdb', side_effect=IGDBError('fail')):
             with self.assertRaises(IGDBError):
                 sync_single_igdb_game(1234)
@@ -1378,9 +1423,10 @@ class SyncSingleIgdbGameTaskTest(TestCase):
 class SyncAllIgdbGamesTaskTest(TestCase):
     def test_dispatches_tasks_for_each_game(self):
         from unittest.mock import patch
+
+        from eventer.igdb import IGDBClient
         from eventer.models import Game
         from eventer.tasks import sync_all_igdb_games
-        from eventer.igdb import IGDBClient
         Game.objects.create(name='Game A', igdb_id=1)
         Game.objects.create(name='Game B', igdb_id=2)
         with patch.object(IGDBClient, 'credentials_configured', return_value=True), \
@@ -1391,8 +1437,9 @@ class SyncAllIgdbGamesTaskTest(TestCase):
 
     def test_skips_when_not_configured(self):
         from unittest.mock import patch
-        from eventer.tasks import sync_all_igdb_games
+
         from eventer.igdb import IGDBClient
+        from eventer.tasks import sync_all_igdb_games
         with patch.object(IGDBClient, 'credentials_configured', return_value=False), \
              patch('eventer.tasks.sync_single_igdb_game') as mock_task:
             sync_all_igdb_games()
@@ -1402,8 +1449,9 @@ class SyncAllIgdbGamesTaskTest(TestCase):
 class FetchTopGamesByHypesTaskTest(TestCase):
     def test_dispatches_tasks_for_results(self):
         from unittest.mock import patch
-        from eventer.tasks import fetch_top_games_by_hypes
+
         from eventer.igdb import IGDBClient
+        from eventer.tasks import fetch_top_games_by_hypes
         mock_results = [{'id': 1877, 'name': 'Cyberpunk 2077'}, {'id': 52189, 'name': 'GTA VI'}]
         with patch.object(IGDBClient, 'credentials_configured', return_value=True), \
              patch.object(IGDBClient, 'top_games_by_hypes', return_value=mock_results), \
@@ -1415,8 +1463,9 @@ class FetchTopGamesByHypesTaskTest(TestCase):
 
     def test_skips_when_not_configured(self):
         from unittest.mock import patch
-        from eventer.tasks import fetch_top_games_by_hypes
+
         from eventer.igdb import IGDBClient
+        from eventer.tasks import fetch_top_games_by_hypes
         with patch.object(IGDBClient, 'credentials_configured', return_value=False), \
              patch('eventer.tasks.sync_single_igdb_game') as mock_task:
             fetch_top_games_by_hypes()
@@ -1426,8 +1475,9 @@ class FetchTopGamesByHypesTaskTest(TestCase):
 class FetchTopGamesByRatingTaskTest(TestCase):
     def test_dispatches_tasks_for_results(self):
         from unittest.mock import patch
-        from eventer.tasks import fetch_top_games_by_rating
+
         from eventer.igdb import IGDBClient
+        from eventer.tasks import fetch_top_games_by_rating
         mock_results = [{'id': 1103, 'name': 'Super Metroid'}]
         with patch.object(IGDBClient, 'credentials_configured', return_value=True), \
              patch.object(IGDBClient, 'top_games_by_rating', return_value=mock_results), \
@@ -1439,8 +1489,9 @@ class FetchTopGamesByRatingTaskTest(TestCase):
 
     def test_skips_when_not_configured(self):
         from unittest.mock import patch
-        from eventer.tasks import fetch_top_games_by_rating
+
         from eventer.igdb import IGDBClient
+        from eventer.tasks import fetch_top_games_by_rating
         with patch.object(IGDBClient, 'credentials_configured', return_value=False), \
              patch('eventer.tasks.sync_single_igdb_game') as mock_task:
             fetch_top_games_by_rating()
@@ -1560,8 +1611,8 @@ class BuildScheduleGridFullTest(TestCase):
             self.assertIn('show_stream_commands', header)
 
     def test_availability_shows_in_grid(self):
-        from evtsignup.models import EventInterest, EventAvailabilityHour
         from eventer.slot_generator import _expand_to_hours
+        from evtsignup.models import EventAvailabilityHour, EventInterest
         interest, _ = EventInterest.objects.get_or_create(
             user=self.user, event=self.event, defaults={'acknowledged': True}
         )

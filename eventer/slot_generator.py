@@ -9,7 +9,7 @@ import logging
 import zoneinfo
 from datetime import timedelta
 
-from eventer.models import Event, EventSlotGroup, EventSignupSlotConfig, EventSignupSlot
+from eventer.models import Event, EventSignupSlot, EventSignupSlotConfig, EventSlotGroup
 
 log = logging.getLogger(__name__)
 

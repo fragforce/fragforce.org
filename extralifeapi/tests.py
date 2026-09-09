@@ -2,11 +2,18 @@
 from json import JSONDecodeError
 from unittest.mock import MagicMock, call, patch
 
+import requests.exceptions
 from django.test import TestCase, override_settings
 
-import requests.exceptions
-
-from .base import DonorDriveBase, FetchResponse, JSONError, NetworkError, NotModifiedResponse, RateLimitError, ServerError
+from .base import (
+    DonorDriveBase,
+    FetchResponse,
+    JSONError,
+    NetworkError,
+    NotModifiedResponse,
+    RateLimitError,
+    ServerError,
+)
 from .donors import Donations
 from .participants import Participants
 from .teams import Teams

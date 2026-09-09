@@ -17,8 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.contrib.auth import logout as auth_logout
 from django.shortcuts import redirect
-from django.urls import path, include
+from django.urls import include, path
 from django.views.decorators.http import require_POST
+
 
 @require_POST
 def logout(request):

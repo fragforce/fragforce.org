@@ -2,10 +2,10 @@ from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
+from social_django.models import UserSocialAuth
 
 from ffbot.utils import get_or_create_stream_key, get_or_register_user
 from ffstream.models import Key
-from social_django.models import UserSocialAuth
 
 
 class GetOrRegisterUserTest(TestCase):
@@ -67,6 +67,7 @@ class GetOrCreateStreamKeyTest(TestCase):
 
     def test_handles_stream_key_collision(self):
         from unittest.mock import patch
+
         from ffstream.wordlist import generate_stream_key as real_gen
         existing = Key.objects.create(name='collision', stream_key='CollisionKey')
         call_count = {'n': 0}

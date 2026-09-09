@@ -832,8 +832,8 @@ class UpdateDonationsParticipantHappyPathTest(TestCase):
 # update_teams happy-path tests
 # ---------------------------------------------------------------------------
 
-from extralifeapi.teams import Team as _Team
 from extralifeapi.participants import Participant as _Participant
+from extralifeapi.teams import Team as _Team
 
 
 def _make_team_namedtuple(team_id=8775, name='The Bonhams', event_id=508,

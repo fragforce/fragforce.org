@@ -5,7 +5,6 @@ a small custom filter built on top of ``markdown`` + ``nh3``.
 """
 import markdown as md
 import nh3
-
 from django import template
 from django.utils.safestring import mark_safe
 

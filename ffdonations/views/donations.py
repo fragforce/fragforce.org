@@ -1,8 +1,7 @@
+from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_safe
-
-from django.conf import settings
 
 from ..models import DonationModel
 from ..tasks.donations import update_donations_if_needed

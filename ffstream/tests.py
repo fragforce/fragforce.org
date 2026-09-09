@@ -1,9 +1,9 @@
 import re
 
 from django.contrib.admin.sites import AdminSite
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import Permission, User
 from django.db import IntegrityError
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 from ffstream.admin import KeyAdmin
