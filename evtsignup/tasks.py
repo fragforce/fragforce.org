@@ -71,7 +71,7 @@ def resolve_fundraising_url(event_interest_id):
                     return
                 elif redirected_result.is_team:
                     log.info(
-                        'resolve_fundraising_url: EventInterest %s redirect resolves to team URL - flagged for coordinator review',
+                        'resolve_fundraising_url: EventInterest %s redirect resolves to team URL - flagged for review',
                         event_interest_id,
                     )
                     return

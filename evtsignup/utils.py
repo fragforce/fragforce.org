@@ -1,6 +1,7 @@
 """
 Utilities for the evtsignup app.
 """
+import re
 from dataclasses import dataclass
 from urllib.parse import parse_qs, urlparse
 
@@ -24,7 +25,7 @@ class FundraisingUrlResult:
         return self.type == 'team'
 
 
-import re
+
 
 
 def parse_fundraising_url(url: str) -> FundraisingUrlResult:

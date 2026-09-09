@@ -192,7 +192,10 @@ class SignupViewPostTest(TestCase):
         interest = EventInterest.objects.get(user=self.user, event=self.event)
         # 3 hours x 2 roles = 6 rows
         self.assertEqual(EventAvailabilityHour.objects.filter(event_interest=interest).count(), 6)
-        multi_assign_values = set(EventAvailabilityHour.objects.filter(event_interest=interest).values_list('role__multi_assign', flat=True))
+        multi_assign_values = set(EventAvailabilityHour.objects.filter(event_interest=interest).values_list(
+            'role__multi_assign',
+            flat=True
+            ))
         self.assertEqual(multi_assign_values, {True, False})
 
     def test_resubmit_replaces_hourly_rows(self):
@@ -320,8 +323,18 @@ class GroupSlotsByDayTest(TestCase):
     def test_slots_on_same_day_grouped_together(self):
         from evtsignup.views import _group_slots_by_day
         # Both slots start on Friday Apr 4 in ET (12 UTC and 15 UTC = 8am and 11am EDT)
-        EventSignupSlot.objects.create(event=self.event, start=_dt(2025, 4, 4, 12), stop=_dt(2025, 4, 4, 15), label='8am')
-        EventSignupSlot.objects.create(event=self.event, start=_dt(2025, 4, 4, 15), stop=_dt(2025, 4, 4, 18), label='11am')
+        EventSignupSlot.objects.create(
+            event=self.event,
+            start=_dt(2025, 4, 4, 12),
+            stop=_dt(2025, 4, 4, 15),
+            label='8am'
+            )
+        EventSignupSlot.objects.create(
+            event=self.event,
+            start=_dt(2025, 4, 4, 15),
+            stop=_dt(2025, 4, 4, 18),
+            label='11am'
+            )
         groups = _group_slots_by_day(EventSignupSlot.objects.filter(event=self.event).order_by('start'), self.tz)
         self.assertEqual(len(groups), 1)
         _, slots = groups[0]
@@ -330,8 +343,18 @@ class GroupSlotsByDayTest(TestCase):
     def test_slots_crossing_midnight_split_into_two_days(self):
         from evtsignup.views import _group_slots_by_day
         # Friday 11pm EDT = Saturday 03:00 UTC; Saturday 2am EDT = Saturday 06:00 UTC
-        EventSignupSlot.objects.create(event=self.event, start=_dt(2025, 4, 4, 23), stop=_dt(2025, 4, 5, 2), label='Fri late')
-        EventSignupSlot.objects.create(event=self.event, start=_dt(2025, 4, 5, 6), stop=_dt(2025, 4, 5, 9), label='Sat early')
+        EventSignupSlot.objects.create(
+            event=self.event,
+            start=_dt(2025, 4, 4, 23),
+            stop=_dt(2025, 4, 5, 2),
+            label='Fri late'
+            )
+        EventSignupSlot.objects.create(
+            event=self.event,
+            start=_dt(2025, 4, 5, 6),
+            stop=_dt(2025, 4, 5, 9),
+            label='Sat early'
+            )
         groups = _group_slots_by_day(EventSignupSlot.objects.filter(event=self.event).order_by('start'), self.tz)
         self.assertEqual(len(groups), 2)
         self.assertEqual(groups[0][0], 'Friday, April 4')
@@ -339,7 +362,12 @@ class GroupSlotsByDayTest(TestCase):
 
     def test_day_label_format(self):
         from evtsignup.views import _group_slots_by_day
-        EventSignupSlot.objects.create(event=self.event, start=_dt(2025, 4, 4, 12), stop=_dt(2025, 4, 4, 15), label='8am')
+        EventSignupSlot.objects.create(
+            event=self.event,
+            start=_dt(2025, 4, 4, 12),
+            stop=_dt(2025, 4, 4, 15),
+            label='8am'
+            )
         groups = _group_slots_by_day(EventSignupSlot.objects.filter(event=self.event), self.tz)
         self.assertEqual(groups[0][0], 'Friday, April 4')
 

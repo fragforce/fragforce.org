@@ -3,8 +3,6 @@ import zoneinfo
 from collections import defaultdict
 
 from django.contrib import messages
-
-log = logging.getLogger(__name__)
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -15,6 +13,8 @@ from eventer.slot_generator import _expand_to_hours
 from evtsignup.models import EventAvailabilityHour, EventInterest, EventInterestNote, GameInterestUserEvent
 
 SIGNUP_TEMPLATE = 'evtsignup/signup.html'
+
+log = logging.getLogger(__name__)
 
 
 def _group_slots_by_day(slots_qs, tz):
@@ -262,9 +262,17 @@ def signup_view(request, event_slug):
             return redirect('evtsignup-signup', event_slug=event_slug)
 
     if errors:
-        prefill, selected_slot_ids, selected_game_ids, notes_by_slug = _prefill_from_post(request, roles_with_slots, game_qs_by_slug)
+        prefill, selected_slot_ids, selected_game_ids, notes_by_slug = _prefill_from_post(
+            request,
+            roles_with_slots,
+            game_qs_by_slug
+            )
     elif existing:
-        prefill, selected_slot_ids, selected_game_ids, notes_by_slug, inactive_role_slugs = _prefill_from_existing(existing, slots_by_slug, game_qs_by_slug)
+        prefill, selected_slot_ids, selected_game_ids, notes_by_slug, inactive_role_slugs = _prefill_from_existing(
+            existing,
+            slots_by_slug,
+            game_qs_by_slug
+            )
         if inactive_role_slugs:
             messages.warning(
                 request,
