@@ -9,13 +9,24 @@ from ffstream.wordlist import generate_stream_key
 class Key(models.Model):
     stream_key = models.CharField(max_length=255, unique=True, blank=True, verbose_name="Stream Key")
     name = models.SlugField(max_length=256, unique=True, verbose_name="Display Name")
-    owner = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Owner")
+    owner = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Owner"
+        )
     created = models.DateTimeField(verbose_name="Created At", null=True, blank=True, auto_now_add=True)
     modified = models.DateTimeField(null=False, auto_now=True, blank=True, verbose_name="Modified At")
     is_live = models.BooleanField(null=False, default=False, blank=True, verbose_name="Is Live")
     livestream = models.BooleanField(null=False, default=False, blank=True,
                                      verbose_name="Can be used to live stream via reflector directly")
-    superstream = models.BooleanField(null=False, default=False, blank=True, verbose_name="Can be used for Super Stream events")
+    superstream = models.BooleanField(
+        null=False,
+        default=False,
+        blank=True,
+        verbose_name="Can be used for Super Stream events"
+        )
     pull = models.BooleanField(default=False, blank=True, verbose_name="Can be used as a viewer key to watch streams")
 
     def save(self, *args, **kwargs):

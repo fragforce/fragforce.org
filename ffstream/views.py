@@ -107,19 +107,19 @@ def play(request):
         # print("no key")
         return HttpResponseForbidden("no key given")
 
-    pullKey = get_object_or_404(Key, stream_key=request.POST['key'])
-    streamKey = get_object_or_404(Key, name=request.POST['name'])
+    pull_key = get_object_or_404(Key, stream_key=request.POST['key'])
+    strean_key = get_object_or_404(Key, name=request.POST['name'])
 
     # Allow users to pull their own stream if they want
-    if pullKey.pk == streamKey.pk and streamKey.superstream:
-        for stream in streamKey.stream_set.filter(is_live=True, ended=None).order_by("-started"):
+    if pull_key.pk == strean_key.pk and strean_key.superstream:
+        for stream in strean_key.stream_set.filter(is_live=True, ended=None).order_by("-started"):
             return HttpResponseRedirect(stream.stream_key())
 
-    if not pullKey.pull:
+    if not pull_key.pull:
         # print("not a pull key")
         return HttpResponseForbidden("not a pull key")
 
-    for stream in streamKey.stream_set.filter(is_live=True, ended=None).order_by("-started")[:1]:
+    for stream in strean_key.stream_set.filter(is_live=True, ended=None).order_by("-started")[:1]:
         # print("Found " + stream.stream_key())
         return HttpResponseRedirect(stream.stream_key())
 
@@ -129,12 +129,12 @@ def play(request):
 
 @require_safe
 def view(request, key=None):
-    pullKey = get_object_or_404(Key, stream_key=key)
-    if not pullKey.pull:
+    pull_key = get_object_or_404(Key, stream_key=key)
+    if not pull_key.pull:
         return HttpResponseForbidden("bad key")
 
     return render(request, 'ffstream/view.html', dict(
-        pullKey=pullKey,
+        pull_key=pull_key,
         streams=Stream.objects.filter(is_live=True).order_by("-created").all(),
         liveKeys=Key.objects.filter(is_live=True, superstream=True).order_by("-created").all(),
     ))
@@ -184,12 +184,12 @@ def regenerate_key(request):
 
 @require_safe
 def goto(request, key, name):
-    pullKey = get_object_or_404(Key, stream_key=key)
-    if not pullKey.pull:
+    pull_key = get_object_or_404(Key, stream_key=key)
+    if not pull_key.pull:
         return HttpResponseForbidden("bad key")
 
-    streamKey = get_object_or_404(Key, name=name)
-    for stream in streamKey.stream_set.filter(is_live=True, ended=None).order_by("-started"):
+    strean_key = get_object_or_404(Key, name=name)
+    for stream in strean_key.stream_set.filter(is_live=True, ended=None).order_by("-started"):
         return HttpResponseRedirect(stream.url())
 
     return Http404("No active stream")
