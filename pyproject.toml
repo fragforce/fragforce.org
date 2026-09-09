@@ -38,3 +38,17 @@ extend-exclude =  ["*/migrations/*"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W"]
+
+[tool.ruff.lint.isort]
+known-first-party = [
+    "eventer",
+    "evtsignup",
+    "extralifeapi",
+    "ffbot",
+    "ffdiscord",
+    "ffdonations",
+    "fforg",
+    "ffoverlay",
+    "ffsite",
+    "ffstream"
+]
