@@ -97,9 +97,9 @@ def update_teams(self, teams=None):
             )
         tm.name = team.name
         tm.created = team.createdDateUTC
-        tm.fundraisingGoal = team.fundraisingGoal
-        tm.numDonations = team.numDonations
-        tm.sumDonations = team.sumDonations
+        tm.fundraising_goal = team.fundraisingGoal
+        tm.num_donations = team.numDonations
+        tm.sum_donations = team.sumDonations
         tm.event = evt
 
         tm.raw = team.raw

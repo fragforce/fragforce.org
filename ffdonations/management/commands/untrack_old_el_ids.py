@@ -45,7 +45,10 @@ class Command(BaseCommand):
         dry_run = options['dry_run']
 
         min_team_id = options['min_team_id'] if options['min_team_id'] is not None else settings.MIN_EL_TEAMID
-        min_participant_id = options['min_participant_id'] if options['min_participant_id'] is not None else settings.MIN_EL_PARTICIPANTID
+        min_participant_id = (
+            options['min_participant_id'] if options['min_participant_id'] is not None
+            else settings.MIN_EL_PARTICIPANTID
+        )
         min_event_id = options['min_event_id']
 
         if dry_run:

@@ -473,7 +473,7 @@ class UpdateDonationsIfNeededTeamTest(TestCase):
 
     def test_returns_none_when_num_donations_is_none(self):
         # numDonations=None means we haven't synced team data yet - don't thrash
-        self.team.numDonations = None
+        self.team.num_onations = None
         self.team.save()
         DonationModel.objects.create(id='STALE01', team=self.team, amount=10)
         _stamp_stale(DonationModel.objects.filter(id='STALE01'))
@@ -485,7 +485,7 @@ class UpdateDonationsIfNeededTeamTest(TestCase):
 
     def test_forces_update_when_db_has_fewer_donations_than_expected(self):
         # numDonations=5 but only 1 in DB - known gap, force update
-        self.team.numDonations = 5
+        self.team.num_donations = 5
         self.team.save()
         DonationModel.objects.create(id='GAP01', team=self.team, amount=10)
         _stamp_stale(DonationModel.objects.filter(id='GAP01'))
@@ -495,7 +495,7 @@ class UpdateDonationsIfNeededTeamTest(TestCase):
         mock_update.assert_called_once_with(teamID=self.team.id)
 
     def test_forces_update_when_donations_are_stale(self):
-        self.team.numDonations = 1
+        self.team.num_donations = 1
         self.team.save()
         DonationModel.objects.create(id='STALE02', team=self.team, amount=10)
         _stamp_stale(DonationModel.objects.filter(id='STALE02'))
@@ -582,7 +582,7 @@ class UpdateDonationsIfNeededParticipantTest(TestCase):
         self.assertIsNone(result)
 
     def test_forces_update_when_db_has_fewer_donations_than_expected(self):
-        self.participant.numDonations = 5
+        self.participant.num_donations = 5
         self.participant.save()
         DonationModel.objects.create(id='PGAP01', participant=self.participant, amount=5)
         _stamp_stale(DonationModel.objects.filter(id='PGAP01'))
@@ -592,7 +592,7 @@ class UpdateDonationsIfNeededParticipantTest(TestCase):
         mock_update.assert_called_once_with(participant_id=self.participant.id)
 
     def test_forces_update_when_donations_are_stale(self):
-        self.participant.numDonations = 1
+        self.participant.num_donations = 1
         self.participant.save()
         DonationModel.objects.create(id='PSTALE01', participant=self.participant, amount=5)
         _stamp_stale(DonationModel.objects.filter(id='PSTALE01'))
@@ -644,7 +644,7 @@ class UpdateDonationsTeamHappyPathTest(TestCase):
 
         saved = DonationModel.objects.get(id='DON001')
         self.assertEqual(saved.amount, 25.0)
-        self.assertEqual(saved.displayName, 'Alice')
+        self.assertEqual(saved.display_name, 'Alice')
         self.assertEqual(saved.message, 'Go team!')
         self.assertEqual(saved.team, self.team)
 
@@ -658,7 +658,7 @@ class UpdateDonationsTeamHappyPathTest(TestCase):
         donation = _make_donation('DON002', display_name=None)
         self._run([donation])
 
-        self.assertEqual(DonationModel.objects.get(id='DON002').displayName, '')
+        self.assertEqual(DonationModel.objects.get(id='DON002').display_name, '')
 
     def test_null_message_saved_as_empty_string(self):
         donation = _make_donation('DON003', message=None)
@@ -747,7 +747,7 @@ class UpdateDonationsParticipantHappyPathTest(TestCase):
 
         saved = DonationModel.objects.get(id='PDON001')
         self.assertEqual(saved.amount, 15.0)
-        self.assertEqual(saved.displayName, 'Bob')
+        self.assertEqual(saved.display_name, 'Bob')
         self.assertEqual(saved.message, 'Nice work!')
         self.assertEqual(saved.participant, self.participant)
 
@@ -768,7 +768,7 @@ class UpdateDonationsParticipantHappyPathTest(TestCase):
         donation = _make_donation('PDON003', display_name=None)
         self._run([donation])
 
-        self.assertEqual(DonationModel.objects.get(id='PDON003').displayName, '')
+        self.assertEqual(DonationModel.objects.get(id='PDON003').display_name, '')
 
     def test_null_message_saved_as_empty_string(self):
         donation = _make_donation('PDON004', message=None)
@@ -882,9 +882,9 @@ class UpdateTeamsHappyPathTest(TestCase):
 
         saved = TeamModel.objects.get(id=8775)
         self.assertEqual(saved.name, 'The Bonhams')
-        self.assertEqual(saved.numDonations, 97)
-        self.assertEqual(saved.sumDonations, 9349.5)
-        self.assertEqual(saved.fundraisingGoal, 20000.0)
+        self.assertEqual(saved.num_donations, 97)
+        self.assertEqual(saved.sum_donations, 9349.5)
+        self.assertEqual(saved.fundraising_goal, 20000.0)
         self.assertEqual(saved.event, self.event)
 
     def test_returns_list_of_guids(self):
@@ -984,10 +984,10 @@ class UpdateParticipantsHappyPathTest(TestCase):
         self._run(None, [p])
 
         saved = ParticipantModel.objects.get(id=19265)
-        self.assertEqual(saved.displayName, 'Liam Bonham')
-        self.assertEqual(saved.numDonations, 51)
-        self.assertEqual(saved.sumDonations, 4661.0)
-        self.assertEqual(saved.fundraisingGoal, 8000.0)
+        self.assertEqual(saved.display_name, 'Liam Bonham')
+        self.assertEqual(saved.num_donations, 51)
+        self.assertEqual(saved.sum_donations, 4661.0)
+        self.assertEqual(saved.fundraising_goal, 8000.0)
         self.assertEqual(saved.event, self.event)
         self.assertEqual(saved.team, self.team)
 
@@ -1056,7 +1056,7 @@ class UpdateParticipantsHappyPathTest(TestCase):
         self._run(None, [p])
 
         self.assertEqual(ParticipantModel.objects.filter(id=19265).count(), 1)
-        self.assertEqual(ParticipantModel.objects.get(id=19265).displayName, 'New Name')
+        self.assertEqual(ParticipantModel.objects.get(id=19265).display_name, 'New Name')
 
     def test_fetches_individual_participants_when_ids_provided(self):
         p = _make_participant_namedtuple()
@@ -1129,7 +1129,7 @@ class NoteNewDonationTest(TestCase):
         self.assertIn(b'Alice', first_payload['message'])
 
     def test_first_put_message_uses_anonymous_coward_when_no_display_name(self):
-        self.donation.displayName = ''
+        self.donation.display_name = ''
         self.donation.save()
 
         mock_requests = self._run()

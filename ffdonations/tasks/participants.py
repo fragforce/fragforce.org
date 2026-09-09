@@ -125,17 +125,17 @@ def update_participants(self, participants=None):
                 tracked=False,
                 id=participant.participant_id,
             )
-        tm.sumPledges = participant.sumPledges
-        tm.displayName = participant.displayName
-        tm.numDonations = participant.numDonations
-        tm.sumDonations = participant.sumDonations
+        tm.sum_pledges = participant.sumPledges
+        tm.display_name = participant.displayName
+        tm.num_donations = participant.numDonations
+        tm.sum_donations = participant.sumDonations
         # Handle nulls
         if participant.isTeamCaptain:
-            tm.isTeamCaptain = True
+            tm.is_team_captain = True
         else:
-            tm.isTeamCaptain = False
-        tm.fundraisingGoal = participant.fundraisingGoal
-        tm.avatarImage = participant.avatarImageURL
+            tm.is_team_captain = False
+        tm.fundraising_goal = participant.fundraisingGoal
+        tm.avatar_image = participant.avatarImageURL
         tm.created = participant.createdDateUTC
         tm.event = evt
         tm.team = team

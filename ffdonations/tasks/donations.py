@@ -127,10 +127,10 @@ def update_donations_if_needed_team(self, team_id):
     # Don't simplify to != as this could cause thrashing if team update is behind the donations
     # update
     # if team.numDonations > 0 and bfilter.count() <= 0:
-    if team.numDonations is None:
+    if team.num_donations is None:
         return None
 
-    if team.numDonations > 0 and bfilter.count() < team.numDonations:
+    if team.num_donations > 0 and bfilter.count() < team.num_donations:
         return doupdate()
 
     # Force an update if it's been more than EL_DON_TEAM_UPDATE_FREQUENCY_MAX since last
@@ -193,11 +193,11 @@ def update_donations_team(self, team_id):
         tm.team = team
         tm.participant = participant
         tm.raw = donation.raw
-        tm.avatarImage = donation.avatarImageURL
+        tm.avatar_image = donation.avatarImageURL
         if donation.displayName:
-            tm.displayName = donation.displayName
+            tm.display_name = donation.displayName
         else:
-            tm.displayName = ''
+            tm.display_name = ''
         tm.created = donation.createdDateUTC
         tm.amount = donation.amount
         if donation.message:
@@ -262,7 +262,7 @@ def update_donations_if_needed_participant(self, participant_id):
     # Don't simplify to != as this could cause trashing if team update is behind the donations
     # update
     # if participant.numDonations > 0 and bfilter.count() <= 0:
-    if participant.numDonations > 0 and bfilter.count() < participant.numDonations:
+    if participant.num_donations > 0 and bfilter.count() < participant.num_donations:
         return doupdate()
 
     # Force an update if it's been more than EL_DON_PTCP_UPDATE_FREQUENCY_MAX since last
@@ -326,11 +326,11 @@ def update_donations_participant(self, participant_id):
         tm.team = team
         tm.participant = participant
         tm.raw = donation.raw
-        tm.avatarImage = donation.avatarImageURL
+        tm.avatar_image = donation.avatarImageURL
         if donation.displayName:
-            tm.displayName = donation.displayName
+            tm.display_name = donation.displayName
         else:
-            tm.displayName = ''
+            tm.display_name = ''
         tm.created = donation.createdDateUTC
         tm.amount = donation.amount
         if donation.message:

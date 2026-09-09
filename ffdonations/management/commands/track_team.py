@@ -44,7 +44,7 @@ class Command(BaseCommand):
 
         self.stdout.write(f"  Name:  {team.name}")
         self.stdout.write(f"  Event: {team.event_id} ({getattr(team.event, 'name', 'unknown')})")
-        self.stdout.write(f"  Donations: {team.numDonations} totalling ${team.sumDonations}")
+        self.stdout.write(f"  Donations: {team.numDonations} totalling ${team.sum_donations}")
 
         if team.tracked:
             self.stdout.write(self.style.SUCCESS(f"Team {team_id} is already tracked"))

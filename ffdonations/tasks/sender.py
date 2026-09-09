@@ -34,8 +34,8 @@ def note_new_donation(self, donation_id):
     # Call the bot to send the chat message before the alert overlay
     message = f"Fragforce received a new donation of ${donation.amount}"
 
-    if donation.displayName:
-        message += f" from {donation.displayName}"
+    if donation.display_name:
+        message += f" from {donation.display_name}"
     else:
         message += " from Anonymous Coward"
 
