@@ -193,7 +193,7 @@ class LocaltimeShortFilterTest(TestCase):
         self.assertIn('<time', result)
         self.assertIn('2026-04-16T12:00:00.000Z', result)
 
-    def test_uses_toLocaleString_with_options(self):
+    def test_uses_to_locale_string_with_options(self):
         from ffsite.templatetags.fftz import format_datetime_short
         result = format_datetime_short('2026-04-16T12:00:00')
         self.assertIn('toLocaleString', result)
