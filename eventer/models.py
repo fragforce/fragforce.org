@@ -74,22 +74,47 @@ class EventRole(models.Model):
     name = models.CharField(max_length=255, unique=True, db_index=True, null=False, blank=False)
     slug = models.SlugField(max_length=255, null=False, blank=False, db_index=True, unique=True)
     description = models.TextField(default='', blank=False, null=False)
-    color = models.CharField(max_length=7, default='#417690', blank=False, null=False,
-                             help_text="Hex color code for UI display (e.g. #417690)")
-    multi_assign = models.BooleanField(default=False,
-                                       help_text="Allow multiple users assigned per slot (e.g. Participant). Single-assign roles enforce one user per slot.")
-    display_order = models.PositiveSmallIntegerField(default=100,
-                                                     help_text="Display order — lower numbers appear first. Roles with the same value are sorted alphabetically.")
-    has_game_selection = models.BooleanField(default=False,
-                                             help_text="Show a game preference picker for this role on the signup form.")
-    game_min_players = models.PositiveSmallIntegerField(null=True, blank=True,
-                                                        help_text="Exclude games where max players is less than this value. Leave blank to show all games.")
-    show_fundraising_url = models.BooleanField(default=False,
-                                               help_text="Show the fundraising URL field for this role on the signup form.")
-    show_stream_commands = models.BooleanField(default=False,
-                                               help_text="Show Twitch stream commands (title, game, donate) in the coordinator schedule for this role. Also pins this role's column first.")
-    show_notes = models.BooleanField(default=False,
-                                     help_text="Show an 'Other game preferences' notes textarea for this role on the signup form.")
+    color = models.CharField(max_length=7,
+        default='#417690',
+        blank=False,
+        null=False,
+        help_text="Hex color code for UI display (e.g. #417690)"
+        )
+    multi_assign = models.BooleanField(
+        default=False,
+        help_text=(
+            "Allow multiple users assigned per slot (e.g. Participant). "
+            "Single-assign roles enforce one user per slot."
+            )
+        )
+    display_order = models.PositiveSmallIntegerField(
+        default=100,
+        help_text="Display order — lower numbers appear first. Roles with the same value are sorted alphabetically."
+        )
+    has_game_selection = models.BooleanField(
+        default=False,
+        help_text="Show a game preference picker for this role on the signup form."
+        )
+    game_min_players = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Exclude games where max players is less than this value. Leave blank to show all games."
+        )
+    show_fundraising_url = models.BooleanField(
+        default=False,
+        help_text="Show the fundraising URL field for this role on the signup form."
+        )
+    show_stream_commands = models.BooleanField(
+        default=False,
+        help_text=(
+            "Show Twitch stream commands (title, game, donate) in the coordinator schedule for this role. "
+            "Also pins this role's column first."
+            )
+        )
+    show_notes = models.BooleanField(
+        default=False,
+        help_text="Show an 'Other game preferences' notes textarea for this role on the signup form."
+        )
 
     class Meta:
         ordering = ['display_order', 'name']
@@ -107,18 +132,82 @@ class Game(models.Model):
         REJECTED = 'rejected', 'Rejected - not allowed on stream (e.g. banned on Twitch)'
 
     name = models.CharField(max_length=255, db_index=True, null=False, blank=False, verbose_name="Game name")
-    coordinator_notes = models.TextField(blank=True, verbose_name="Coordinator notes", help_text="Internal notes for coordinators, e.g. hardware requirements or known issues")
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING, db_index=True, verbose_name="Status", help_text="Moderation status - rejected games cannot be selected on signup forms")
-    suggested = models.BooleanField(default=False, db_index=True, verbose_name="Suggested game", help_text="Show this game on the signup form game selection list (only applies when status=approved)")
-    igdb_id = models.PositiveIntegerField(unique=True, null=False, blank=False, verbose_name="IGDB ID", help_text="Numeric IGDB game ID, e.g. 115555")
-    igdb_slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, db_index=True, verbose_name="IGDB slug", help_text="IGDB URL slug, e.g. 'going-medieval'")
-    igdb_url = models.URLField(null=True, blank=True, verbose_name="IGDB URL", help_text="Full IGDB game page URL")
-    igdb_cover_hash = models.CharField(max_length=255, null=True, blank=True, verbose_name="IGDB cover hash", help_text="IGDB image hash - use //images.igdb.com/igdb/image/upload/t_{size}/{hash}.jpg")
-    summary = models.TextField(blank=True, verbose_name="IGDB summary", help_text="Short game description from IGDB")
-    multiplayer_max = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name="Max players (IGDB)", help_text="Maximum co-op party size from IGDB; null=unknown or single player")
-    multiplayer_max_override = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name="Max players (override)", help_text="Manual override for max players; takes precedence over IGDB value when set")
-    first_release_date = models.DateField(null=True, blank=True, verbose_name="First release date", help_text="Initial release date from IGDB")
-    igdb_category = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name="IGDB category", help_text="IGDB game category: 0=main game, 1=DLC, 2=expansion, 3=bundle, 4=standalone expansion")
+    coordinator_notes = models.TextField(
+        blank=True,
+        verbose_name="Coordinator notes",
+        help_text="Internal notes for coordinators, e.g. hardware requirements or known issues"
+        )
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+        db_index=True,
+        verbose_name="Status",
+        help_text="Moderation status - rejected games cannot be selected on signup forms"
+        )
+    suggested = models.BooleanField(
+        default=False,
+        db_index=True,
+        verbose_name="Suggested game",
+        help_text="Show this game on the signup form game selection list (only applies when status=approved)"
+        )
+    igdb_id = models.PositiveIntegerField(
+        unique=True,
+        null=False,
+        blank=False,
+        verbose_name="IGDB ID",
+        help_text="Numeric IGDB game ID, e.g. 115555")
+    igdb_slug = models.SlugField(
+        max_length=255,
+        unique=True,
+        null=True,
+        blank=True,
+        db_index=True,
+        verbose_name="IGDB slug",
+        help_text="IGDB URL slug, e.g. 'going-medieval'"
+        )
+    igdb_url = models.URLField(
+        null=True,
+        blank=True,
+        verbose_name="IGDB URL",
+        help_text="Full IGDB game page URL"
+        )
+    igdb_cover_hash = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        verbose_name="IGDB cover hash",
+        help_text="IGDB image hash - use //images.igdb.com/igdb/image/upload/t_{size}/{hash}.jpg"
+        )
+    summary = models.TextField(
+        blank=True,
+        verbose_name="IGDB summary",
+        help_text="Short game description from IGDB"
+    )
+    multiplayer_max = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Max players (IGDB)",
+        help_text="Maximum co-op party size from IGDB; null=unknown or single player"
+        )
+    multiplayer_max_override = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Max players (override)",
+        help_text="Manual override for max players; takes precedence over IGDB value when set"
+        )
+    first_release_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="First release date",
+        help_text="Initial release date from IGDB"
+        )
+    igdb_category = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="IGDB category",
+        help_text="IGDB game category: 0=main game, 1=DLC, 2=expansion, 3=bundle, 4=standalone expansion"
+        )
 
     @property
     def cover_url(self):
@@ -155,19 +244,37 @@ class Event(models.Model):
     name = models.CharField(max_length=255, null=False, blank=False, db_index=True, unique=True)
     slug = models.SlugField(max_length=255, null=False, blank=False, db_index=True, unique=True)
     description = models.TextField(default='', blank=False, null=False)
-    timezone = models.CharField(max_length=64, default='America/New_York', blank=False, null=False,
-                                choices=SUPERSTREAM_TIMEZONES,
-                                help_text="Timezone for coordinator-facing display. Public schedule uses browser local time via the |localtime template filter.")
-    public = models.BooleanField(default=False,
-                               help_text="Show this event on the public events listing.")
-    signups_open = models.BooleanField(default=False,
-                                       help_text="Allow new signups. Has no effect when locked.")
-    edits_open = models.BooleanField(default=False,
-                                     help_text="Allow existing signups to be edited. Has no effect when locked.")
-    locked = models.BooleanField(default=False,
-                                 help_text="Lock the event - disables all signups and edits regardless of other flags.")
-    schedule_published = models.BooleanField(default=False,
-                                             help_text="Publish the finalized schedule - enables the public schedule view.")
+    timezone = models.CharField(
+        max_length=64,
+        default='America/New_York',
+        blank=False,
+        null=False,
+        choices=SUPERSTREAM_TIMEZONES,
+        help_text=(
+            "Timezone for coordinator-facing display. "
+            "Public schedule uses browser local time via the |localtime template filter."
+            )
+        )
+    public = models.BooleanField(
+        default=False,
+        help_text="Show this event on the public events listing."
+        )
+    signups_open = models.BooleanField(
+        default=False,
+        help_text="Allow new signups. Has no effect when locked."
+        )
+    edits_open = models.BooleanField(
+        default=False,
+        help_text="Allow existing signups to be edited. Has no effect when locked."
+        )
+    locked = models.BooleanField(
+        default=False,
+        help_text="Lock the event - disables all signups and edits regardless of other flags."
+        )
+    schedule_published = models.BooleanField(
+        default=False,
+        help_text="Publish the finalized schedule - enables the public schedule view."
+        )
 
     @property
     def start(self):
@@ -252,11 +359,17 @@ class EventSlotGroup(models.Model):
     name = models.CharField(max_length=255, unique=True, blank=False, null=False)
     use_prime_time = models.BooleanField(
         default=False,
-        help_text="If true, use variable prime-time block sizing. If false, use this group's block_hours (or the event's management_block_hours if not set).",
+        help_text=(
+            "If true, use variable prime-time block sizing. "
+            "If false, use this group's block_hours (or the event's management_block_hours if not set)."
+            ),
     )
     block_hours = models.PositiveSmallIntegerField(
         null=True, blank=True,
-        help_text="Block size in hours for this group. Null falls back to the event's management_block_hours. Ignored when use_prime_time is true.",
+        help_text=(
+            "Block size in hours for this group. "
+            "Null falls back to the event's management_block_hours. Ignored when use_prime_time is true""."
+        ),
     )
     roles = models.ManyToManyField(
         'EventRole',
@@ -275,7 +388,10 @@ class EventSlotGroupMembership(models.Model):
     role = models.ForeignKey('EventRole', on_delete=models.CASCADE, related_name='slot_group_memberships')
     first_block_hours = models.PositiveSmallIntegerField(
         null=True, blank=True,
-        help_text="Override the first slot's block size for this role to stagger changeovers. Null uses the group's standard block size.",
+        help_text=(
+            "Override the first slot's block size for this role to stagger changeovers. "
+            "Null uses the group's standard block size."
+        )
     )
 
     class Meta:

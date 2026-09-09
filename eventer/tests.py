@@ -90,7 +90,11 @@ class SetupSuperstreamViewTest(TestCase):
             'start': '2025-04-04T08:00',
             'duration': '40',
         })
-        self.assertRedirects(response, f'/admin/eventer/event/{self.event.pk}/generate-slots/', fetch_redirect_response=False)
+        self.assertRedirects(
+            response,
+            f'/admin/eventer/event/{self.event.pk}/generate-slots/',
+            fetch_redirect_response=False
+            )
         self.assertEqual(EventPeriod.objects.filter(event=self.event).count(), 1)
         period = EventPeriod.objects.get(event=self.event)
         self.assertEqual(period.start.hour, 12)  # 8am EDT (UTC-4) = 12:00 UTC
@@ -101,7 +105,11 @@ class SetupSuperstreamViewTest(TestCase):
             'start': '2025-01-10T08:00',
             'duration': '40',
         })
-        self.assertRedirects(response, f'/admin/eventer/event/{self.event.pk}/generate-slots/', fetch_redirect_response=False)
+        self.assertRedirects(
+            response,
+            f'/admin/eventer/event/{self.event.pk}/generate-slots/',
+            fetch_redirect_response=False
+            )
         period = EventPeriod.objects.get(event=self.event)
         self.assertEqual(period.start.hour, 13)  # 8am EST (UTC-5) = 13:00 UTC
 
@@ -115,7 +123,11 @@ class SetupSuperstreamViewTest(TestCase):
             f'/admin/eventer/event/{pacific_event.pk}/setup-superstream/',
             {'start': '2025-04-04T08:00', 'duration': '40'},
         )
-        self.assertRedirects(response, f'/admin/eventer/event/{pacific_event.pk}/generate-slots/', fetch_redirect_response=False)
+        self.assertRedirects(
+            response,
+            f'/admin/eventer/event/{pacific_event.pk}/generate-slots/',
+            fetch_redirect_response=False
+            )
         period = EventPeriod.objects.get(event=pacific_event)
         self.assertEqual(period.start.hour, 15)  # 8am PDT (UTC-7) = 15:00 UTC
 
@@ -129,7 +141,11 @@ class SetupSuperstreamViewTest(TestCase):
             f'/admin/eventer/event/{utc_event.pk}/setup-superstream/',
             {'start': '2025-04-04T08:00', 'duration': '40'},
         )
-        self.assertRedirects(response, f'/admin/eventer/event/{utc_event.pk}/generate-slots/', fetch_redirect_response=False)
+        self.assertRedirects(
+            response,
+            f'/admin/eventer/event/{utc_event.pk}/generate-slots/',
+            fetch_redirect_response=False
+            )
         period = EventPeriod.objects.get(event=utc_event)
         self.assertEqual(period.start.hour, 8)  # 8am UTC = 8:00 UTC
 
@@ -246,7 +262,13 @@ class GenerateSlotsTest(TestCase):
         shared_roles = [m.role for m in prime_group.memberships.filter(first_block_hours__isnull=True)]
         if len(shared_roles) < 2:
             return
-        first_slots = set(EventSignupSlot.objects.filter(event=self.event, roles=shared_roles[0]).values_list('id', flat=True))
+        first_slots = set(EventSignupSlot.objects.filter(
+            event=self.event,
+            roles=shared_roles[0]).values_list(
+                'id',
+                flat=True
+                )
+            )
         for role in shared_roles[1:]:
             role_slots = set(EventSignupSlot.objects.filter(event=self.event, roles=role).values_list('id', flat=True))
             self.assertEqual(first_slots, role_slots)
@@ -268,8 +290,12 @@ class GenerateSlotsTest(TestCase):
         from eventer.models import EventSlotGroupMembership
         generate_slots(self.event)
         # Any membership with first_block_hours set should have that as the first slot's duration
-        for membership in EventSlotGroupMembership.objects.filter(first_block_hours__isnull=False).select_related('role'):
-            first_slot = EventSignupSlot.objects.filter(event=self.event, roles=membership.role).order_by('start').first()
+        for membership in EventSlotGroupMembership.objects.filter(
+            first_block_hours__isnull=False
+            ).select_related('role'):
+            first_slot = EventSignupSlot.objects.filter(
+                event=self.event,
+                roles=membership.role).order_by('start').first()
             if first_slot:
                 duration_hrs = (first_slot.stop - first_slot.start).total_seconds() / HOUR_SECONDS
                 self.assertEqual(duration_hrs, membership.first_block_hours)
@@ -284,7 +310,11 @@ class GenerateSlotsTest(TestCase):
             t = local_start.time()
             if config.prime_time_start <= t < config.prime_time_end:
                 duration_hrs = (slot.stop - slot.start).total_seconds() / HOUR_SECONDS
-                self.assertEqual(duration_hrs, config.prime_block_hours, f"Prime-time slot {slot.label} should be {config.prime_block_hours}hr")
+                self.assertEqual(
+                    duration_hrs,
+                    config.prime_block_hours,
+                    f"Prime-time slot {slot.label} should be {config.prime_block_hours}hr"
+                    )
 
     def test_non_prime_slots_use_standard_block_hours(self):
         generate_slots(self.event)
@@ -297,7 +327,11 @@ class GenerateSlotsTest(TestCase):
             t = local_start.time()
             if not (config.prime_time_start <= t < config.prime_time_end):
                 duration_hrs = (slot.stop - slot.start).total_seconds() / HOUR_SECONDS
-                self.assertEqual(duration_hrs, config.standard_block_hours, f"Non-prime slot {slot.label} should be {config.standard_block_hours}hr")
+                self.assertEqual(
+                    duration_hrs,
+                    config.standard_block_hours,
+                    f"Non-prime slot {slot.label} should be {config.standard_block_hours}hr"
+                    )
 
     def test_no_stub_slots_shorter_than_min(self):
         generate_slots(self.event)
@@ -612,8 +646,10 @@ class BuildScheduleViewTest(TestCase):
             f'assign_{self.slot.pk}_participant': [str(user1.pk), str(user2.pk)],
         })
         self.assertEqual(
-            EventScheduleMultiAssignment.objects.filter(event=self.event, slot=self.slot, role=participant_role).count(),
-            2
+            EventScheduleMultiAssignment.objects.filter(
+                event=self.event,
+                slot=self.slot,
+                role=participant_role).count(), 2
         )
 
     def test_post_replaces_existing_assignments(self):
@@ -1681,9 +1717,31 @@ class GenerateSlotsGroupTest(TestCase):
             start=dt(2025, 4, 4, 12),
             stop=dt(2025, 4, 6, 4),
         )
-        for slug, name, multi in [('participant', 'Participant', True), ('streamer', 'Streamer', False),
-                                   ('moderator', 'Moderator', False), ('tech-manager', 'Tech Manager', False)]:
-            EventRole.objects.get_or_create(slug=slug, defaults={'name': name, 'description': '', 'multi_assign': multi})
+        for slug, name, multi in [
+            (
+                'participant',
+                'Participant',
+                True
+            ), (
+                'streamer',
+                'Streamer',
+                False
+            ), (
+                'moderator',
+                'Moderator',
+                False
+            ), (
+                'tech-manager',
+                'Tech Manager',
+                False
+            )
+        ]:
+            EventRole.objects.get_or_create(slug=slug, defaults={
+                'name': name,
+                'description': '',
+                'multi_assign': multi
+                }
+            )
 
     def test_replace_deletes_existing_slots(self):
         generate_slots(self.event)

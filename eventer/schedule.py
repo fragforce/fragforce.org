@@ -81,7 +81,15 @@ def _build_slot_role_data(all_hours, single_roles, role_hour_slot, hour_role_use
     return slot_role_available, slot_role_assigned
 
 
-def _build_grid_rows(all_hours, tz, single_roles, role_hour_slot, role_objects, slot_role_available, slot_role_assigned):
+def _build_grid_rows(
+        all_hours,
+        tz,
+        single_roles,
+        role_hour_slot,
+        role_objects,
+        slot_role_available,
+        slot_role_assigned
+        ):
     role_next_hour = {r.slug: None for r in single_roles}
     role_alt = {r.slug: False for r in single_roles}
     rows = []
@@ -180,7 +188,12 @@ def build_schedule_grid(event):
     if not event.start or not event.end:
         return {
             'rows': [],
-            'role_headers': [{'label': r.name, 'color': r.color, 'slug': r.slug, 'show_stream_commands': r.show_stream_commands} for r in single_roles],
+            'role_headers': [{
+                'label': r.name,
+                'color': r.color,
+                'slug': r.slug,
+                'show_stream_commands': r.show_stream_commands
+                } for r in single_roles],
             'multi_role_headers': [{'label': r.name, 'color': r.color, 'slug': r.slug} for r in multi_roles],
             'slot_role_available': {}, 'slot_role_assigned': {},
             'multi_slot_data': {}, 'role_objects': {},
@@ -196,7 +209,15 @@ def build_schedule_grid(event):
     multi_slot_data = _build_multi_slot_data(
         event, all_hours, multi_roles, role_hour_slot, hour_role_users, role_objects
     )
-    rows = _build_grid_rows(all_hours, tz, single_roles, role_hour_slot, role_objects, slot_role_available, slot_role_assigned)
+    rows = _build_grid_rows(
+        all_hours,
+        tz,
+        single_roles,
+        role_hour_slot,
+        role_objects,
+        slot_role_available,
+        slot_role_assigned
+        )
     role_headers = [
         {'label': r.name, 'color': r.color, 'slug': r.slug, 'show_stream_commands': r.show_stream_commands}
         for r in single_roles
@@ -220,7 +241,10 @@ def build_schedule_grid(event):
             else:
                 key = (slot.pk, slug)
                 slot_hours = list(_expand_to_hours(slot))
-                multi_next_hour[slug] = slot_hours[-1] + timedelta(hours=1) if slot_hours else row['hour'] + timedelta(hours=1)
+                multi_next_hour[slug] = (
+                    slot_hours[-1] + timedelta(hours=1) if slot_hours
+                    else row['hour'] + timedelta(hours=1)
+                    )
                 multi_alt[slug] = not multi_alt[slug]
                 multi_cells[slug] = {
                     'type': 'slot',

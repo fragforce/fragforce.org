@@ -2,8 +2,6 @@ import logging
 import zoneinfo
 
 from django import forms
-
-log = logging.getLogger(__name__)
 from django.contrib import admin, messages
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
@@ -29,6 +27,7 @@ from eventer.models import (
 from eventer.schedule import LOCAL_TIME_FMT, build_schedule_grid
 from eventer.slot_generator import generate_slots
 
+log = logging.getLogger(__name__)
 
 def _save_coordinator_assignment(event, slot, role, user):
     """Create EventInterest, availability rows, and schedule assignment for a coordinator-sourced signup."""
@@ -62,8 +61,15 @@ class ColorPickerWidget(forms.MultiWidget):
     """Color picker + hex text input side by side."""
     def __init__(self):
         widgets = [
-            forms.TextInput(attrs={'type': 'color', 'style': 'width:3em;height:2em;padding:0;cursor:pointer;vertical-align:middle'}),
-            forms.TextInput(attrs={'style': 'width:7em;font-family:monospace;vertical-align:middle', 'maxlength': '7', 'placeholder': '#417690'}),
+            forms.TextInput(attrs={
+                'type': 'color',
+                'style': 'width:3em;height:2em;padding:0;cursor:pointer;vertical-align:middle'
+                }),
+            forms.TextInput(attrs={
+                'style': 'width:7em;font-family:monospace;vertical-align:middle',
+                'maxlength': '7',
+                'placeholder': '#417690'
+                }),
         ]
         super().__init__(widgets)
 
@@ -109,8 +115,15 @@ class EventRoleAdmin(admin.ModelAdmin):
     def color_swatch(self, obj):
         from django.utils.html import format_html
         return format_html(
-            '<span style="display:inline-block;width:1.2em;height:1.2em;background:{};border:1px solid #ccc;vertical-align:middle;border-radius:2px;margin-right:4px"></span>{}',
-            obj.color, obj.color
+            '''<span style="
+                display:inline-block;
+                width:1.2em;
+                height:1.2em;
+                background:{}
+                ;border:1px solid #ccc;vertical-align:middle;border-radius:2px;margin-right:4px">
+                </span>{}''',
+            obj.color,
+            obj.color
         )
 
     class Media:
@@ -232,7 +245,8 @@ class EventAdmin(admin.ModelAdmin):
             signup_count = EventInterest.objects.filter(event=event).count()
             if replace and signup_count > 0 and request.POST.get('confirm_replace_with_signups') != '1':
                 errors = (
-                    f"This event has {signup_count} existing signup(s). Check the confirmation box to proceed with regeneration."
+                    f"""This event has {signup_count} existing signup(s).
+                    Check the confirmation box to proceed with regeneration."""
                 )
             else:
                 try:
@@ -248,7 +262,8 @@ class EventAdmin(admin.ModelAdmin):
                         self.message_user(
                             request,
                             f"Warning: the following slot groups have no role memberships and were skipped: "
-                            f"{', '.join(result['empty_groups'])}. Add roles to these groups to generate slots for them.",
+                            f"""{', '.join(result['empty_groups'])}.
+                            Add roles to these groups to generate slots for them.""",
                             messages.WARNING,
                         )
                     return HttpResponseRedirect(f'../../{event_id}/change/')
@@ -342,7 +357,13 @@ class EventAdmin(admin.ModelAdmin):
                         else:
                             game_id = request.POST.get(f'game_{slot_pk}') or None
                             game = games_by_pk.get(int(game_id)) if game_id else None
-                            EventScheduleAssignment.objects.create(event=event, slot=slot, role=role, user=user, game=game)
+                            EventScheduleAssignment.objects.create(
+                                event=event,
+                                slot=slot,
+                                role=role,
+                                user=user,
+                                game=game
+                                )
                         created += 1
             self.message_user(request, f"Schedule saved: {created} assignment(s).", messages.SUCCESS)
             return HttpResponseRedirect(f'../../{event_id}/build-schedule/')
@@ -476,7 +497,10 @@ class EventSignupSlotConfigAdmin(admin.ModelAdmin):
                 group_summaries = []
                 for group in groups:
                     memberships = list(group.memberships.all())
-                    effective_block = group.block_hours if group.block_hours is not None else config.management_block_hours
+                    effective_block = (
+                        group.block_hours if group.block_hours is not None
+                        else config.management_block_hours
+                    )
                     group_summaries.append({
                         'group': group,
                         'effective_block_hours': effective_block if not group.use_prime_time else None,
@@ -511,7 +535,16 @@ class EventSlotGroupAdmin(admin.ModelAdmin):
 
 @admin.register(EventSignupSlot)
 class EventSignupSlotAdmin(admin.ModelAdmin):
-    list_display = ['event', 'role_list', 'label', 'duration_hours', 'start_local', 'stop_local', 'start_utc', 'stop_utc']
+    list_display = [
+        'event',
+        'role_list',
+        'label',
+        'duration_hours',
+        'start_local',
+        'stop_local',
+        'start_utc',
+        'stop_utc'
+        ]
     list_filter = ['event', 'roles']
     filter_horizontal = ['roles']
 
@@ -590,7 +623,11 @@ class GameAdmin(admin.ModelAdmin):
     @admin.action(description='Mark selected games as suggested')
     def mark_suggested(self, request, queryset):
         updated = queryset.filter(suggested=False).update(suggested=True)
-        self.message_user(request, f'{updated} game{"s" if updated != 1 else ""} marked as suggested.', messages.SUCCESS)
+        self.message_user(
+            request,
+            f'{updated} game{"s" if updated != 1 else ""} marked as suggested.',
+            messages.SUCCESS
+            )
 
     @admin.display(description='Game', ordering='name')
     def game_name(self, obj):
@@ -691,7 +728,9 @@ class GameAdmin(admin.ModelAdmin):
                     results.append({
                         'igdb_id': r['id'],
                         'name': r['name'],
-                        'cover_url_thumb': f'//images.igdb.com/igdb/image/upload/t_thumb/{cover_hash}.jpg' if cover_hash else None,
+                        'cover_url_thumb': (
+                            f'//images.igdb.com/igdb/image/upload/t_thumb/{cover_hash}.jpg' if cover_hash
+                            else None),
                         'release_year': release_year,
                         'category': r.get('category'),
                         'already_exists': r['id'] in existing_ids,
