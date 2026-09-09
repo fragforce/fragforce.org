@@ -79,13 +79,13 @@ def update_participants(self, participants=None):
             raise ValueError("Invalid settings.EXTRALIFE_TEAMID value")
     else:
         tr = []
-        for participantID in participants:
+        for participant_id in participants:
             try:
-                tr.append(p.participant(int(participantID)))
+                tr.append(p.participant(int(participant_id)))
             except HTTPError as e:
                 if e.response is not None and e.response.status_code == 404:
                     try:
-                        pm = ParticipantModel.objects.get(id=int(participantID))
+                        pm = ParticipantModel.objects.get(id=int(participant_id))
                         pm.tracked = False
                         pm.save()
                     except ParticipantModel.DoesNotExist:
@@ -119,11 +119,11 @@ def update_participants(self, participants=None):
 
         # Get/create
         try:
-            tm = ParticipantModel.objects.get(id=participant.participantID)
+            tm = ParticipantModel.objects.get(id=participant.participant_id)
         except ParticipantModel.DoesNotExist:
             tm = ParticipantModel(
                 tracked=False,
-                id=participant.participantID,
+                id=participant.participant_id,
             )
         tm.sumPledges = participant.sumPledges
         tm.displayName = participant.displayName
@@ -148,7 +148,7 @@ def update_participants(self, participants=None):
 
         # Hook in donations update
         if tm.tracked:
-            update_donations_if_needed_participant.delay(participantID=tm.id)
+            update_donations_if_needed_participant.delay(participant_id=tm.id)
             if tm.team:
                 team_ids_to_sync.add(tm.team.id)
 

@@ -13,27 +13,27 @@ VALID_ORDER_FIELDS = {'id', '-id', 'amount', '-amount', 'created', '-created'}
 @require_safe
 @cache_page(settings.VIEW_DONATIONS_CACHE)
 def v_donations(request):
-    orderByVar = request.GET.get('orderBy', 'id')
-    if orderByVar not in VALID_ORDER_FIELDS:
-        orderByVar = 'id'
-    filterByVar = request.GET.get('filterBy', 'none')
-    recordCountVar = request.GET.get('recordCount', '0')
+    order_by_var = request.GET.get('orderBy', 'id')
+    if order_by_var not in VALID_ORDER_FIELDS:
+        order_by_var = 'id'
+    filter_by_var = request.GET.get('filterBy', 'none')
+    record_count_var = request.GET.get('recordCount', '0')
     try:
-        recordCountInt = int(recordCountVar)
+        record_count_int = int(record_count_var)
     except ValueError:
-        recordCountInt = 0
+        record_count_int = 0
     update_donations_if_needed.delay()
-    listedDonos = DonationModel.objects.order_by(orderByVar).filter(team__id__in=el_teams())
-    if filterByVar != 'none' and filterByVar.isdigit():
-        listedDonos = listedDonos.filter(participant_id=filterByVar, amount__isnull=False)
+    listed_donations = DonationModel.objects.order_by(order_by_var).filter(team__id__in=el_teams())
+    if filter_by_var != 'none' and filter_by_var.isdigit():
+        listed_donations = listed_donations.filter(participant_id=filter_by_var, amount__isnull=False)
     else:
-        listedDonos = listedDonos.filter(amount__isnull=False)
-    if recordCountInt > 0 and recordCountInt <= settings.MAX_API_ROWS:
-        listedDonos = listedDonos[:recordCountInt]
+        listed_donations = listed_donations.filter(amount__isnull=False)
+    if record_count_int > 0 and record_count_int <= settings.MAX_API_ROWS:
+        listed_donations = listed_donations[:record_count_int]
     else:
-        listedDonos = listedDonos[:settings.MAX_API_ROWS]
+        listed_donations = listed_donations[:settings.MAX_API_ROWS]
     return JsonResponse(
-        [d for d in listedDonos.values()],
+        [d for d in listed_donations.values()],
         safe=False,
     )
 
@@ -41,12 +41,12 @@ def v_donations(request):
 @require_safe
 @cache_page(settings.VIEW_DONATIONS_CACHE)
 def v_tracked_donations(request):
-    orderByVar = request.GET.get('orderBy', 'id')
-    if orderByVar not in VALID_ORDER_FIELDS:
-        orderByVar = 'id'
+    order_by_var = request.GET.get('orderBy', 'id')
+    if order_by_var not in VALID_ORDER_FIELDS:
+        order_by_var = 'id'
     update_donations_if_needed.delay()
     return JsonResponse(
         [d for d in
-         DonationModel.objects.filter(DonationModel.tracked_q()).order_by(orderByVar)[:settings.MAX_API_ROWS].values()],
+         DonationModel.objects.filter(DonationModel.tracked_q()).order_by(order_by_var)[:settings.MAX_API_ROWS].values()],
         safe=False,
     )

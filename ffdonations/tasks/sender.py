@@ -16,10 +16,10 @@ def note_new_donations(self):
 
 
 @shared_task(bind=True, queue='alerts')
-def note_new_donation(self, donationID):
+def note_new_donation(self, donation_id):
     """ Send out a new donation """
 
-    donation = DonationModel.objects.get(pk=donationID)
+    donation = DonationModel.objects.get(pk=donation_id)
 
     # Don't send anything, but do mark the donation as tracked if no key set
     if settings.FRAG_BOT_KEY == "":

@@ -10,6 +10,11 @@ from django.test import RequestFactory, TestCase, override_settings
 from django.utils import timezone
 from requests.exceptions import HTTPError
 
+from extralifeapi.donors import Donation as _Donation
+from extralifeapi.participants import Participant as _Participant
+from extralifeapi.teams import Team as _Team
+from ffdonations.views.donations import VALID_ORDER_FIELDS
+
 from .admin import ParticipantModelAdmin, TeamModelAdmin
 from .helpers import el_request_sleeper
 from .models import DonationModel, EventModel, ParticipantModel, TeamModel
@@ -20,6 +25,7 @@ from .tasks.donations import (
     update_donations_team,
 )
 from .tasks.participants import update_participants, update_participants_if_needed
+from .tasks.sender import note_new_donation, note_new_donations
 from .tasks.teams import update_teams, update_teams_if_needed
 
 # tasks/__init__.py does `from .tiltify import *` which overwrites the `teams`
@@ -600,9 +606,6 @@ class UpdateDonationsIfNeededParticipantTest(TestCase):
 # update_donations_team happy-path tests
 # ---------------------------------------------------------------------------
 
-from extralifeapi.donors import Donation as _Donation
-
-
 def _make_donation(donation_id='DON001', amount=10.0, participant_id=None, team_id=None,
                    display_name='Donor Name', message='Great!'):
     """ Build a Donation namedtuple matching the extralifeapi structure. """
@@ -831,10 +834,6 @@ class UpdateDonationsParticipantHappyPathTest(TestCase):
 # ---------------------------------------------------------------------------
 # update_teams happy-path tests
 # ---------------------------------------------------------------------------
-
-from extralifeapi.participants import Participant as _Participant
-from extralifeapi.teams import Team as _Team
-
 
 def _make_team_namedtuple(team_id=8775, name='The Bonhams', event_id=508,
                           event_name='Test Event', fundraising_goal=20000.0,
@@ -1073,9 +1072,6 @@ class UpdateParticipantsHappyPathTest(TestCase):
 
 _sender_tasks = importlib.import_module('ffdonations.tasks.sender')
 
-from .tasks.sender import note_new_donation, note_new_donations
-
-
 @override_settings(
     FRAG_BOT_KEY='testkey',
     FRAG_BOT_API='https://bot.example.com/dbquery',
@@ -1195,9 +1191,6 @@ class NoteNewDonationsTest(TestCase):
         mock_task.apply_async.assert_called_once_with(('UNSENT3',), queue='alerts')
 
 
-from ffdonations.views.donations import VALID_ORDER_FIELDS
-
-
 class DonationViewOrderByWhitelistTest(TestCase):
     def setUp(self):
         event = EventModel.objects.create(id=1, name='Test Event')
@@ -1290,7 +1283,13 @@ class DonationViewFilterByTest(TestCase):
         other = ParticipantModel.objects.create(
             id=5002, displayName='Bob', event=event, tracked=True
         )
-        DonationModel.objects.create(id='FB01', amount=10.0, team=team, participant=self.participant, created=timezone.now())
+        DonationModel.objects.create(
+            id='FB01',
+            amount=10.0,
+            team=team,
+            participant=self.participant,
+            created=timezone.now()
+            )
         DonationModel.objects.create(id='FB02', amount=20.0, team=team, participant=other, created=timezone.now())
 
     @patch('ffdonations.views.donations.update_donations_if_needed')

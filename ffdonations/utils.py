@@ -19,8 +19,8 @@ def el_teams(year=timezone.now().year):
     if settings.EXTRALIFE_TEAMID > 0:
         ret.add(settings.EXTRALIFE_TEAMID)
     # Append all tracked teams in the current event
-    trackedTeams = TeamModel.objects.filter(tracked=True, event__id__in=current_el_events())
-    for tm in trackedTeams:
+    tracked_teams = TeamModel.objects.filter(tracked=True, event__id__in=current_el_events())
+    for tm in tracked_teams:
         ret.add(tm.id)
     return ret
 
