@@ -80,7 +80,10 @@ class HttpCacheDB(RedisDB):
             headers['If-None-Match'] = etag.decode('utf-8') if isinstance(etag, bytes) else etag
         last_modified = self.db.get(self.make_key('lm', url=url))
         if last_modified:
-            headers['If-Modified-Since'] = last_modified.decode('utf-8') if isinstance(last_modified, bytes) else last_modified
+            headers['If-Modified-Since'] = (
+                last_modified.decode('utf-8') if isinstance(last_modified, bytes)
+                else last_modified
+                )
         return headers
 
     @staticmethod

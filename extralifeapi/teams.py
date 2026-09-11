@@ -29,11 +29,11 @@ class Teams(DonorDriveBase):
     def sub_team(self):
         return 'teams'
 
-    def sub_team_by_tid(self, teamID):
-        return 'teams/%s' % teamID
+    def sub_team_by_tid(self, team_id):
+        return 'teams/%s' % team_id
 
-    def sub_team_by_eid(self, eventID):
-        return 'events/%d/teams' % eventID
+    def sub_team_by_eid(self, event_id):
+        return 'events/%d/teams' % event_id
 
     @classmethod
     def _team_to_team(cls, data):
@@ -51,17 +51,17 @@ class Teams(DonorDriveBase):
         for t in fresp:
             yield self._team_to_team(t)
 
-    def team(self, teamID):
+    def team(self,team_id):
         """ Get a team """
-        results = list(self.fetch(sub_url=self.sub_team_by_tid(teamID)))
+        results = list(self.fetch(sub_url=self.sub_team_by_tid(team_id)))
         if not results:
-            raise IndexError(f"No team found for teamID={teamID}")
+            raise IndexError(f"No team found for teamID={team_id}")
         fresp = results[0]
         self.log.info("fresp=", extra=dict(fresp=fresp))
         return self._team_to_team(fresp)
 
-    def event_teams(self, eventID):
+    def event_teams(self, event_id):
         """ Return a generator of all teams as Team named tuples for the given event """
-        fresp = self.fetch(sub_url=self.sub_team_by_eid(eventID))
+        fresp = self.fetch(sub_url=self.sub_team_by_eid(event_id))
         for t in fresp:
             yield self._team_to_team(t)

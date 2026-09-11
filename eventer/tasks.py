@@ -119,6 +119,7 @@ def close_signups_for_started_events():
     """
     from django.db.models import Min
     from django.utils import timezone
+
     from eventer.models import Event
 
     now = timezone.now()

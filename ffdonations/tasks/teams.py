@@ -6,13 +6,15 @@ from django.utils import timezone
 from requests.exceptions import HTTPError
 
 from extralifeapi.teams import Teams
+
 from ..models import EventModel, TeamModel
 
 
 def _make_team(*args, **kwargs):
     """ Make a safe team object """
-    from ..helpers import el_request_sleeper
     from fforg.rdbs import r_http_cache
+
+    from ..helpers import el_request_sleeper
     kwargs.setdefault('request_sleeper', el_request_sleeper)
     kwargs.setdefault('http_cache', r_http_cache)
     return Teams(*args, **kwargs)
@@ -95,9 +97,9 @@ def update_teams(self, teams=None):
             )
         tm.name = team.name
         tm.created = team.createdDateUTC
-        tm.fundraisingGoal = team.fundraisingGoal
-        tm.numDonations = team.numDonations
-        tm.sumDonations = team.sumDonations
+        tm.fundraising_goal = team.fundraisingGoal
+        tm.num_donations = team.numDonations
+        tm.sum_donations = team.sumDonations
         tm.event = evt
 
         tm.raw = team.raw

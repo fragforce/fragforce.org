@@ -1,7 +1,6 @@
 import requests
 from celery import shared_task
 from django.conf import settings
-
 from django.db.models import Q
 
 from ..models import DonationModel
@@ -17,10 +16,10 @@ def note_new_donations(self):
 
 
 @shared_task(bind=True, queue='alerts')
-def note_new_donation(self, donationID):
+def note_new_donation(self, donation_id):
     """ Send out a new donation """
 
-    donation = DonationModel.objects.get(pk=donationID)
+    donation = DonationModel.objects.get(pk=donation_id)
 
     # Don't send anything, but do mark the donation as tracked if no key set
     if settings.FRAG_BOT_KEY == "":
@@ -35,8 +34,8 @@ def note_new_donation(self, donationID):
     # Call the bot to send the chat message before the alert overlay
     message = f"Fragforce received a new donation of ${donation.amount}"
 
-    if donation.displayName:
-        message += f" from {donation.displayName}"
+    if donation.display_name:
+        message += f" from {donation.display_name}"
     else:
         message += " from Anonymous Coward"
 

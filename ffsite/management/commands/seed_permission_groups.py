@@ -1,7 +1,7 @@
+from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 
 from fforg.permissions import GROUP_DEFINITIONS, _collect_permissions
-from django.contrib.auth.models import Group
 
 
 class Command(BaseCommand):

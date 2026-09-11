@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [3.0.0]
+### Changed
+- Renamed fields on `ffdonations` to follow linting requirements (numDonations -> num_donations)
+- Linted the whole codebase, passes `ruff check` fully now.
+
+## [3.0.0] - 2026-09-09
 
 ### Fixed
 

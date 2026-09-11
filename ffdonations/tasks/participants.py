@@ -6,13 +6,15 @@ from django.utils import timezone
 from requests.exceptions import HTTPError
 
 from extralifeapi.participants import Participants
+
 from ..models import EventModel, ParticipantModel, TeamModel
 
 
 def _make_p(*args, **kwargs):
     """ Make a safe participant object """
-    from ..helpers import el_request_sleeper
     from fforg.rdbs import r_http_cache
+
+    from ..helpers import el_request_sleeper
     kwargs.setdefault('request_sleeper', el_request_sleeper)
     kwargs.setdefault('http_cache', r_http_cache)
     return Participants(*args, **kwargs)
@@ -77,13 +79,13 @@ def update_participants(self, participants=None):
             raise ValueError("Invalid settings.EXTRALIFE_TEAMID value")
     else:
         tr = []
-        for participantID in participants:
+        for participant_id in participants:
             try:
-                tr.append(p.participant(int(participantID)))
+                tr.append(p.participant(int(participant_id)))
             except HTTPError as e:
                 if e.response is not None and e.response.status_code == 404:
                     try:
-                        pm = ParticipantModel.objects.get(id=int(participantID))
+                        pm = ParticipantModel.objects.get(id=int(participant_id))
                         pm.tracked = False
                         pm.save()
                     except ParticipantModel.DoesNotExist:
@@ -123,17 +125,17 @@ def update_participants(self, participants=None):
                 tracked=False,
                 id=participant.participantID,
             )
-        tm.sumPledges = participant.sumPledges
-        tm.displayName = participant.displayName
-        tm.numDonations = participant.numDonations
-        tm.sumDonations = participant.sumDonations
+        tm.sum_pledges = participant.sumPledges
+        tm.display_name = participant.displayName
+        tm.num_donations = participant.numDonations
+        tm.sum_donations = participant.sumDonations
         # Handle nulls
         if participant.isTeamCaptain:
-            tm.isTeamCaptain = True
+            tm.is_team_captain = True
         else:
-            tm.isTeamCaptain = False
-        tm.fundraisingGoal = participant.fundraisingGoal
-        tm.avatarImage = participant.avatarImageURL
+            tm.is_team_captain = False
+        tm.fundraising_goal = participant.fundraisingGoal
+        tm.avatar_image = participant.avatarImageURL
         tm.created = participant.createdDateUTC
         tm.event = evt
         tm.team = team
@@ -146,7 +148,7 @@ def update_participants(self, participants=None):
 
         # Hook in donations update
         if tm.tracked:
-            update_donations_if_needed_participant.delay(participantID=tm.id)
+            update_donations_if_needed_participant.delay(participant_id=tm.id)
             if tm.team:
                 team_ids_to_sync.add(tm.team.id)
 

@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import DonationModel, EventModel, ParticipantModel, TeamModel
-from .tasks.donations import update_donations_if_needed_team, update_donations_if_needed_participant
+from .tasks.donations import update_donations_if_needed_participant, update_donations_if_needed_team
 
 
 @admin.register(TeamModel)

@@ -3,10 +3,10 @@ Management command to untrack Extra Life records whose IDs fall below a
 specified minimum.  Extra Life resets all IDs every calendar year, so any
 record with an ID below the new year's minimum is stale.
 """
-from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.core.management.base import BaseCommand
 
-from ffdonations.models import EventModel, TeamModel, ParticipantModel
+from ffdonations.models import EventModel, ParticipantModel, TeamModel
 
 
 class Command(BaseCommand):
@@ -45,7 +45,10 @@ class Command(BaseCommand):
         dry_run = options['dry_run']
 
         min_team_id = options['min_team_id'] if options['min_team_id'] is not None else settings.MIN_EL_TEAMID
-        min_participant_id = options['min_participant_id'] if options['min_participant_id'] is not None else settings.MIN_EL_PARTICIPANTID
+        min_participant_id = (
+            options['min_participant_id'] if options['min_participant_id'] is not None
+            else settings.MIN_EL_PARTICIPANTID
+        )
         min_event_id = options['min_event_id']
 
         if dry_run:

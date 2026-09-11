@@ -2,6 +2,7 @@ import logging
 
 import requests
 from celery import shared_task
+
 from extralifeapi.participants import Participants
 
 log = logging.getLogger(__name__)
@@ -21,10 +22,10 @@ def resolve_fundraising_url(event_interest_id):
     - If the URL is a team page: log for coordinator review (no automated action).
     - If the URL is unrecognised or empty: log and exit.
     """
+    from django.conf import settings
+
     from evtsignup.models import EventInterest
     from evtsignup.utils import parse_fundraising_url
-
-    from django.conf import settings
     max_attempts = getattr(settings, 'URL_RESOLUTION_MAX_ATTEMPTS', 3)
 
     try:
@@ -70,7 +71,7 @@ def resolve_fundraising_url(event_interest_id):
                     return
                 elif redirected_result.is_team:
                     log.info(
-                        'resolve_fundraising_url: EventInterest %s redirect resolves to team URL - flagged for coordinator review',
+                        'resolve_fundraising_url: EventInterest %s redirect resolves to team URL - flagged for review',
                         event_interest_id,
                     )
                     return
@@ -156,7 +157,7 @@ def _resolve_participant(interest, result):
 
     participant, created = ParticipantModel.objects.get_or_create(
         id=numeric_id,
-        defaults={'displayName': api_participant.get('displayName', ''), 'tracked': False},
+        defaults={'display_name': api_participant.get('display_name', ''), 'tracked': False},
     )
 
     interest.el_participant = participant
@@ -176,6 +177,7 @@ def retry_pending_url_resolutions():
     This catches cases where the signal fired but the task failed or Celery was down.
     """
     from django.conf import settings
+
     from evtsignup.models import EventInterest
     max_attempts = getattr(settings, 'URL_RESOLUTION_MAX_ATTEMPTS', 3)
     pending = EventInterest.objects.filter(

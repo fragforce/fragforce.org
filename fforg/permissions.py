@@ -10,9 +10,10 @@ entry and it will be applied on next deploy.
 To apply immediately in a running environment:
     pipenv run python manage.py seed_permission_groups
 """
+import logging
+
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-import logging
 
 log = logging.getLogger(__name__)
 
@@ -75,7 +76,7 @@ def _collect_permissions(permission_list):
     is built as '{action}_{model_name}'. For custom permissions the codename is
     used as-is (e.g. 'set_key_superstream' stays 'set_key_superstream').
     """
-    STANDARD_ACTIONS = {'add', 'change', 'delete', 'view'}
+    standard_actions = {'add', 'change', 'delete', 'view'}
     permissions = []
     missing = []
     for app_label, model_name, actions in permission_list:
@@ -85,7 +86,7 @@ def _collect_permissions(permission_list):
             missing.append(f'{app_label}.{model_name}')
             continue
         for action in actions:
-            codename = f'{action}_{model_name}' if action in STANDARD_ACTIONS else action
+            codename = f'{action}_{model_name}' if action in standard_actions else action
             try:
                 permissions.append(Permission.objects.get(content_type=ct, codename=codename))
             except Permission.DoesNotExist:

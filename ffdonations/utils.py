@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db.models import Sum
 from django.utils import timezone
 from memoize import memoize
+
 from .models import EventModel, TeamModel
 
 
@@ -18,8 +19,8 @@ def el_teams(year=timezone.now().year):
     if settings.EXTRALIFE_TEAMID > 0:
         ret.add(settings.EXTRALIFE_TEAMID)
     # Append all tracked teams in the current event
-    trackedTeams = TeamModel.objects.filter(tracked=True, event__id__in=current_el_events())
-    for tm in trackedTeams:
+    tracked_teams = TeamModel.objects.filter(tracked=True, event__id__in=current_el_events())
+    for tm in tracked_teams:
         ret.add(tm.id)
     return ret
 
@@ -27,7 +28,7 @@ def el_teams(year=timezone.now().year):
 def el_num_donations(year=timezone.now().year):
     """ For current year """
     teams = TeamModel.objects.filter(id__in=el_teams(year=year))
-    tsum = teams.aggregate(ttl=Sum('numDonations')).get('ttl', 0)
+    tsum = teams.aggregate(ttl=Sum('num_donations')).get('ttl', 0)
     if tsum is None:
         tsum = 0
     return dict(
@@ -39,7 +40,7 @@ def el_num_donations(year=timezone.now().year):
 def el_donation_stats(year=timezone.now().year):
     """ For current year """
     teams = TeamModel.objects.filter(id__in=el_teams(year=year))
-    tsum = teams.aggregate(ttl=Sum('sumDonations')).get('ttl', 0)
+    tsum = teams.aggregate(ttl=Sum('sum_donations')).get('ttl', 0)
     if tsum is None:
         tsum = 0
     return dict(

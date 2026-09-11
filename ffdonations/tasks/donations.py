@@ -8,17 +8,19 @@ from django.utils import timezone
 from requests.exceptions import HTTPError
 
 from extralifeapi.donors import Donations
-from .sender import note_new_donation
+
 from ..models import DonationModel, ParticipantModel, TeamModel
 from ..utils import current_el_events
+from .sender import note_new_donation
 
 log = logging.getLogger("donations")
 
 
 def _make_d(*args, **kwargs):
     """ Make a safe Donations object """
-    from ..helpers import el_request_sleeper
     from fforg.rdbs import r_http_cache
+
+    from ..helpers import el_request_sleeper
     kwargs.setdefault('request_sleeper', el_request_sleeper)
     kwargs.setdefault('http_cache', r_http_cache)
     return Donations(*args, **kwargs)
@@ -63,27 +65,29 @@ def update_donations_existing(self):
     on the donations DB
     """
     evts = current_el_events()
-    teamIDs = DonationModel.objects.filter(team__isnull=False, team__event__id__in=evts).values('team').distinct('team')
-    participantIDs = DonationModel.objects.filter(participant__isnull=False, participant__event__id__in=evts).values(
+    team_ids = DonationModel.objects.filter(
+        team__isnull=False,
+        team__event__id__in=evts).values('team').distinct('team')
+    participant_ids = DonationModel.objects.filter(participant__isnull=False, participant__event__id__in=evts).values(
         'participant').distinct('participant')
 
     ret = []
-    for teamID in teamIDs:
-        ret.append(update_donations_if_needed_team.delay(teamID=teamID['team']).id)
-    for participantID in participantIDs:
-        ret.append(update_donations_if_needed_participant.delay(participantID=participantID['participant']).id)
+    for team_id in team_ids:
+        ret.append(update_donations_if_needed_team.delay(team_id=team_id['team']).id)
+    for participant_id in participant_ids:
+        ret.append(update_donations_if_needed_participant.delay(participant_id=participant_id['participant']).id)
     return ret
 
 
 @shared_task(bind=True)
-def update_donations_if_needed_team(self, teamID):
-    log.debug("update_donations_if_needed_team: %r", teamID)
+def update_donations_if_needed_team(self, team_id):
+    log.debug("update_donations_if_needed_team: %r", team_id)
 
     def doupdate():
-        return update_donations_team(teamID=teamID)
+        return update_donations_team(team_id=team_id)
 
     try:
-        team = TeamModel.objects.get(id=teamID)
+        team = TeamModel.objects.get(id=team_id)
     except TeamModel.DoesNotExist:
         # Silently exit for now - It might not have been committed yet - will get next time ;)
         # TODO: Log this
@@ -95,9 +99,9 @@ def update_donations_if_needed_team(self, teamID):
 
     minc = timezone.now() - settings.EL_DON_TEAM_UPDATE_FREQUENCY_MIN
     maxc = timezone.now() - settings.EL_DON_TEAM_UPDATE_FREQUENCY_MAX
-    minTeamID = settings.MIN_EL_TEAMID
+    min_team_id = settings.MIN_EL_TEAMID
     # Don't query any team with an id < MIN_EL_TEAMID, as those are from prior years
-    if teamID < minTeamID:
+    if team_id < min_team_id:
         team.tracked = False
         team.save()
         return None
@@ -123,10 +127,10 @@ def update_donations_if_needed_team(self, teamID):
     # Don't simplify to != as this could cause thrashing if team update is behind the donations
     # update
     # if team.numDonations > 0 and bfilter.count() <= 0:
-    if team.numDonations is None:
+    if team.num_donations is None:
         return None
 
-    if team.numDonations > 0 and bfilter.count() < team.numDonations:
+    if team.num_donations > 0 and bfilter.count() < team.num_donations:
         return doupdate()
 
     # Force an update if it's been more than EL_DON_TEAM_UPDATE_FREQUENCY_MAX since last
@@ -139,18 +143,18 @@ def update_donations_if_needed_team(self, teamID):
 
 
 @shared_task(bind=True)
-def update_donations_team(self, teamID):
+def update_donations_team(self, team_id):
     """ """
     d = _make_d()
     ret = []
 
-    if teamID is None:
+    if team_id is None:
         return ret
 
     try:
-        team = TeamModel.objects.get(id=teamID)
+        team = TeamModel.objects.get(id=team_id)
     except TeamModel.DoesNotExist:
-        team = TeamModel(id=teamID, tracked=False)
+        team = TeamModel(id=team_id, tracked=False)
         team.save()
 
     # Team has to be tracked
@@ -162,7 +166,7 @@ def update_donations_team(self, teamID):
         return None
 
     try:
-        donations_list = list(d.donations_for_team(teamID=teamID))
+        donations_list = list(d.donations_for_team(team_id=team_id))
     except HTTPError as e:
         if e.response is not None and e.response.status_code == 404:
             team.tracked = False
@@ -189,11 +193,11 @@ def update_donations_team(self, teamID):
         tm.team = team
         tm.participant = participant
         tm.raw = donation.raw
-        tm.avatarImage = donation.avatarImageURL
+        tm.avatar_image = donation.avatarImageURL
         if donation.displayName:
-            tm.displayName = donation.displayName
+            tm.display_name = donation.displayName
         else:
-            tm.displayName = ''
+            tm.display_name = ''
         tm.created = donation.createdDateUTC
         tm.amount = donation.amount
         if donation.message:
@@ -206,14 +210,14 @@ def update_donations_team(self, teamID):
 
 
 @shared_task(bind=True)
-def update_donations_if_needed_participant(self, participantID):
-    log.debug("update_donations_if_needed_participant: %r", participantID)
+def update_donations_if_needed_participant(self, participant_id):
+    log.debug("update_donations_if_needed_participant: %r", participant_id)
 
     def doupdate():
-        return update_donations_participant(participant_id=participantID)
+        return update_donations_participant(participant_id=participant_id)
 
     try:
-        participant = ParticipantModel.objects.get(id=participantID)
+        participant = ParticipantModel.objects.get(id=participant_id)
     except ParticipantModel.DoesNotExist:
         # Silently exit for now - It might not have been committed yet - will get next time ;)
         # TODO: Log this
@@ -221,11 +225,11 @@ def update_donations_if_needed_participant(self, participantID):
 
     minc = timezone.now() - settings.EL_DON_PTCP_UPDATE_FREQUENCY_MIN
     maxc = timezone.now() - settings.EL_DON_PTCP_UPDATE_FREQUENCY_MAX
-    minParticipantID = settings.MIN_EL_PARTICIPANTID
+    min_participant_id = settings.MIN_EL_PARTICIPANTID
 
     # Do not poll the api for participant IDs that are less than our min value
     # These correspond to participant ids from previous years, and are not valid anymore
-    if participantID < minParticipantID:
+    if participant_id < min_participant_id:
         participant.tracked = False
         participant.last_updated = timezone.now()
         participant.save()
@@ -258,7 +262,7 @@ def update_donations_if_needed_participant(self, participantID):
     # Don't simplify to != as this could cause trashing if team update is behind the donations
     # update
     # if participant.numDonations > 0 and bfilter.count() <= 0:
-    if participant.numDonations > 0 and bfilter.count() < participant.numDonations:
+    if participant.num_donations > 0 and bfilter.count() < participant.num_donations:
         return doupdate()
 
     # Force an update if it's been more than EL_DON_PTCP_UPDATE_FREQUENCY_MAX since last
@@ -295,7 +299,7 @@ def update_donations_participant(self, participant_id):
         return ret
 
     try:
-        donations = list(d.donations_for_participants(participantID=participant_id))
+        donations = list(d.donations_for_participants(participant_id=participant_id))
     except HTTPError as e:
         if e.response is not None and e.response.status_code == 404:
             participant.tracked = False
@@ -322,11 +326,11 @@ def update_donations_participant(self, participant_id):
         tm.team = team
         tm.participant = participant
         tm.raw = donation.raw
-        tm.avatarImage = donation.avatarImageURL
+        tm.avatar_image = donation.avatarImageURL
         if donation.displayName:
-            tm.displayName = donation.displayName
+            tm.display_name = donation.displayName
         else:
-            tm.displayName = ''
+            tm.display_name = ''
         tm.created = donation.createdDateUTC
         tm.amount = donation.amount
         if donation.message:

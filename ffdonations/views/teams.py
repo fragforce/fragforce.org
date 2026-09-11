@@ -1,8 +1,7 @@
+from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_safe
-
-from django.conf import settings
 
 from ..models import TeamModel
 from ..tasks.teams import update_teams_if_needed

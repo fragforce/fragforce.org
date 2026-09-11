@@ -2,10 +2,10 @@ from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
+from social_django.models import UserSocialAuth
 
 from ffbot.utils import get_or_create_stream_key, get_or_register_user
 from ffstream.models import Key
-from social_django.models import UserSocialAuth
 
 
 class GetOrRegisterUserTest(TestCase):
@@ -19,7 +19,10 @@ class GetOrRegisterUserTest(TestCase):
     def test_creates_new_user_with_correct_records(self):
         result = get_or_register_user('333333333333333333', 'newuser')
         self.assertEqual(result.username, 'newuser')
-        self.assertTrue(UserSocialAuth.objects.filter(user=result, provider='discord', uid='333333333333333333').exists())
+        self.assertTrue(UserSocialAuth.objects.filter(
+            user=result,
+            provider='discord',
+            uid='333333333333333333').exists())
 
     def test_handles_username_collision(self):
         User.objects.create_user(username='streamer')
@@ -67,6 +70,7 @@ class GetOrCreateStreamKeyTest(TestCase):
 
     def test_handles_stream_key_collision(self):
         from unittest.mock import patch
+
         from ffstream.wordlist import generate_stream_key as real_gen
         existing = Key.objects.create(name='collision', stream_key='CollisionKey')
         call_count = {'n': 0}

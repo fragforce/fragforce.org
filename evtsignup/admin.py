@@ -29,8 +29,8 @@ class EventInterestAdmin(admin.ModelAdmin):
         return super().get_queryset(request).distinct()
 
     def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
-        from eventer.models import EventRole
         from eventer.igdb import IGDBClient
+        from eventer.models import EventRole
         extra_context = extra_context or {}
         extra_context['event_roles'] = EventRole.objects.order_by('name')
         extra_context['igdb_configured'] = IGDBClient.credentials_configured()

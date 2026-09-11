@@ -180,6 +180,7 @@ class LocaltimeFilterTest(TestCase):
 
     def test_format_datetime_output_is_safe(self):
         from django.utils.safestring import SafeData
+
         from ffsite.templatetags.fftz import format_datetime
         result = format_datetime('2026-04-16T12:00:00')
         self.assertIsInstance(result, SafeData)
@@ -192,7 +193,7 @@ class LocaltimeShortFilterTest(TestCase):
         self.assertIn('<time', result)
         self.assertIn('2026-04-16T12:00:00.000Z', result)
 
-    def test_uses_toLocaleString_with_options(self):
+    def test_uses_to_locale_string_with_options(self):
         from ffsite.templatetags.fftz import format_datetime_short
         result = format_datetime_short('2026-04-16T12:00:00')
         self.assertIn('toLocaleString', result)
@@ -206,6 +207,7 @@ class LocaltimeShortFilterTest(TestCase):
 
     def test_output_is_safe(self):
         from django.utils.safestring import SafeData
+
         from ffsite.templatetags.fftz import format_datetime_short
         result = format_datetime_short('2026-04-16T12:00:00')
         self.assertIsInstance(result, SafeData)
@@ -214,10 +216,10 @@ class LocaltimeShortFilterTest(TestCase):
 class RandomContactTest(TestCase):
     @patch('ffsite.utils.el_teams', return_value=[1])
     def test_returns_participant_when_exists(self, _):
-        from ffdonations.models import EventModel, TeamModel, ParticipantModel
+        from ffdonations.models import EventModel, ParticipantModel, TeamModel
         event = EventModel.objects.create(id=1, name='Test', tracked=True)
         team = TeamModel.objects.create(id=1, name='Team', tracked=True, event=event)
-        participant = ParticipantModel.objects.create(id=1, displayName='Alice', tracked=True, team=team, event=event)
+        participant = ParticipantModel.objects.create(id=1, display_name='Alice', tracked=True, team=team, event=event)
         from ffsite.utils import random_contact
         result = random_contact()
         self.assertEqual(result.id, participant.id)
