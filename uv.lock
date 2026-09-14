@@ -391,6 +391,7 @@ dependencies = [
 [package.optional-dependencies]
 ci = [
     { name = "coverage" },
+    { name = "ruff" },
     { name = "unittest-xml-reporting" },
 ]
 dev = [
@@ -416,6 +417,7 @@ requires-dist = [
     { name = "py-cord", specifier = ">=2.8.1,<3" },
     { name = "redis", specifier = ">=8.1.0" },
     { name = "requests", extras = ["security"] },
+    { name = "ruff", marker = "extra == 'ci'", specifier = ">=0.16.6" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.16.6" },
     { name = "social-auth-app-django", specifier = ">=6.0.1" },
     { name = "unittest-xml-reporting", marker = "extra == 'ci'" },
