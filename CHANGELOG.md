@@ -8,8 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+
 - Renamed fields on `ffdonations` to follow linting requirements (numDonations -> num_donations)
 - Linted the whole codebase, passes `ruff check` fully now.
+
+### Added
+
+- Added `ruff-check.yaml` workflow to force linting on all pull requests and pushes.
 
 ## [3.0.0] - 2026-09-09
 
