@@ -28,7 +28,7 @@ jobs:
           python-version: '3.13'
 
       - name: Install dependencies
-        run: uv sync --frozen --no-build --no-binary-package django-memoize --extra dev
+        run: uv sync --frozen --no-build --no-binary-package django-memoize --extra ci
 
       - name: Run Ruff linting
-        run: uv run --frozen ruff check .
+        run: uv run --no-sync --no-build ruff check .

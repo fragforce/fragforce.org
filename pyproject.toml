@@ -23,6 +23,7 @@ dependencies = [
 [project.optional-dependencies]
 ci = [
     "coverage",
+    "ruff>=0.16.6",
     "unittest-xml-reporting",
 ]
 dev = [
