@@ -17,16 +17,35 @@ jobs:
       pull-requests: write
 
     steps:
+      # SECURITY NOTE: allow-unsafe-pr-checkout is required because this workflow
+      # uses `workflow_run` to trigger after the Coverage workflow completes.
+      # In actions/checkout@v7+, fork PR checkouts are blocked by default for
+      # `workflow_run` triggers (see: https://github.com/actions/checkout/releases/tag/v7.0.0).
+      #
+      # Why we need it:
+      # - We must checkout the actual PR code to run SonarCloud analysis on pull requests
+      # - Without this flag, the workflow would fail when analyzing forks' PRs
+      #
+      # Mitigating factors for our use case:
+      # 1. This workflow only runs on `github.repository == 'fragforce/fragforce.org'`
+      #    - It will NOT run on fork repositories, so the "pwn request" attack vector doesn't apply
+      # 2. The checkout happens in a trusted context (official GitHub Actions runner)
+      # 3. We're not using `pull_request_target` (more dangerous) but `workflow_run`
+      # 4. Coverage data is downloaded from GitHub's artifact system, not user input
+      # 5. SonarCloud analysis is read-only - it scans code, doesn't execute or modify it
+      #
+      # See: https://github.com/actions/checkout/security/advisories/GHSA-wr3m-4mph-g9w6
+
       - name: Checkout PR code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
-          allow-fork-pr-checkout: true
+          allow-unsafe-pr-checkout: true
 
       - name: Generate app token
         id: app-token
-        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           client-id: ${{ secrets.FRAGFORCE_CI_APP_ID }}
           private-key: ${{ secrets.FRAGFORCE_CI_PRIVATE_KEY }}
@@ -50,7 +69,7 @@ jobs:
           echo "SONAR_BRANCH_NAME=$BRANCH" >> "$GITHUB_ENV"
 
       - name: Set up Java
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
         with:
           distribution: temurin
           java-version: 21
