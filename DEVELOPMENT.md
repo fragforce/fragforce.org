@@ -220,3 +220,8 @@ After regenerating, rebuild containers to pick up changes:
 ```bash
 dev/reset.sh --clean
 ```
+
+## Pull Requests & Merge Queue
+
+- Open pull requests targeting `dev` (directly on GitHub or with `dev/pr.sh`).
+- `dev` uses a GitHub **merge queue**. Adding a PR to the queue runs the required checks (`Run tests with coverage`, `Django Tests`, `Run Ruff linting`, `SonarCloud Quality Gate`, and `CodeQL`) against the queued merge commit before merging into `dev`.

@@ -6,6 +6,7 @@ on:
       - dev
       - master
   pull_request:
+  merge_group:
 
 jobs:
   ruff-check:
