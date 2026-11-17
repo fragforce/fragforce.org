@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
-from social_core.exceptions import AuthForbidden
+from social_core.exceptions import AuthPolicyError
 
 from eventer.models import Event, EventPeriod, EventRole, EventSignupSlot
 from evtsignup.models import EventAvailabilityHour, EventInterest
@@ -399,7 +399,7 @@ class RequireDiscordGuildTest(TestCase):
         guilds = [{'id': '999'}]
         with patch('evtsignup.pipeline.requests.get') as mock_get:
             mock_get.return_value.json.return_value = guilds
-            with self.assertRaises(AuthForbidden):
+            with self.assertRaises(AuthPolicyError):
                 require_discord_guild(backend, {'access_token': 'token'})
 
     def test_passes_when_no_guild_id_configured(self):
@@ -418,7 +418,7 @@ class RequireDiscordGuildTest(TestCase):
         backend = _make_backend()
         with patch('evtsignup.pipeline.requests.get') as mock_get:
             mock_get.return_value.json.return_value = {'error': 'unauthorized'}
-            with self.assertRaises(AuthForbidden):
+            with self.assertRaises(AuthPolicyError):
                 require_discord_guild(backend, {'access_token': 'token'})
 
 
