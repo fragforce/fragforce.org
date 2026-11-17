@@ -75,6 +75,7 @@ jobs:
           java-version: 21
 
       - name: SonarCloud Scan (push)
+        id: sonar-scan-push
         if: github.event.workflow_run.event != 'pull_request'
         uses: SonarSource/sonarqube-scan-action@299e4b793aaa83bf2aba7c9c14bedbb485688ec4 # v7
         env:
@@ -98,12 +99,13 @@ jobs:
             -Dsonar.pullrequest.base=${{ env.SONAR_PR_BASE }}
 
       - name: Create SonarCloud quality gate check run
-        if: github.event.workflow_run.event == 'pull_request' && always()
+        if: (github.event.workflow_run.event == 'pull_request' || github.event.workflow_run.event == 'merge_group') && always()
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-          SCAN_CONCLUSION: ${{ steps.sonar-scan.conclusion }}
+          SCAN_CONCLUSION: ${{ github.event.workflow_run.event == 'pull_request' && steps.sonar-scan.conclusion || steps.sonar-scan-push.conclusion }}
           PR_NUMBER: ${{ env.SONAR_PR_NUMBER }}
+          BRANCH_NAME: ${{ env.SONAR_BRANCH_NAME }}
         run: |
           if [ "$SCAN_CONCLUSION" = "success" ]; then
             CONCLUSION="success"
@@ -112,6 +114,11 @@ jobs:
             CONCLUSION="failure"
             TITLE="Quality Gate failed"
           fi
+          if [ -n "$PR_NUMBER" ]; then
+            DASHBOARD_URL="https://sonarcloud.io/dashboard?id=fragforce_fragforce.org&pullRequest=$PR_NUMBER"
+          else
+            DASHBOARD_URL="https://sonarcloud.io/dashboard?id=fragforce_fragforce.org&branch=$BRANCH_NAME"
+          fi
           gh api repos/${{ github.repository }}/check-runs \
             --method POST \
             -f name="SonarCloud Quality Gate" \
@@ -119,4 +126,4 @@ jobs:
             -f status="completed" \
             -f conclusion="$CONCLUSION" \
             -f "output[title]=$TITLE" \
-            -f "output[summary]=See [SonarCloud dashboard](https://sonarcloud.io/dashboard?id=fragforce_fragforce.org&pullRequest=$PR_NUMBER) for details."
+            -f "output[summary]=See [SonarCloud dashboard]($DASHBOARD_URL) for details."
