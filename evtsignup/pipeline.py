@@ -2,7 +2,7 @@ import logging
 
 import requests
 from django.conf import settings
-from social_core.exceptions import AuthForbidden
+from social_core.exceptions import AuthPolicyError
 
 log = logging.getLogger(__name__)
 
@@ -22,8 +22,8 @@ def require_discord_guild(backend, response, *args, **kwargs):
     ).json()
     if not isinstance(guilds, list):
         log.warning("Discord guilds API returned unexpected response: %r", guilds)
-        raise AuthForbidden(backend)
+        raise AuthPolicyError(backend, code="membership_required", stage="pipeline")
     guild_ids = {str(g['id']) for g in guilds}
     if str(required_guild_id) not in guild_ids:
         log.warning("User not in required guild %s", required_guild_id)
-        raise AuthForbidden(backend)
+        raise AuthPolicyError(backend, code="membership_required", stage="pipeline")
