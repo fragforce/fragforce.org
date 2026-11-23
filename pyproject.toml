@@ -24,12 +24,12 @@ dependencies = [
 [project.optional-dependencies]
 ci = [
     "coverage",
-    "ruff>=0.17.5",
+    "ruff>=0.17.6",
     "unittest-xml-reporting",
 ]
 dev = [
     "coverage>=7.17.3",
-    "ruff>=0.17.5",
+    "ruff>=0.17.6",
     "unittest-xml-reporting",
 ]
 
