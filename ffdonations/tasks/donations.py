@@ -67,9 +67,12 @@ def update_donations_existing(self):
     evts = current_el_events()
     team_ids = DonationModel.objects.filter(
         team__isnull=False,
+        team__tracked=True,
         team__event__id__in=evts).values('team').distinct('team')
-    participant_ids = DonationModel.objects.filter(participant__isnull=False, participant__event__id__in=evts).values(
-        'participant').distinct('participant')
+    participant_ids = DonationModel.objects.filter(
+        participant__isnull=False,
+        participant__tracked=True,
+        participant__event__id__in=evts).values('participant').distinct('participant')
 
     ret = []
     for team_id in team_ids:
@@ -106,7 +109,10 @@ def update_donations_if_needed_team(self, team_id):
         team.save()
         return None
 
-    assert team.tracked, f"Expected a tracked team - Got {team}"
+    # Team not tracked
+    if not team.tracked:
+        log.debug("Expected a tracked team - Got %s", team)
+        return None
     if DonationModel.objects.all().count() <= 0:
         return doupdate()
 

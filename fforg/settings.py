@@ -262,8 +262,12 @@ VIEW_SITE_STATIC_CACHE = int(os.environ.get('VIEW_SITE_STATIC_CACHE', 300))
 
 # Extra Life Limits and Data
 EXTRALIFE_TEAMID = int(os.environ.get('EXTRALIFE_TEAMID', 73149))
+EXTRALIFE_TEAMGROUP_NAME = os.environ.get('EXTRALIFE_TEAMGROUP_NAME', 'Fragforce')
 MIN_EL_TEAMID = int(os.environ.get('MIN_EL_TEAMID', 73127))
 MIN_EL_PARTICIPANTID = int(os.environ.get('MIN_EL_PARTICIPANTID', 565075))
+
+# How often to scan current events for new teams matching EXTRALIFE_TEAMGROUP_NAME
+EL_TEAM_DISCOVERY_FREQUENCY = timedelta(hours=int(os.environ.get('EL_TEAM_DISCOVERY_FREQUENCY_HOURS', 24)))
 
 # Min time between team updates - Only cares about tracked teams!
 EL_TEAM_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MIN', 5)))
@@ -308,8 +312,6 @@ EL_SERVER_RETRY_AFTER_SECONDS = int(os.environ.get('EL_SERVER_RETRY_AFTER_SECOND
 EL_SERVER_MAX_RETRIES = int(os.environ.get('EL_SERVER_MAX_RETRIES', 6))
 # Min time between EL REST requests for any given URL
 EL_REQUEST_MIN_TIME_URL = timedelta(seconds=int(os.environ.get('EL_REQUEST_MIN_TIME_URL_SECONDS', 15)))
-# Min time between request for any given remote host
-REQUEST_MIN_TIME_HOST = timedelta(seconds=int(os.environ.get('REQUEST_MIN_TIME_HOST_SECONDS', 15)))
 
 # How often to check for missed donations to send to twitch bot
 SEND_MISSED_DONATIONS = datetime.timedelta(minutes=int(os.environ.get('SEND_MISSED_DONATIONS', 10)))
@@ -372,6 +374,10 @@ CELERY_BEAT_SCHEDULE = {
     'update-all-teams': {
         'task': 'ffdonations.tasks.teams.update_teams_if_needed',
         'schedule': EL_TEAM_UPDATE_FREQUENCY_CHECK,
+    },
+    'discover-teamgroup-teams': {
+        'task': 'ffdonations.tasks.teams.discover_teamgroup_teams',
+        'schedule': EL_TEAM_DISCOVERY_FREQUENCY,
     },
     'update-all-participants': {
         'task': 'ffdonations.tasks.participants.update_participants_if_needed',

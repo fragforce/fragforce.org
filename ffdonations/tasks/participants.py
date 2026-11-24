@@ -62,21 +62,30 @@ def update_participants(self, participants=None):
 
     # Fetch data from EL
     if participants is None:
+        team_ids = set(
+            TeamModel.objects.filter(
+                tracked=True,
+                id__gte=settings.MIN_EL_TEAMID,
+            ).values_list('id', flat=True)
+        )
         if settings.EXTRALIFE_TEAMID >= 0:
+            team_ids.add(settings.EXTRALIFE_TEAMID)
+        if not team_ids:
+            raise ValueError("Invalid settings.EXTRALIFE_TEAMID value")
+        tr = []
+        for tid in sorted(team_ids):
             try:
-                tr = list(p.participants_for_team(settings.EXTRALIFE_TEAMID))
+                tr.extend(p.participants_for_team(tid))
             except HTTPError as e:
                 if e.response is not None and e.response.status_code == 404:
                     try:
-                        tm = TeamModel.objects.get(id=settings.EXTRALIFE_TEAMID)
+                        tm = TeamModel.objects.get(id=tid)
                         tm.tracked = False
                         tm.save()
                     except TeamModel.DoesNotExist:
                         pass
-                    return ret
-                raise
-        else:
-            raise ValueError("Invalid settings.EXTRALIFE_TEAMID value")
+                else:
+                    raise
     else:
         tr = []
         for participant_id in participants:
@@ -156,6 +165,6 @@ def update_participants(self, participants=None):
 
     # Dispatch one team-donation sync per unique team rather than one per participant
     for team_id in team_ids_to_sync:
-        update_donations_if_needed_team.delay(teamID=team_id)
+        update_donations_if_needed_team.delay(team_id=team_id)
 
     return ret

@@ -706,7 +706,8 @@ class TeamsFetchTest(TestCase):
     @patch('extralifeapi.base.time')
     def test_team_returns_single_team_namedtuple(self, mock_time):
         # /teams/{teamID} returns a single object - team() must unwrap it and map to namedtuple
-        self.client.session.get = MagicMock(return_value=_mock_response(json_data=_TEAM_DATA))
+        data = {**_TEAM_DATA, 'teamGroupName': 'Fragforce'}
+        self.client.session.get = MagicMock(return_value=_mock_response(json_data=data))
 
         result = self.client.team(8775)
 
@@ -714,6 +715,7 @@ class TeamsFetchTest(TestCase):
         self.assertEqual(result.name, 'The Bonhams')
         self.assertEqual(result.eventID, 508)
         self.assertEqual(result.sumDonations, 9349.5)
+        self.assertEqual(result.teamGroupName, 'Fragforce')
 
     @patch('extralifeapi.base.time')
     def test_team_requests_correct_url(self, mock_time):

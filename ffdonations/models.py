@@ -32,6 +32,7 @@ class TeamModel(models.Model):
     # Extra-Life
     id = models.BigIntegerField(primary_key=True, editable=False, verbose_name="Team ID", null=False)
     name = models.CharField(max_length=8192, null=True, verbose_name="Team Name")
+    team_group_name = models.CharField(max_length=8192, null=True, default=None, verbose_name="Team Group Name")
     # Info
     created = models.DateTimeField(verbose_name=CREATED_AT, null=True)
     fundraising_goal = models.DecimalField(decimal_places=2, max_digits=50, verbose_name="Fundraising Goal", null=True)
