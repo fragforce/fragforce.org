@@ -262,8 +262,12 @@ VIEW_SITE_STATIC_CACHE = int(os.environ.get('VIEW_SITE_STATIC_CACHE', 300))
 
 # Extra Life Limits and Data
 EXTRALIFE_TEAMID = int(os.environ.get('EXTRALIFE_TEAMID', 73149))
+EXTRALIFE_TEAMGROUP_NAME = os.environ.get('EXTRALIFE_TEAMGROUP_NAME', 'Fragforce')
 MIN_EL_TEAMID = int(os.environ.get('MIN_EL_TEAMID', 73127))
 MIN_EL_PARTICIPANTID = int(os.environ.get('MIN_EL_PARTICIPANTID', 565075))
+
+# How often to scan current events for new teams matching EXTRALIFE_TEAMGROUP_NAME
+EL_TEAM_DISCOVERY_FREQUENCY = timedelta(hours=int(os.environ.get('EL_TEAM_DISCOVERY_FREQUENCY_HOURS', 24)))
 
 # Min time between team updates - Only cares about tracked teams!
 EL_TEAM_UPDATE_FREQUENCY_MIN = timedelta(minutes=int(os.environ.get('EL_TEAM_UPDATE_FREQUENCY_MIN', 5)))
@@ -372,6 +376,10 @@ CELERY_BEAT_SCHEDULE = {
     'update-all-teams': {
         'task': 'ffdonations.tasks.teams.update_teams_if_needed',
         'schedule': EL_TEAM_UPDATE_FREQUENCY_CHECK,
+    },
+    'discover-teamgroup-teams': {
+        'task': 'ffdonations.tasks.teams.discover_teamgroup_teams',
+        'schedule': EL_TEAM_DISCOVERY_FREQUENCY,
     },
     'update-all-participants': {
         'task': 'ffdonations.tasks.participants.update_participants_if_needed',

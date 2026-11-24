@@ -26,7 +26,7 @@ from .tasks.donations import (
 )
 from .tasks.participants import update_participants, update_participants_if_needed
 from .tasks.sender import note_new_donation, note_new_donations
-from .tasks.teams import update_teams, update_teams_if_needed
+from .tasks.teams import discover_teamgroup_teams, update_teams, update_teams_if_needed
 
 # tasks/__init__.py does `from .tiltify import *` which overwrites the `teams`
 # and `donations` attributes on the package with the tiltify submodules. Use
@@ -64,8 +64,8 @@ class TeamAdminSyncDonationsTest(TestCase):
             self.admin.sync_donations(_make_request(self.factory), queryset)
 
         mock_task.delay.assert_has_calls([
-            call(teamID=1001),
-            call(teamID=1002),
+            call(team_id=1001),
+            call(team_id=1002),
         ], any_order=True)
         self.assertEqual(mock_task.delay.call_count, 2)
 
@@ -93,8 +93,8 @@ class ParticipantAdminSyncDonationsTest(TestCase):
             self.admin.sync_donations(_make_request(self.factory), queryset)
 
         mock_task.delay.assert_has_calls([
-            call(participantID=2001),
-            call(participantID=2002),
+            call(participant_id=2001),
+            call(participant_id=2002),
         ], any_order=True)
         self.assertEqual(mock_task.delay.call_count, 2)
 
@@ -182,6 +182,7 @@ class UpdateTeams404Test(TestCase):
         mock_team.teamID = 5002
         mock_team.eventID = None
         mock_team.name = 'Team OK'
+        mock_team.teamGroupName = None
         mock_team.createdDateUTC = None
         mock_team.fundraisingGoal = 0
         mock_team.numDonations = 0
@@ -457,6 +458,15 @@ class UpdateDonationsIfNeededTeamTest(TestCase):
 
         old_team.refresh_from_db()
         self.assertFalse(old_team.tracked)
+
+    def test_returns_none_when_team_not_tracked(self):
+        self.team.tracked = False
+        self.team.save()
+
+        result, mock_update = self._run()
+
+        mock_update.assert_not_called()
+        self.assertIsNone(result)
 
     def test_forces_update_when_no_donations_in_db(self):
         _, mock_update = self._run()
@@ -837,12 +847,14 @@ class UpdateDonationsParticipantHappyPathTest(TestCase):
 
 def _make_team_namedtuple(team_id=8775, name='The Bonhams', event_id=508,
                           event_name='Test Event', fundraising_goal=20000.0,
-                          num_donations=97, sum_donations=9349.5):
+                          num_donations=97, sum_donations=9349.5,
+                          team_group_name=None):
     data = {
         'teamID': team_id, 'name': name, 'avatarImageURL': 'https://example.com/avatar.gif',
         'createdDateUTC': '2026-01-01T00:00:00.000+0000', 'eventID': event_id,
         'eventName': event_name, 'fundraisingGoal': fundraising_goal,
         'numDonations': num_donations, 'sumDonations': sum_donations,
+        'teamGroupName': team_group_name,
     }
     return _Team(**{f: data.get(f, None) for f in _Team._fields if f != 'raw'}, raw=data)
 
@@ -877,11 +889,12 @@ class UpdateTeamsHappyPathTest(TestCase):
         return result, mock_api, mock_don
 
     def test_team_fields_saved_to_db(self):
-        team = _make_team_namedtuple()
+        team = _make_team_namedtuple(team_group_name='Fragforce')
         self._run([8775], [team])
 
         saved = TeamModel.objects.get(id=8775)
         self.assertEqual(saved.name, 'The Bonhams')
+        self.assertEqual(saved.team_group_name, 'Fragforce')
         self.assertEqual(saved.num_donations, 97)
         self.assertEqual(saved.sum_donations, 9349.5)
         self.assertEqual(saved.fundraising_goal, 20000.0)
@@ -924,7 +937,7 @@ class UpdateTeamsHappyPathTest(TestCase):
         team = _make_team_namedtuple(team_id=8775)
         _, _, mock_don = self._run([8775], [team])
 
-        mock_don.delay.assert_called_once_with(teamID=8775)
+        mock_don.delay.assert_called_once_with(team_id=8775)
 
     def test_does_not_queue_donations_for_untracked_team(self):
         team = _make_team_namedtuple(team_id=9999, event_id=508)
@@ -942,19 +955,81 @@ class UpdateTeamsHappyPathTest(TestCase):
 
     def test_uses_extralife_teamid_when_teams_arg_is_none(self):
         team = _make_team_namedtuple(team_id=8775)
-        mock_api = MagicMock()
-        mock_api.team.return_value = team
-        with patch.object(_teams_tasks, '_make_team', return_value=mock_api), \
-                patch.object(_donations_tasks, 'update_donations_if_needed_team'):
-            update_teams.apply(kwargs={'teams': None}, throw=True)
+        _, mock_api, _ = self._run(None, [team])
 
-        mock_api.team.assert_called_once_with(teamID=8775)
+        mock_api.team.assert_called_once_with(team_id=8775)
+
+    @override_settings(EXTRALIFE_TEAMGROUP_NAME='Fragforce', MIN_EL_TEAMID=1000)
+    def test_auto_tracks_team_matching_teamgroup_in_tracked_event(self):
+        team = _make_team_namedtuple(team_id=73272, event_id=508, team_group_name='Fragforce')
+        _, _, mock_don = self._run([73272], [team])
+
+        self.assertTrue(TeamModel.objects.get(id=73272).tracked)
+        mock_don.delay.assert_called_once_with(team_id=73272)
+
+    @override_settings(EXTRALIFE_TEAMGROUP_NAME='Fragforce', MIN_EL_TEAMID=1000)
+    def test_does_not_auto_track_team_in_untracked_event(self):
+        EventModel.objects.create(id=600, tracked=False)
+        team = _make_team_namedtuple(team_id=73272, event_id=600, team_group_name='Fragforce')
+        self._run([73272], [team])
+
+        self.assertFalse(TeamModel.objects.get(id=73272).tracked)
+
+    @override_settings(EXTRALIFE_TEAMGROUP_NAME='Fragforce', MIN_EL_TEAMID=1000)
+    def test_does_not_auto_track_team_below_min_team_id(self):
+        team = _make_team_namedtuple(team_id=500, event_id=508, team_group_name='Fragforce')
+        self._run([500], [team])
+
+        self.assertFalse(TeamModel.objects.get(id=500).tracked)
+
+    @override_settings(EXTRALIFE_TEAMGROUP_NAME='Fragforce', MIN_EL_TEAMID=1000)
+    def test_teams_none_resolves_untracked_stubs_and_tracked_teams(self):
+        TeamModel.objects.create(id=73272, tracked=False)
+        TeamModel.objects.create(id=9001, tracked=True, event=self.event)
+        t_primary = _make_team_namedtuple(team_id=8775)
+        t_other = _make_team_namedtuple(team_id=9001, name='Other Tracked')
+        t_stub = _make_team_namedtuple(team_id=73272, name='Fragforce New England', team_group_name='Fragforce')
+
+        _, mock_api, _ = self._run(None, [t_primary, t_other, t_stub])
+
+        self.assertTrue(TeamModel.objects.get(id=73272).tracked)
+        self.assertEqual(
+            [c.kwargs['team_id'] for c in mock_api.team.call_args_list],
+            [8775, 9001, 73272],
+        )
 
     def test_team_with_no_event_gets_null_event(self):
         team = _make_team_namedtuple(event_id=None)
         self._run([8775], [team])
 
         self.assertIsNone(TeamModel.objects.get(id=8775).event)
+
+
+@override_settings(EXTRALIFE_TEAMID=8775, EXTRALIFE_TEAMGROUP_NAME='Fragforce', MIN_EL_TEAMID=1000)
+class DiscoverTeamgroupTeamsTest(TestCase):
+    def setUp(self):
+        self.event = EventModel.objects.create(id=562, tracked=True)
+
+    def test_discovers_and_tracks_matching_teams_in_current_events(self):
+        t_match = _make_team_namedtuple(
+            team_id=73272, event_id=562, name='Fragforce New England', team_group_name='Fragforce',
+        )
+        t_other = _make_team_namedtuple(team_id=73999, event_id=562, name='Other Group', team_group_name='Other')
+        t_old = _make_team_namedtuple(team_id=500, event_id=562, name='Old Team', team_group_name='Fragforce')
+
+        mock_api = MagicMock()
+        mock_api.event_teams.return_value = [t_match, t_other, t_old]
+        with patch.object(_teams_tasks, '_make_team', return_value=mock_api), \
+                patch.object(_teams_tasks, 'current_el_events', return_value=[562]), \
+                patch.object(_donations_tasks, 'update_donations_if_needed_team') as mock_don:
+            result = discover_teamgroup_teams.apply(throw=True).result
+
+        mock_api.event_teams.assert_called_once_with(562)
+        self.assertTrue(TeamModel.objects.get(id=73272).tracked)
+        self.assertFalse(TeamModel.objects.filter(id=73999).exists())
+        self.assertFalse(TeamModel.objects.filter(id=500).exists())
+        self.assertEqual(result, [TeamModel.objects.get(id=73272).guid])
+        mock_don.delay.assert_called_once_with(team_id=73272)
 
 
 # ---------------------------------------------------------------------------
@@ -1024,7 +1099,7 @@ class UpdateParticipantsHappyPathTest(TestCase):
         _, _, mock_dp, mock_dt = self._run(None, [p])
 
         mock_dp.delay.assert_called_once_with(participant_id=19265)
-        mock_dt.delay.assert_called_once_with(teamID=8775)
+        mock_dt.delay.assert_called_once_with(team_id=8775)
 
     def test_does_not_queue_donation_updates_for_untracked_participant(self):
         untracked_event = EventModel.objects.create(id=999, tracked=False)
