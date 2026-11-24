@@ -15,6 +15,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added `ruff-check.yaml` workflow to force linting on all pull requests and pushes.
+- Automatic team tracking by `teamGroupName` (`EXTRALIFE_TEAMGROUP_NAME`, default `Fragforce`), stored on `TeamModel.team_group_name` (migration `0029`) and exposed via `extralifeapi.teams.Team.teamGroupName`.
+- Daily `discover_teamgroup_teams` Celery beat task (`EL_TEAM_DISCOVERY_FREQUENCY_HOURS`, default `24`) and untracked team stub resolution in `update_teams`.
+
+### Fixed
+
+- Avoid `AssertionError` in `update_donations_if_needed_team` for untracked teams by logging and returning `None`, and filter `update_donations_existing` to tracked teams/participants.
+- Sync participants across all tracked teams (`id >= MIN_EL_TEAMID`) in `update_participants` rather than only `EXTRALIFE_TEAMID`.
+- Fixed `teamID` / `participantID` keyword argument mismatches in `update_teams`, `update_participants`, and `ffdonations` admin actions.
+
+### Removed
+
+- Removed redundant `REQUEST_MIN_TIME_HOST` (`REQUEST_MIN_TIME_HOST_SECONDS`) rate-limit timer from `el_request_sleeper` and settings.
 
 ## [3.0.0] - 2026-09-09
 
