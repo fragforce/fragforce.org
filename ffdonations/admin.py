@@ -12,7 +12,7 @@ class TeamModelAdmin(admin.ModelAdmin):
     def sync_donations(self, request, queryset):
         count = 0
         for team in queryset:
-            update_donations_if_needed_team.delay(teamID=team.id)
+            update_donations_if_needed_team.delay(team_id=team.id)
             count += 1
         self.message_user(request, f"Queued donation sync for {count} team(s).")
 
@@ -27,7 +27,7 @@ class ParticipantModelAdmin(admin.ModelAdmin):
     def sync_donations(self, request, queryset):
         count = 0
         for participant in queryset:
-            update_donations_if_needed_participant.delay(participantID=participant.id)
+            update_donations_if_needed_participant.delay(participant_id=participant.id)
             count += 1
         self.message_user(request, f"Queued donation sync for {count} participant(s).")
 admin.site.register(DonationModel)
