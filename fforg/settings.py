@@ -312,8 +312,6 @@ EL_SERVER_RETRY_AFTER_SECONDS = int(os.environ.get('EL_SERVER_RETRY_AFTER_SECOND
 EL_SERVER_MAX_RETRIES = int(os.environ.get('EL_SERVER_MAX_RETRIES', 6))
 # Min time between EL REST requests for any given URL
 EL_REQUEST_MIN_TIME_URL = timedelta(seconds=int(os.environ.get('EL_REQUEST_MIN_TIME_URL_SECONDS', 15)))
-# Min time between request for any given remote host
-REQUEST_MIN_TIME_HOST = timedelta(seconds=int(os.environ.get('REQUEST_MIN_TIME_HOST_SECONDS', 15)))
 
 # How often to check for missed donations to send to twitch bot
 SEND_MISSED_DONATIONS = datetime.timedelta(minutes=int(os.environ.get('SEND_MISSED_DONATIONS', 10)))

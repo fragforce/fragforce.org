@@ -127,7 +127,6 @@ Copy `env.sample` to `.env` to get started. All optional variables have sensible
 | `EL_MAX_RETRIES` | `3` | Max retries on rate-limit |
 | `EL_SERVER_RETRY_AFTER_SECONDS` | `600` | Delay after a server error |
 | `EL_SERVER_MAX_RETRIES` | `6` | Max retries on server error |
-| `REQUEST_MIN_TIME_HOST_SECONDS` | `15` | Minimum time between requests to the same host |
 
 ### Tiltify
 

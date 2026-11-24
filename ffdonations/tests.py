@@ -122,7 +122,6 @@ class ElRequestSleeperTest(TestCase):
             )
             mock_timers.time_until.side_effect = [
                 timedelta(seconds=0),   # global
-                timedelta(seconds=0),   # host
                 timedelta(seconds=5),   # url
             ]
 
@@ -130,7 +129,7 @@ class ElRequestSleeperTest(TestCase):
 
         mock_time.sleep.assert_called_once_with(5)
         self.assertEqual(result, 'url_sleep')
-        self.assertEqual(mock_timers.reset.call_count, 3)
+        self.assertEqual(mock_timers.reset.call_count, 2)
 
     def test_no_sleep_when_all_timers_zero(self):
         url = 'https://www.extra-life.org/api/teams/12345'
@@ -146,7 +145,7 @@ class ElRequestSleeperTest(TestCase):
             el_request_sleeper(url=url, data=None, parsed=parsed)
 
         mock_time.sleep.assert_called_once_with(0)
-        self.assertEqual(mock_timers.reset.call_count, 3)
+        self.assertEqual(mock_timers.reset.call_count, 2)
 
 
 class UpdateTeams404Test(TestCase):
