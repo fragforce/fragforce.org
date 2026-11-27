@@ -28,7 +28,7 @@ ci = [
     "unittest-xml-reporting",
 ]
 dev = [
-    "coverage>=7.17.4",
+    "coverage>=7.17.5",
     "ruff>=0.17.6",
     "unittest-xml-reporting",
 ]
